@@ -3,15 +3,20 @@ package it.thefedex87.networkresponsestateeventtest.presentation.search_drink
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarDuration
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import it.thefedex87.networkresponsestateeventtest.R
 import it.thefedex87.networkresponsestateeventtest.presentation.components.SearchTextField
 import it.thefedex87.networkresponsestateeventtest.presentation.search_drink.components.DrinkItem
 import it.thefedex87.networkresponsestateeventtest.presentation.ui.theme.LocalSpacing
@@ -30,7 +35,7 @@ fun SearchDrinkScreen(
 
     LaunchedEffect(key1 = true) {
         viewModel.uiEvent.collect {
-            when(it) {
+            when (it) {
                 is UiEvent.ShowSnackBar -> {
                     keyboardController?.hide()
                     scaffoldState.snackbarHostState.showSnackbar(
@@ -45,7 +50,6 @@ fun SearchDrinkScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(spacing.spaceMedium)
     ) {
         SearchTextField(
             text = viewModel.state.searchQuery,
@@ -59,12 +63,28 @@ fun SearchDrinkScreen(
             },
             onFocusChanged = {
                 viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
-            }
+            },
+            modifier = Modifier.padding(spacing.spaceMedium)
         )
         Spacer(modifier = Modifier.height(spacing.spaceMedium))
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(viewModel.state.foundDrinks) { drink ->
-                DrinkItem(drink = drink)
+        if (viewModel.state.foundDrinks.isNotEmpty()) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(viewModel.state.foundDrinks) { drink ->
+                    DrinkItem(drink = drink, calcDominantColor = { drawable, onFinish ->
+                        viewModel.calcDominantColor(drawable, onFinish)
+                    })
+                }
+            }
+        } else {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                if (viewModel.state.showNoDrinkFound)
+                    Text(text = stringResource(id = R.string.no_drink_found))
+
+                if(viewModel.state.isLoading)
+                    CircularProgressIndicator()
             }
         }
     }

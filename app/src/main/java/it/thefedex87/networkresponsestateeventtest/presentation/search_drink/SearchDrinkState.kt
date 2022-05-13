@@ -6,5 +6,6 @@ data class SearchDrinkState(
     val searchQuery: String = "",
     val isLoading: Boolean = false,
     val showSearchHint: Boolean = true,
+    val showNoDrinkFound: Boolean = false,
     val foundDrinks: List<DrinkDomainModel> = emptyList()
 )

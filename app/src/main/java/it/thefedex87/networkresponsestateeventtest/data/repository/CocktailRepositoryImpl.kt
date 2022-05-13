@@ -4,6 +4,7 @@ import it.thefedex87.networkresponsestateeventtest.data.mapper.toDrinkDomainMode
 import it.thefedex87.networkresponsestateeventtest.data.remote.TheCocktailDbApi
 import it.thefedex87.networkresponsestateeventtest.domain.model.DrinkDomainModel
 import it.thefedex87.networkresponsestateeventtest.domain.repository.CocktailRepository
+import java.io.EOFException
 
 class CocktailRepositoryImpl constructor(
     val cocktailDbApi: TheCocktailDbApi
@@ -13,6 +14,8 @@ class CocktailRepositoryImpl constructor(
         return try {
             val drinkLstDto = cocktailDbApi.SearchCocktail(ingredient)
             Result.success(drinkLstDto.drinks.mapNotNull { it.toDrinkDomainModel() })
+        } catch (e: EOFException) {
+            Result.success(emptyList())
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

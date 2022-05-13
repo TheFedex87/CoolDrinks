@@ -1,10 +1,15 @@
 package it.thefedex87.networkresponsestateeventtest.presentation.search_drink
 
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.palette.graphics.Palette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.networkresponsestateeventtest.R
 import it.thefedex87.networkresponsestateeventtest.domain.repository.CocktailRepository
@@ -41,14 +46,16 @@ class SearchDrinkViewModel @Inject constructor(
                                 isLoading = false,
                                 searchQuery = "",
                                 showSearchHint = true,
-                                foundDrinks = it
+                                foundDrinks = it,
+                                showNoDrinkFound = it.isEmpty()
                             )
                         }
                         .onFailure {
                             state = state.copy(
                                 isLoading = false,
                                 searchQuery = "",
-                                showSearchHint = true
+                                showSearchHint = true,
+                                showNoDrinkFound = false
                             )
                             _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.search_drink_error)))
                         }
@@ -63,6 +70,18 @@ class SearchDrinkViewModel @Inject constructor(
                     state =
                         state.copy(showSearchHint = !event.isFocused && state.searchQuery.isEmpty())
                 }
+            }
+        }
+    }
+
+    fun calcDominantColor(
+        drawable: Drawable,
+        onFinish: (Color) -> Unit
+    ) {
+        val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
+        Palette.from(bmp).generate() { palette ->
+            palette?.dominantSwatch?.rgb?.let { colorValue ->
+                onFinish(Color(colorValue))
             }
         }
     }
