@@ -26,7 +26,7 @@ import it.thefedex87.networkresponsestateeventtest.presentation.util.UiEvent
 @Composable
 fun SearchDrinkScreen(
     scaffoldState: ScaffoldState,
-    onShowDrinkDetailsClicked: (Int) -> Unit,
+    onShowDrinkDetailsClicked: (Int, Int) -> Unit,
     viewModel: SearchDrinkViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -70,9 +70,15 @@ fun SearchDrinkScreen(
         if (viewModel.state.foundDrinks.isNotEmpty()) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(viewModel.state.foundDrinks) { drink ->
-                    DrinkItem(drink = drink, calcDominantColor = { drawable, onFinish ->
-                        viewModel.calcDominantColor(drawable, onFinish)
-                    })
+                    DrinkItem(
+                        drink = drink,
+                        onItemClick = { id, color ->
+                            onShowDrinkDetailsClicked(id, color)
+                        },
+                        calcDominantColor = { drawable, onFinish ->
+                            viewModel.calcDominantColor(drawable, onFinish)
+                        }
+                    )
                 }
             }
         } else {
@@ -83,7 +89,7 @@ fun SearchDrinkScreen(
                 if (viewModel.state.showNoDrinkFound)
                     Text(text = stringResource(id = R.string.no_drink_found))
 
-                if(viewModel.state.isLoading)
+                if (viewModel.state.isLoading)
                     CircularProgressIndicator()
             }
         }

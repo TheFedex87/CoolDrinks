@@ -1,7 +1,9 @@
 package it.thefedex87.networkresponsestateeventtest.data.repository
 
+import it.thefedex87.networkresponsestateeventtest.data.mapper.toDrinkDetailDomainModel
 import it.thefedex87.networkresponsestateeventtest.data.mapper.toDrinkDomainModel
 import it.thefedex87.networkresponsestateeventtest.data.remote.TheCocktailDbApi
+import it.thefedex87.networkresponsestateeventtest.domain.model.DrinkDetailDomainModel
 import it.thefedex87.networkresponsestateeventtest.domain.model.DrinkDomainModel
 import it.thefedex87.networkresponsestateeventtest.domain.repository.CocktailRepository
 import java.io.EOFException
@@ -16,6 +18,16 @@ class CocktailRepositoryImpl constructor(
             Result.success(drinkLstDto.drinks.mapNotNull { it.toDrinkDomainModel() })
         } catch (e: EOFException) {
             Result.success(emptyList())
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getDrinkDetails(id: Int): Result<List<DrinkDetailDomainModel>> {
+        return try {
+            val drinksDetailsDto = cocktailDbApi.DrinkDetails(id)
+            Result.success(drinksDetailsDto.drinks.mapNotNull { it.toDrinkDetailDomainModel() })
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)
