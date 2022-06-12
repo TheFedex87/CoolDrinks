@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "NetworkResponseStateEventTest"
+rootProject.name = "CoolDrinks"
 include ':app'

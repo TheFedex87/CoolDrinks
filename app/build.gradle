@@ -11,7 +11,7 @@ android {
     compileSdk 32
 
     defaultConfig {
-        applicationId "it.thefedex87.networkresponsestateeventtest"
+        applicationId "it.thefedex87.cooldrinks"
         minSdk 21
         targetSdk 32
         versionCode 1

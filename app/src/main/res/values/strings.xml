@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">NetworkResponseStateEventTest</string>
+    <string name="app_name">CoolDrinks</string>
     <string name="search_hint">Type an ingredient...</string>
     <string name="search">Search</string>
     <string name="search_drink_error">Something went wrong…please retry</string>
