@@ -3,10 +3,10 @@ package it.thefedex87.cooldrinks.presentation.search_drink
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ScaffoldState
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.Text
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -25,7 +25,7 @@ import it.thefedex87.cooldrinks.presentation.util.UiEvent
 @ExperimentalComposeUiApi
 @Composable
 fun SearchDrinkScreen(
-    scaffoldState: ScaffoldState,
+    snackbarHostState: SnackbarHostState,
     onShowDrinkDetailsClicked: (Int, Int) -> Unit,
     viewModel: SearchDrinkViewModel = hiltViewModel()
 ) {
@@ -38,7 +38,7 @@ fun SearchDrinkScreen(
             when (it) {
                 is UiEvent.ShowSnackBar -> {
                     keyboardController?.hide()
-                    scaffoldState.snackbarHostState.showSnackbar(
+                    snackbarHostState.showSnackbar(
                         message = it.message.asString(context),
                         duration = SnackbarDuration.Long
                     )
@@ -64,9 +64,9 @@ fun SearchDrinkScreen(
             onFocusChanged = {
                 viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
             },
-            modifier = Modifier.padding(spacing.spaceMedium)
+            modifier = Modifier.padding(spacing.spaceSmall)
         )
-        Spacer(modifier = Modifier.height(spacing.spaceMedium))
+        Spacer(modifier = Modifier.height(spacing.spaceSmall))
         if (viewModel.state.foundDrinks.isNotEmpty()) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(viewModel.state.foundDrinks) { drink ->
@@ -76,7 +76,7 @@ fun SearchDrinkScreen(
                             onShowDrinkDetailsClicked(id, color)
                         },
                         calcDominantColor = { drawable, onFinish ->
-                            viewModel.calcDominantColor(drawable, onFinish)
+                            viewModel.calcDominantColor(drawable, drink, onFinish)
                         }
                     )
                 }

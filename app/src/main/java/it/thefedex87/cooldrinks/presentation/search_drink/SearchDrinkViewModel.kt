@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
@@ -76,11 +77,13 @@ class SearchDrinkViewModel @Inject constructor(
 
     fun calcDominantColor(
         drawable: Drawable,
+        drink: DrinkDomainModel,
         onFinish: (Color) -> Unit
     ) {
         val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
         Palette.from(bmp).generate() { palette ->
             palette?.dominantSwatch?.rgb?.let { colorValue ->
+                drink.dominantColor = colorValue
                 onFinish(Color(colorValue))
             }
         }

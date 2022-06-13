@@ -1,31 +1,31 @@
 package it.thefedex87.cooldrinks.presentation.search_drink.components
 
 import android.graphics.drawable.Drawable
+import android.util.Log
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.annotation.ExperimentalCoilApi
-import coil.ImageLoader
 import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import it.thefedex87.cooldrinks.R
@@ -41,10 +41,21 @@ fun DrinkItem(
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
 ) {
     val spacing = LocalSpacing.current
-    val defaultDominantColor = MaterialTheme.colors.surface
+    val defaultDominantColor = MaterialTheme.colorScheme.background
     var dominatorColor by remember {
-        mutableStateOf(defaultDominantColor)
+        if(drink.dominantColor == 0) {
+            mutableStateOf(defaultDominantColor)
+        } else {
+            mutableStateOf(Color(drink.dominantColor))
+        }
     }
+
+    val animatedDominantColor = animateColorAsState(
+        targetValue = dominatorColor,
+        animationSpec = tween(
+            durationMillis = 400
+        )
+    )
 
     Box(
         modifier = modifier
@@ -65,9 +76,15 @@ fun DrinkItem(
                 fallback(R.drawable.drink)
             }
         )
+
         (image.state as? ImagePainter.State.Success)?.let { successResult ->
-            calcDominantColor(successResult.result.drawable) { color ->
-                dominatorColor = color
+            LaunchedEffect(key1 = true) {
+                if(drink.dominantColor == 0) {
+                    Log.d("COOL_DRINKS", "Calculate dominant color")
+                    calcDominantColor(successResult.result.drawable) { color ->
+                        dominatorColor = color
+                    }
+                }
             }
         }
 
@@ -78,7 +95,7 @@ fun DrinkItem(
                     Brush.horizontalGradient(
                         listOf(
                             defaultDominantColor,
-                            dominatorColor
+                            animatedDominantColor.value
                         )
                     )
                 )
@@ -98,7 +115,7 @@ fun DrinkItem(
                 ) {
                     Text(
                         text = drink.name,
-                        style = MaterialTheme.typography.h5,
+                        style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Light,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis

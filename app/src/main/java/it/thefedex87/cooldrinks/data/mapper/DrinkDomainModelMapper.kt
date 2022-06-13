@@ -9,7 +9,8 @@ fun DrinkDto.toDrinkDomainModel(): DrinkDomainModel? {
     return DrinkDomainModel(
         name = strDrink ?: return null,
         image = strDrinkThumb,
-        id = idDrink.toInt()
+        id = idDrink.toInt(),
+        dominantColor = 0
     )
 }
 

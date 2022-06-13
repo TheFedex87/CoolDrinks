@@ -1,33 +1,68 @@
 package it.thefedex87.cooldrinks.presentation.ui.theme
 
+import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.darkColors
-import androidx.compose.material.lightColors
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 
-private val DarkColorPalette = darkColors(
-    primary = Purple200,
-    primaryVariant = Purple700,
-    secondary = Teal200,
-    surface = LightGray,
-    onSurface = TextWhite
+private val DarkColorPalette = darkColorScheme(
+    primary = Violet80,
+    onPrimary = Violet20,
+    primaryContainer = Violet30,
+    onPrimaryContainer = Violet90,
+    inversePrimary = Violet40,
+    secondary = DarkViolet80,
+    onSecondary = DarkViolet20,
+    secondaryContainer = DarkViolet30,
+    onSecondaryContainer = DarkViolet90,
+    tertiary = Green80,
+    onTertiary = Green20,
+    tertiaryContainer = Green30,
+    onTertiaryContainer = Green90,
+    error = Red80,
+    onError = Red20,
+    errorContainer = Red30,
+    onErrorContainer = Red90,
+    background = Grey10,
+    onBackground = Grey90,
+    surface = VioletGrey30,
+    onSurface = VioletGrey80,
+    inverseSurface = Grey90,
+    inverseOnSurface = Grey10,
+    surfaceVariant = VioletGrey30,
+    onSurfaceVariant = VioletGrey80,
+    outline = VioletGrey80
 )
 
-private val LightColorPalette = lightColors(
-    primary = Purple500,
-    primaryVariant = Purple700,
-    secondary = Teal200
-
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
+private val LightColorPalette = lightColorScheme(
+    primary = Violet40,
     onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+    primaryContainer = Violet90,
+    onPrimaryContainer = Violet10,
+    inversePrimary = Violet80,
+    secondary = DarkViolet40,
+    onSecondary = Color.White,
+    secondaryContainer = DarkViolet90,
+    onSecondaryContainer = DarkViolet10,
+    tertiary = Green40,
+    onTertiary = Color.White,
+    tertiaryContainer = Green90,
+    onTertiaryContainer = Green10,
+    error = Red40,
+    onError = Color.White,
+    errorContainer = Red90,
+    onErrorContainer = Red10,
+    background = Grey99,
+    onBackground = Grey10,
+    surface = VioletGrey90,
+    onSurface = VioletGrey30,
+    inverseSurface = Grey20,
+    inverseOnSurface = Grey95,
+    surfaceVariant = VioletGrey90,
+    onSurfaceVariant = VioletGrey30,
+    outline = VioletGrey50
 )
 
 @Composable
@@ -35,16 +70,16 @@ fun CoolDrinksTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) {
-        DarkColorPalette
-    } else {
-        LightColorPalette
+    val useDynamicColors = false;//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val colors = when {
+        useDynamicColors && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
+        useDynamicColors && !darkTheme -> dynamicLightColorScheme(LocalContext.current)
+        darkTheme -> DarkColorPalette
+        else -> LightColorPalette
     }
-    CompositionLocalProvider(LocalSpacing provides Dimensions()) {
 
-    }
     MaterialTheme(
-        colors = colors,
+        colorScheme = colors,
         typography = Typography,
         shapes = Shapes,
         content = content
