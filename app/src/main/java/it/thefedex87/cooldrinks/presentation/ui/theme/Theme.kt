@@ -27,13 +27,13 @@ private val DarkColorPalette = darkColorScheme(
     onErrorContainer = Red90,
     background = Grey10,
     onBackground = Grey90,
-    surface = VioletGrey30,
+    surface = Grey10,//VioletGrey30,
     onSurface = VioletGrey80,
     inverseSurface = Grey90,
     inverseOnSurface = Grey10,
     surfaceVariant = VioletGrey30,
     onSurfaceVariant = VioletGrey80,
-    outline = VioletGrey80
+    outline = VioletGrey60 //VioletGrey80
 )
 
 private val LightColorPalette = lightColorScheme(
@@ -56,8 +56,8 @@ private val LightColorPalette = lightColorScheme(
     onErrorContainer = Red10,
     background = Grey99,
     onBackground = Grey10,
-    surface = VioletGrey90,
-    onSurface = VioletGrey30,
+    surface = Grey99, //VioletGrey90,
+    onSurface = Grey10, //VioletGrey30,
     inverseSurface = Grey20,
     inverseOnSurface = Grey95,
     surfaceVariant = VioletGrey90,
@@ -70,7 +70,7 @@ fun CoolDrinksTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val useDynamicColors = false;//Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+    val useDynamicColors = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     val colors = when {
         useDynamicColors && darkTheme -> dynamicDarkColorScheme(LocalContext.current)
         useDynamicColors && !darkTheme -> dynamicLightColorScheme(LocalContext.current)

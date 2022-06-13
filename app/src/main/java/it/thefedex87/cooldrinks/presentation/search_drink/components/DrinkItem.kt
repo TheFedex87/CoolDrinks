@@ -61,6 +61,7 @@ fun DrinkItem(
         modifier = modifier
             .fillMaxWidth()
             .height(100.dp)
+            .padding(vertical = spacing.spaceExtraSmall)
             .clickable {
                 onItemClick(
                     drink.id,

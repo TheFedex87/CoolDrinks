@@ -1,7 +1,9 @@
 package it.thefedex87.cooldrinks.presentation.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -10,9 +12,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 
@@ -27,8 +31,10 @@ fun SearchTextField(
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
-    Box(modifier = modifier) {
-        TextField(
+    Box(
+        modifier = modifier
+    ) {
+        OutlinedTextField(
             value = text,
             onValueChange = {
                 onValueChanged(it)
@@ -59,9 +65,10 @@ fun SearchTextField(
                     )
                 }
             },
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = MaterialTheme.colorScheme.background,
-                focusedTrailingIconColor = MaterialTheme.colorScheme.primary
+            shape = MaterialTheme.shapes.extraLarge,
+            colors = TextFieldDefaults.outlinedTextFieldColors(
+                //containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                //focusedTrailingIconColor = MaterialTheme.colorScheme.primary
             )
         )
     }
