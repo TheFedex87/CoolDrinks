@@ -66,7 +66,6 @@ fun SearchDrinkScreen(
             },
             modifier = Modifier.padding(spacing.spaceSmall)
         )
-        Spacer(modifier = Modifier.height(spacing.spaceSmall))
         if (viewModel.state.foundDrinks.isNotEmpty()) {
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(viewModel.state.foundDrinks) { drink ->
