@@ -6,6 +6,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,14 +61,20 @@ fun DrinkItem(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(100.dp)
-            .padding(vertical = spacing.spaceExtraSmall)
+            .height(108.dp)
+            .padding(spacing.spaceExtraSmall)
+            .border(
+                width = 1.dp,
+                color = animatedDominantColor.value,//MaterialTheme.colorScheme.outline,
+                shape = MaterialTheme.shapes.small
+            )
             .clickable {
                 onItemClick(
                     drink.id,
                     dominatorColor.toArgb()
                 )
-            },
+            }
+            .clip(MaterialTheme.shapes.small),
     ) {
         val image = rememberImagePainter(
             data = drink.image,
@@ -93,12 +100,13 @@ fun DrinkItem(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    Brush.horizontalGradient(
+                    color = MaterialTheme.colorScheme.surfaceVariant
+                    /*Brush.horizontalGradient(
                         listOf(
                             defaultDominantColor,
                             animatedDominantColor.value
                         )
-                    )
+                    )*/
                 )
         ) {
             Row(
@@ -116,25 +124,25 @@ fun DrinkItem(
                 ) {
                     Text(
                         text = drink.name,
-                        style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Light,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Icon(
                         imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite"
+                        contentDescription = "Favorite",
+                        modifier = Modifier.size(30.dp)
                     )
                 }
 
                 Image(
                     modifier = Modifier
-                        .width(90.dp)
-                        .height(90.dp)
+                        .width(100.dp)
+                        .height(100.dp)
                         .clip(
                             RoundedCornerShape(
-                                topStart = 5.dp,
-                                bottomStart = 5.dp
+                                5.dp
                             )
                         ),
                     painter = image,
