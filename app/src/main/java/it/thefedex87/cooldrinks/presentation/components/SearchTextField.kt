@@ -65,7 +65,7 @@ fun SearchTextField(
                     )
                 }
             },
-            shape = MaterialTheme.shapes.extraLarge,
+            shape = MaterialTheme.shapes.medium,
             colors = TextFieldDefaults.outlinedTextFieldColors(
                 //containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 //focusedTrailingIconColor = MaterialTheme.colorScheme.primary

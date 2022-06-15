@@ -62,10 +62,15 @@ fun DrinkItem(
         modifier = modifier
             .fillMaxWidth()
             .height(108.dp)
-            .padding(spacing.spaceExtraSmall)
+            .padding(horizontal = spacing.spaceExtraSmall, vertical = 2.dp)
             .border(
                 width = 1.dp,
-                color = animatedDominantColor.value,//MaterialTheme.colorScheme.outline,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(
+                        animatedDominantColor.value,
+                        defaultDominantColor
+                    )
+                ),//MaterialTheme.colorScheme.outline,
                 shape = MaterialTheme.shapes.small
             )
             .clickable {
