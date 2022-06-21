@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.presentation.search_drink
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,6 +22,7 @@ import it.thefedex87.cooldrinks.presentation.components.SearchTextField
 import it.thefedex87.cooldrinks.presentation.search_drink.components.DrinkItem
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
+import it.thefedex87.cooldrinks.util.Consts.TAG
 
 @ExperimentalComposeUiApi
 @Composable
@@ -47,6 +49,8 @@ fun SearchDrinkScreen(
         }
     }
 
+    Log.d(TAG, "Composing SearchDrinkScreen")
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -70,12 +74,15 @@ fun SearchDrinkScreen(
             LazyColumn(modifier = Modifier.fillMaxSize()) {
                 items(viewModel.state.foundDrinks) { drink ->
                     DrinkItem(
-                        drink = drink,
+                        drink = drink.value,
                         onItemClick = { id, color ->
                             onShowDrinkDetailsClicked(id, color)
                         },
+                        onFavoriteClick = {
+                            viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                        },
                         calcDominantColor = { drawable, onFinish ->
-                            viewModel.calcDominantColor(drawable, drink, onFinish)
+                            viewModel.calcDominantColor(drawable, drink.value, onFinish)
                         }
                     )
                 }

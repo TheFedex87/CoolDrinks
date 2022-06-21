@@ -1,9 +1,6 @@
 package it.thefedex87.cooldrinks.data.local
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import it.thefedex87.cooldrinks.data.local.entity.FavoriteDrinkEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -14,4 +11,7 @@ interface DrinkDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertFavoriteDrink(drink: FavoriteDrinkEntity)
+
+    @Delete
+    fun deleteFavoriteDrink(drink: FavoriteDrinkEntity)
 }

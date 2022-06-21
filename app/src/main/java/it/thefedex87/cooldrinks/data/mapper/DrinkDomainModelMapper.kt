@@ -5,12 +5,12 @@ import it.thefedex87.cooldrinks.data.remote.dto.DrinkDto
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 
-fun DrinkDto.toDrinkDomainModel(): DrinkDomainModel? {
+fun DrinkDto.toDrinkDomainModel(favorites: List<Int>? = null): DrinkDomainModel? {
     return DrinkDomainModel(
         name = strDrink ?: return null,
         image = strDrinkThumb,
         id = idDrink.toInt(),
-        dominantColor = 0
+        isFavorite = favorites?.any { it == idDrink.toInt() } == true
     )
 }
 

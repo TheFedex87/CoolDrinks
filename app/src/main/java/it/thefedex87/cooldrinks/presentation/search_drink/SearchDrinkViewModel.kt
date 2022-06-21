@@ -14,11 +14,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.mapper.toDrinkDomainModel
+import it.thefedex87.cooldrinks.presentation.mapper.toDrinkUiModel
+import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,7 +44,7 @@ class SearchDrinkViewModel @Inject constructor(
 
                 }
                 is SearchDrinkEvent.OnSearchClick -> {
-                    state = state.copy(isLoading = true, foundDrinks = emptyList())
+                    state = state.copy(isLoading = true, foundDrinks = mutableListOf())
                     drinkRepository
                         .searchCocktails(state.searchQuery)
                         .onSuccess {
@@ -47,7 +52,7 @@ class SearchDrinkViewModel @Inject constructor(
                                 isLoading = false,
                                 searchQuery = "",
                                 showSearchHint = true,
-                                foundDrinks = it,
+                                foundDrinks = it.map { drink -> mutableStateOf(drink.toDrinkUiModel()) }.toMutableList(),
                                 showNoDrinkFound = it.isEmpty()
                             )
                         }
@@ -71,21 +76,48 @@ class SearchDrinkViewModel @Inject constructor(
                     state =
                         state.copy(showSearchHint = !event.isFocused && state.searchQuery.isEmpty())
                 }
+                is SearchDrinkEvent.OnFavoriteClick -> {
+                    changeFavoriteState(event.drink)
+                }
             }
         }
     }
 
     fun calcDominantColor(
         drawable: Drawable,
-        drink: DrinkDomainModel,
+        drink: DrinkUiModel,
         onFinish: (Color) -> Unit
     ) {
         val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
-        Palette.from(bmp).generate() { palette ->
+        Palette.from(bmp).generate { palette ->
             palette?.dominantSwatch?.rgb?.let { colorValue ->
-                drink.dominantColor = colorValue
+                drink.copy(dominantColor = colorValue)
                 onFinish(Color(colorValue))
             }
+        }
+    }
+
+    private suspend fun changeFavoriteState(drink: DrinkUiModel) {
+        val index = state.foundDrinks.indexOfFirst { d -> d.component1().id == drink.id }
+        if(drink.isFavorite) {
+            state.foundDrinks[index].value = drink.copy(isFavorite = false)
+            withContext(Dispatchers.IO) {
+                drinkRepository.removeFromFavorite(drink.id)
+            }
+        } else {
+            state.foundDrinks[index].value = drink.copy(isLoadingFavorite = true)
+            drinkRepository
+                .getDrinkDetails(drink.id)
+                .onSuccess {
+                    var drinkDetail = it.first()
+                    withContext(Dispatchers.IO) {
+                        drinkRepository.insertIntoFavorite(drinkDetail)
+                    }
+                    state.foundDrinks[index].value = drink.copy(isLoadingFavorite = false, isFavorite = true)
+                }
+                .onFailure {
+
+                }
         }
     }
 }

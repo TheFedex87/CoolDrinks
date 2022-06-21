@@ -4,5 +4,5 @@ data class DrinkDomainModel(
     val name: String,
     val image: String,
     val id: Int,
-    var dominantColor: Int
+    val isFavorite: Boolean
 )

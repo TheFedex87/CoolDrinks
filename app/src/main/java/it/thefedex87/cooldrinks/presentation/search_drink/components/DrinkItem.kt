@@ -11,7 +11,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,20 +33,23 @@ import coil.compose.ImagePainter
 import coil.compose.rememberImagePainter
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
+import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
+import it.thefedex87.cooldrinks.util.Consts.TAG
 
 @OptIn(ExperimentalCoilApi::class)
 @Composable
 fun DrinkItem(
-    drink: DrinkDomainModel,
+    drink: DrinkUiModel,
     modifier: Modifier = Modifier,
     onItemClick: (Int, Int) -> Unit,
+    onFavoriteClick: (DrinkUiModel) -> Unit,
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
 ) {
     val spacing = LocalSpacing.current
     val defaultDominantColor = MaterialTheme.colorScheme.background
     var dominatorColor by remember {
-        if(drink.dominantColor == 0) {
+        if (drink.dominantColor == 0) {
             mutableStateOf(defaultDominantColor)
         } else {
             mutableStateOf(Color(drink.dominantColor))
@@ -90,10 +95,12 @@ fun DrinkItem(
             }
         )
 
+        Log.d(TAG, "Composing drink item")
+
         (image.state as? ImagePainter.State.Success)?.let { successResult ->
             LaunchedEffect(key1 = true) {
-                if(drink.dominantColor == 0) {
-                    Log.d("COOL_DRINKS", "Calculate dominant color")
+                if (drink.dominantColor == 0) {
+                    Log.d(TAG, "Calculate dominant color")
                     calcDominantColor(successResult.result.drawable) { color ->
                         dominatorColor = color
                     }
@@ -134,11 +141,21 @@ fun DrinkItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = "Favorite",
-                        modifier = Modifier.size(30.dp)
-                    )
+                    if(drink.isLoadingFavorite) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(30.dp)
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if(drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = "Favorite",
+                            modifier = Modifier
+                                .size(30.dp)
+                                .clickable {
+                                    onFavoriteClick(drink)
+                                }
+                        )
+                    }
                 }
 
                 Image(
