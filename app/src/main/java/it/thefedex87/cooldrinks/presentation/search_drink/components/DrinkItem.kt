@@ -4,7 +4,6 @@ import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,19 +24,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import coil.annotation.ExperimentalCoilApi
-import coil.compose.ImagePainter
-import coil.compose.rememberImagePainter
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import it.thefedex87.cooldrinks.R
-import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.util.Consts.TAG
 
-@OptIn(ExperimentalCoilApi::class)
 @Composable
 fun DrinkItem(
     drink: DrinkUiModel,
@@ -86,7 +83,7 @@ fun DrinkItem(
             }
             .clip(MaterialTheme.shapes.small),
     ) {
-        val image = rememberImagePainter(
+        /*val image = rememberImagePainter(
             data = drink.image,
             builder = {
                 crossfade(true)
@@ -106,7 +103,7 @@ fun DrinkItem(
                     }
                 }
             }
-        }
+        }*/
 
         Box(
             modifier = Modifier
@@ -158,7 +155,7 @@ fun DrinkItem(
                     }
                 }
 
-                Image(
+                AsyncImage(
                     modifier = Modifier
                         .width(100.dp)
                         .height(100.dp)
@@ -167,7 +164,24 @@ fun DrinkItem(
                                 5.dp
                             )
                         ),
-                    painter = image,
+                    onSuccess = {
+                        if (drink.dominantColor == 0) {
+                            Log.d(TAG, "Calculate dominant color")
+                            calcDominantColor(it.result.drawable) { color ->
+                                dominatorColor = color
+                            }
+                        }
+                    },
+                    onLoading = {
+                        R.drawable.drink
+                    },
+                    onError = {
+                        R.drawable.drink
+                    },
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(drink.image)
+                        .crossfade(true)
+                        .build(),
                     contentDescription = drink.name,
                     contentScale = ContentScale.FillHeight
                 )

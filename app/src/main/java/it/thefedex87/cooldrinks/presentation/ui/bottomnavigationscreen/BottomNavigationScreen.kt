@@ -1,13 +1,18 @@
 package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -18,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
+import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkScreen
 
@@ -28,9 +34,16 @@ fun BottomNavigationScreen(
     snackbarHostState: SnackbarHostState,
     navController: NavHostController
 ) {
+    var bottomBarState by rememberSaveable {
+        mutableStateOf(true)
+    }
+
     Scaffold(
         bottomBar = {
-            BottomBar(navController = navController)
+            BottomBar(
+                bottomBarVisible = bottomBarState,
+                navController = navController
+            )
         }
     ) { values ->
         NavHost(
@@ -41,15 +54,22 @@ fun BottomNavigationScreen(
             )
         ) {
             composable(BottomNavScreen.Search.route) {
+                bottomBarState = true
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
-                    onShowDrinkDetailsClicked = { id, color ->
+                    onDrinkClicked = { id, color ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id")
                     }
                 )
             }
             composable(BottomNavScreen.Favorite.route) {
-                Text(text = "Favorite")
+                bottomBarState = true
+                FavoriteDrinkScreen(
+                    snackbarHostState = snackbarHostState,
+                    onDrinkClicked = { id, color ->
+                        navController.navigate("${Route.DRINK_DETAILS}/$color/$id")
+                    }
+                )
             }
             composable(
                 route = "${Route.DRINK_DETAILS}/{dominantColor}/{drinkId}",
@@ -62,6 +82,7 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
+                bottomBarState = false
                 val dominantColor =
                     it.arguments?.getInt("dominantColor")?.let { Color(it) }
                         ?: Color.White
@@ -76,26 +97,36 @@ fun BottomNavigationScreen(
 }
 
 @Composable
-fun BottomBar(navController: NavHostController) {
+fun BottomBar(
+    bottomBarVisible: Boolean,
+    navController: NavHostController
+) {
     val screens = listOf(
         BottomNavScreen.Search,
         BottomNavScreen.Favorite
     )
 
-    NavigationBar(
-        //containerColor = Color(0xFF191C1D),
-        //tonalElevation = 0.dp
+    AnimatedVisibility(
+        visible = bottomBarVisible,
+        enter = slideInVertically(initialOffsetY = { it }),
+        exit = slideOutVertically(targetOffsetY = { it }),
     ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
-        screens.forEach { screen ->
-            AddItem(
-                screen = screen,
-                currentDestination = currentDestination,
-                navController = navController
-            )
+        NavigationBar(
+            //containerColor = Color(0xFF191C1D),
+            //tonalElevation = 0.dp
+        ) {
+            val navBackStackEntry by navController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            screens.forEach { screen ->
+                AddItem(
+                    screen = screen,
+                    currentDestination = currentDestination,
+                    navController = navController
+                )
+            }
         }
     }
+
 
 }
 

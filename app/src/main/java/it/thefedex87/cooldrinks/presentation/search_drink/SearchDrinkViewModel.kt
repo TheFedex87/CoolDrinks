@@ -111,7 +111,7 @@ class SearchDrinkViewModel @Inject constructor(
                 .onSuccess {
                     var drinkDetail = it.first()
                     withContext(Dispatchers.IO) {
-                        drinkRepository.insertIntoFavorite(drinkDetail)
+                        drinkRepository.insertIntoFavorite(drinkDetail.copy(dominantColor = drink.dominantColor))
                     }
                     state.foundDrinks[index].value = drink.copy(isLoadingFavorite = false, isFavorite = true)
                 }

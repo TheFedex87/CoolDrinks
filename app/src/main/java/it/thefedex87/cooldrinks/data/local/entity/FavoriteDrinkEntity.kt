@@ -17,5 +17,6 @@ data class FavoriteDrinkEntity(
     val measures: String,
     val addedDayOfMonth: Int,
     val addedMonth: Int,
-    val addedYear: Int
+    val addedYear: Int,
+    val dominantColor: Int
 )

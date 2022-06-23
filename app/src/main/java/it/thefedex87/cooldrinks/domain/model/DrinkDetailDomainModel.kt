@@ -12,5 +12,6 @@ data class DrinkDetailDomainModel(
     val ingredients: List<String?>,
     val instructions: String,
     val measures: List<String?>,
-    val addedDate: LocalDate? = null
+    val addedDate: LocalDate? = null,
+    val dominantColor: Int? = null
 )
