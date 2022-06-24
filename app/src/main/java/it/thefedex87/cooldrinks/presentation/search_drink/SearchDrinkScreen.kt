@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.components.SearchTextField
 import it.thefedex87.cooldrinks.presentation.search_drink.components.DrinkItem
+import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
@@ -29,6 +30,7 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 fun SearchDrinkScreen(
     snackbarHostState: SnackbarHostState,
     onDrinkClicked: (Int, Int, String) -> Unit,
+    onComposed: (BottomNavigationScreenState) -> Unit,
     viewModel: SearchDrinkViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -36,6 +38,14 @@ fun SearchDrinkScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(key1 = true) {
+        onComposed(
+            BottomNavigationScreenState(
+                topBarVisible = false,
+                bottomBarVisible = true,
+                topAppBarScrollBehavior = null
+            )
+        )
+
         viewModel.uiEvent.collect {
             when (it) {
                 is UiEvent.ShowSnackBar -> {
@@ -48,8 +58,6 @@ fun SearchDrinkScreen(
             }
         }
     }
-
-    Log.d(TAG, "Composing SearchDrinkScreen")
 
     Column(
         modifier = Modifier

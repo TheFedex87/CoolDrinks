@@ -7,10 +7,14 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -41,46 +45,34 @@ fun BottomNavigationScreen(
         mutableStateOf(BottomNavigationScreenState())
     }
 
-    val appBarScrollBehavior =
-        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+    /*var appBarScrollBehavior by remember {
+        mutableStateOf<TopAppBarScrollBehavior?>(null)
+    }*/
 
-    navController.addOnDestinationChangedListener { _, destination, arguments ->
+    /*navController.addOnDestinationChangedListener { _, destination, arguments ->
         if (destination.route?.startsWith(Route.SEARCH_ONLINE_DRINK) == true) {
-            appBarScrollBehavior.state.offset = 0f
-            appBarScrollBehavior.state.offsetLimit = 0f
-            appBarScrollBehavior.state.contentOffset = 0f
-
             bottomNavigationScreenState = bottomNavigationScreenState.copy(
                 bottomBarVisible = true,
                 topBarVisible = false,
                 topBarTitle = ""
             )
         } else if (destination.route?.startsWith(Route.FAVORITES) == true) {
-            appBarScrollBehavior.state.offset = 0f
-            appBarScrollBehavior.state.offsetLimit = 0f
-            appBarScrollBehavior.state.contentOffset = 0f
-
             bottomNavigationScreenState = bottomNavigationScreenState.copy(
                 bottomBarVisible = true,
                 topBarVisible = false,
                 topBarTitle = ""
             )
-        } else if (destination.route?.startsWith(Route.DRINK_DETAILS) == true) {
-            bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                bottomBarVisible = false,
-                topBarVisible = true,
-                topBarTitle = arguments?.getString("drinkName")!!
-            )
         }
-    }
+    }*/
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = bottomNavigationScreenState.topBarTitle,
                 topBarVisible = bottomNavigationScreenState.topBarVisible,
-                scrollBehavior = appBarScrollBehavior,
-                navController = navController
+                scrollBehavior = bottomNavigationScreenState.topAppBarScrollBehavior?.invoke(),
+                navController = navController,
+                actions = bottomNavigationScreenState.topAppBarActions
             )
         },
         bottomBar = {
@@ -98,19 +90,49 @@ fun BottomNavigationScreen(
             )
         ) {
             composable(BottomNavScreen.Search.route) {
+                LaunchedEffect(key1 = true) {
+                    bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                        bottomBarVisible = true,
+                        topBarVisible = false,
+                        topBarTitle = ""
+                    )
+                }
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
+                    onComposed = { state ->
+                        bottomNavigationScreenState = state
+                    },
                     onDrinkClicked = { id, color, name ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
                 )
             }
             composable(BottomNavScreen.Favorite.route) {
+                LaunchedEffect(key1 = true) {
+                    Log.d(TAG, "SETTING bottomNavigationScreenState on Main")
+                    bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                        bottomBarVisible = true,
+                        topBarVisible = false,
+                        topBarTitle = ""
+                    )
+                }
+
                 FavoriteDrinkScreen(
                     snackbarHostState = snackbarHostState,
+                    onComposed = { state ->
+                        bottomNavigationScreenState = state
+                    },
                     onDrinkClicked = { id, color, name ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
+                )
+            }
+            composable(Route.TEST) {
+                TestScreen(
+                    onComposed = { state ->
+                        bottomNavigationScreenState =
+                            state.copy(topBarTitle = "Test Screen")
+                    },
                 )
             }
             composable(
@@ -134,7 +156,10 @@ fun BottomNavigationScreen(
                 DrinkDetailScreen(
                     dominantColor = dominantColor,
                     drinkId = drinkId,
-                    appBarScrollBehavior = appBarScrollBehavior,
+                    onComposed = { state ->
+                        bottomNavigationScreenState =
+                            state.copy(topBarTitle = it.arguments?.getString("drinkName")!!)
+                    },
                     navController = navController
                 )
             }
@@ -146,8 +171,9 @@ fun BottomNavigationScreen(
 fun TopAppBar(
     title: String,
     topBarVisible: Boolean,
-    scrollBehavior: TopAppBarScrollBehavior,
-    navController: NavHostController
+    scrollBehavior: TopAppBarScrollBehavior?,
+    navController: NavHostController,
+    actions: @Composable (RowScope.() -> Unit)?
 ) {
     if (topBarVisible)
         SmallTopAppBar(
@@ -166,7 +192,10 @@ fun TopAppBar(
                     )
                 }
             },
-            scrollBehavior = scrollBehavior
+            scrollBehavior = scrollBehavior,
+            actions = {
+                actions?.invoke(this)
+            }
         )
 
 }
@@ -226,4 +255,41 @@ fun RowScope.AddItem(
             }
         }
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TestScreen(
+    onComposed: (BottomNavigationScreenState) -> Unit
+) {
+    val appBarScrollBehavior =
+        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+
+    onComposed(
+        BottomNavigationScreenState(
+            topBarVisible = true,
+            bottomBarVisible = false,
+            topAppBarScrollBehavior = {
+                appBarScrollBehavior
+            },
+            topAppBarActions = {
+                IconButton(onClick = { }) {
+                    Icon(imageVector = Icons.Default.Favorite, contentDescription = null)
+                }
+                IconButton(onClick = { }) {
+                    Icon(imageVector = Icons.Default.Home, contentDescription = null)
+                }
+            }
+        )
+    )
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(appBarScrollBehavior.nestedScrollConnection)
+    ) {
+        items(50) {
+            Text(text = this.toString())
+        }
+    }
 }
