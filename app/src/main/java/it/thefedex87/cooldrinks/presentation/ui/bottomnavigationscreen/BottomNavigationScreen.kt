@@ -1,5 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 
+import android.os.Bundle
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
@@ -14,20 +16,19 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavDestination
+import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.navArgument
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkScreen
+import it.thefedex87.cooldrinks.util.Consts.TAG
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -40,11 +41,45 @@ fun BottomNavigationScreen(
         mutableStateOf(BottomNavigationScreenState())
     }
 
+    val appBarScrollBehavior =
+        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+
+    navController.addOnDestinationChangedListener { _, destination, arguments ->
+        if (destination.route?.startsWith(Route.SEARCH_ONLINE_DRINK) == true) {
+            appBarScrollBehavior.state.offset = 0f
+            appBarScrollBehavior.state.offsetLimit = 0f
+            appBarScrollBehavior.state.contentOffset = 0f
+
+            bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                bottomBarVisible = true,
+                topBarVisible = false,
+                topBarTitle = ""
+            )
+        } else if (destination.route?.startsWith(Route.FAVORITES) == true) {
+            appBarScrollBehavior.state.offset = 0f
+            appBarScrollBehavior.state.offsetLimit = 0f
+            appBarScrollBehavior.state.contentOffset = 0f
+
+            bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                bottomBarVisible = true,
+                topBarVisible = false,
+                topBarTitle = ""
+            )
+        } else if (destination.route?.startsWith(Route.DRINK_DETAILS) == true) {
+            bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                bottomBarVisible = false,
+                topBarVisible = true,
+                topBarTitle = arguments?.getString("drinkName")!!
+            )
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = bottomNavigationScreenState.topBarTitle,
                 topBarVisible = bottomNavigationScreenState.topBarVisible,
+                scrollBehavior = appBarScrollBehavior,
                 navController = navController
             )
         },
@@ -63,11 +98,6 @@ fun BottomNavigationScreen(
             )
         ) {
             composable(BottomNavScreen.Search.route) {
-                bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                    bottomBarVisible = true,
-                    topBarVisible = false,
-                    topBarTitle = ""
-                )
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
                     onDrinkClicked = { id, color, name ->
@@ -76,11 +106,6 @@ fun BottomNavigationScreen(
                 )
             }
             composable(BottomNavScreen.Favorite.route) {
-                bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                    bottomBarVisible = true,
-                    topBarVisible = false,
-                    topBarTitle = ""
-                )
                 FavoriteDrinkScreen(
                     snackbarHostState = snackbarHostState,
                     onDrinkClicked = { id, color, name ->
@@ -102,18 +127,15 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
-                bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                    bottomBarVisible = false,
-                    topBarVisible = true,
-                    topBarTitle = it.arguments?.getString("drinkName")!!
-                )
                 val dominantColor =
                     it.arguments?.getInt("dominantColor")?.let { Color(it) }
                         ?: Color.White
                 val drinkId = it.arguments?.getInt("drinkId")!!
                 DrinkDetailScreen(
                     dominantColor = dominantColor,
-                    drinkId = drinkId
+                    drinkId = drinkId,
+                    appBarScrollBehavior = appBarScrollBehavior,
+                    navController = navController
                 )
             }
         }
@@ -124,6 +146,7 @@ fun BottomNavigationScreen(
 fun TopAppBar(
     title: String,
     topBarVisible: Boolean,
+    scrollBehavior: TopAppBarScrollBehavior,
     navController: NavHostController
 ) {
     if (topBarVisible)
@@ -132,16 +155,18 @@ fun TopAppBar(
                 Text(text = title)
             },
             navigationIcon = {
-                Icon(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .clickable {
-                            navController.popBackStack()
-                        },
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Go Back"
-                )
-            }
+                IconButton(
+                    onClick = {
+                        navController.popBackStack()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = "Navigate back"
+                    )
+                }
+            },
+            scrollBehavior = scrollBehavior
         )
 
 }

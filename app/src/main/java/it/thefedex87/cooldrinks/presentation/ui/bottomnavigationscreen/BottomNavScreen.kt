@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 
