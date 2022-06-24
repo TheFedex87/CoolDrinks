@@ -28,7 +28,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 @Composable
 fun FavoriteDrinkItem(
     drink: DrinkDetailDomainModel,
-    onDrinkClicked: (Int, Int) -> Unit,
+    onDrinkClicked: (Int, Int, String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -47,7 +47,7 @@ fun FavoriteDrinkItem(
             .fillMaxWidth()
             .height(390.dp)
             .clickable {
-                onDrinkClicked(drink.idDrink, 0)
+                onDrinkClicked(drink.idDrink, drink.dominantColor!!, drink.name)
             },
         shape = MaterialTheme.shapes.medium
     ) {
@@ -139,7 +139,8 @@ fun FavoriteDrinkItem(
                 onClick = { }
             ) {
                 Row(
-                    horizontalArrangement = Arrangement.SpaceAround
+                    horizontalArrangement = Arrangement.SpaceAround,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "Unfavorite")
                     Spacer(modifier = Modifier.width(4.dp))

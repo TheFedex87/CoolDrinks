@@ -28,7 +28,7 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 @Composable
 fun SearchDrinkScreen(
     snackbarHostState: SnackbarHostState,
-    onDrinkClicked: (Int, Int) -> Unit,
+    onDrinkClicked: (Int, Int, String) -> Unit,
     viewModel: SearchDrinkViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -75,8 +75,8 @@ fun SearchDrinkScreen(
                 items(viewModel.state.foundDrinks) { drink ->
                     DrinkItem(
                         drink = drink.value,
-                        onItemClick = { id, color ->
-                            onDrinkClicked(id, color)
+                        onItemClick = { id, color, name ->
+                            onDrinkClicked(id, color, name)
                         },
                         onFavoriteClick = {
                             viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))

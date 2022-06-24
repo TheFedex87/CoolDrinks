@@ -39,7 +39,7 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 fun DrinkItem(
     drink: DrinkUiModel,
     modifier: Modifier = Modifier,
-    onItemClick: (Int, Int) -> Unit,
+    onItemClick: (Int, Int, String) -> Unit,
     onFavoriteClick: (DrinkUiModel) -> Unit,
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
 ) {
@@ -78,7 +78,8 @@ fun DrinkItem(
             .clickable {
                 onItemClick(
                     drink.id,
-                    dominatorColor.toArgb()
+                    dominatorColor.toArgb(),
+                    drink.name
                 )
             }
             .clip(MaterialTheme.shapes.small),

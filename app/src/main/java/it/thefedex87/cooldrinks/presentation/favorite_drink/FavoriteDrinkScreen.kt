@@ -14,7 +14,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 @Composable
 fun FavoriteDrinkScreen(
     snackbarHostState: SnackbarHostState,
-    onDrinkClicked: (Int, Int) -> Unit,
+    onDrinkClicked: (Int, Int, String) -> Unit,
     viewModel: FavoriteDrinkViewModel = hiltViewModel()
 ) {
     val spacing = LocalSpacing.current
@@ -27,8 +27,8 @@ fun FavoriteDrinkScreen(
         items(viewModel.state.drinks) { drink ->
             FavoriteDrinkItem(
                 drink = drink,
-                onDrinkClicked = { id, color ->
-                    onDrinkClicked(id, color)
+                onDrinkClicked = { id, color, name ->
+                    onDrinkClicked(id, color, name)
                 },
                 modifier = Modifier.padding(
                     spacing

@@ -3,16 +3,18 @@ package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -34,14 +36,21 @@ fun BottomNavigationScreen(
     snackbarHostState: SnackbarHostState,
     navController: NavHostController
 ) {
-    var bottomBarState by rememberSaveable {
-        mutableStateOf(true)
+    var bottomNavigationScreenState by remember {
+        mutableStateOf(BottomNavigationScreenState())
     }
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = bottomNavigationScreenState.topBarTitle,
+                topBarVisible = bottomNavigationScreenState.topBarVisible,
+                navController = navController
+            )
+        },
         bottomBar = {
             BottomBar(
-                bottomBarVisible = bottomBarState,
+                bottomBarVisible = bottomNavigationScreenState.bottomBarVisible,
                 navController = navController
             )
         }
@@ -54,35 +63,50 @@ fun BottomNavigationScreen(
             )
         ) {
             composable(BottomNavScreen.Search.route) {
-                bottomBarState = true
+                bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                    bottomBarVisible = true,
+                    topBarVisible = false,
+                    topBarTitle = ""
+                )
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
-                    onDrinkClicked = { id, color ->
-                        navController.navigate("${Route.DRINK_DETAILS}/$color/$id")
+                    onDrinkClicked = { id, color, name ->
+                        navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
                 )
             }
             composable(BottomNavScreen.Favorite.route) {
-                bottomBarState = true
+                bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                    bottomBarVisible = true,
+                    topBarVisible = false,
+                    topBarTitle = ""
+                )
                 FavoriteDrinkScreen(
                     snackbarHostState = snackbarHostState,
-                    onDrinkClicked = { id, color ->
-                        navController.navigate("${Route.DRINK_DETAILS}/$color/$id")
+                    onDrinkClicked = { id, color, name ->
+                        navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
                 )
             }
             composable(
-                route = "${Route.DRINK_DETAILS}/{dominantColor}/{drinkId}",
+                route = "${Route.DRINK_DETAILS}/{dominantColor}/{drinkId}/{drinkName}",
                 arguments = listOf(
                     navArgument("dominantColor") {
                         type = NavType.IntType
                     },
                     navArgument("drinkId") {
                         type = NavType.IntType
+                    },
+                    navArgument("drinkName") {
+                        type = NavType.StringType
                     }
                 )
             ) {
-                bottomBarState = false
+                bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                    bottomBarVisible = false,
+                    topBarVisible = true,
+                    topBarTitle = it.arguments?.getString("drinkName")!!
+                )
                 val dominantColor =
                     it.arguments?.getInt("dominantColor")?.let { Color(it) }
                         ?: Color.White
@@ -94,6 +118,32 @@ fun BottomNavigationScreen(
             }
         }
     }
+}
+
+@Composable
+fun TopAppBar(
+    title: String,
+    topBarVisible: Boolean,
+    navController: NavHostController
+) {
+    if (topBarVisible)
+        SmallTopAppBar(
+            title = {
+                Text(text = title)
+            },
+            navigationIcon = {
+                Icon(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .clickable {
+                            navController.popBackStack()
+                        },
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = "Go Back"
+                )
+            }
+        )
+
 }
 
 @Composable
