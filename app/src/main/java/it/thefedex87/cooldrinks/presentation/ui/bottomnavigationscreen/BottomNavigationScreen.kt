@@ -45,34 +45,13 @@ fun BottomNavigationScreen(
         mutableStateOf(BottomNavigationScreenState())
     }
 
-    /*var appBarScrollBehavior by remember {
-        mutableStateOf<TopAppBarScrollBehavior?>(null)
-    }*/
-
-    /*navController.addOnDestinationChangedListener { _, destination, arguments ->
-        if (destination.route?.startsWith(Route.SEARCH_ONLINE_DRINK) == true) {
-            bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                bottomBarVisible = true,
-                topBarVisible = false,
-                topBarTitle = ""
-            )
-        } else if (destination.route?.startsWith(Route.FAVORITES) == true) {
-            bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                bottomBarVisible = true,
-                topBarVisible = false,
-                topBarTitle = ""
-            )
-        }
-    }*/
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = bottomNavigationScreenState.topBarTitle,
                 topBarVisible = bottomNavigationScreenState.topBarVisible,
                 scrollBehavior = bottomNavigationScreenState.topAppBarScrollBehavior?.invoke(),
-                navController = navController,
-                actions = bottomNavigationScreenState.topAppBarActions
+                navController = navController
             )
         },
         bottomBar = {
@@ -90,13 +69,6 @@ fun BottomNavigationScreen(
             )
         ) {
             composable(BottomNavScreen.Search.route) {
-                LaunchedEffect(key1 = true) {
-                    bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                        bottomBarVisible = true,
-                        topBarVisible = false,
-                        topBarTitle = ""
-                    )
-                }
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
                     onComposed = { state ->
@@ -108,15 +80,6 @@ fun BottomNavigationScreen(
                 )
             }
             composable(BottomNavScreen.Favorite.route) {
-                LaunchedEffect(key1 = true) {
-                    Log.d(TAG, "SETTING bottomNavigationScreenState on Main")
-                    bottomNavigationScreenState = bottomNavigationScreenState.copy(
-                        bottomBarVisible = true,
-                        topBarVisible = false,
-                        topBarTitle = ""
-                    )
-                }
-
                 FavoriteDrinkScreen(
                     snackbarHostState = snackbarHostState,
                     onComposed = { state ->
@@ -172,8 +135,7 @@ fun TopAppBar(
     title: String,
     topBarVisible: Boolean,
     scrollBehavior: TopAppBarScrollBehavior?,
-    navController: NavHostController,
-    actions: @Composable (RowScope.() -> Unit)?
+    navController: NavHostController
 ) {
     if (topBarVisible)
         SmallTopAppBar(
@@ -192,10 +154,7 @@ fun TopAppBar(
                     )
                 }
             },
-            scrollBehavior = scrollBehavior,
-            actions = {
-                actions?.invoke(this)
-            }
+            scrollBehavior = scrollBehavior
         )
 
 }
@@ -271,14 +230,6 @@ fun TestScreen(
             bottomBarVisible = false,
             topAppBarScrollBehavior = {
                 appBarScrollBehavior
-            },
-            topAppBarActions = {
-                IconButton(onClick = { }) {
-                    Icon(imageVector = Icons.Default.Favorite, contentDescription = null)
-                }
-                IconButton(onClick = { }) {
-                    Icon(imageVector = Icons.Default.Home, contentDescription = null)
-                }
             }
         )
     )

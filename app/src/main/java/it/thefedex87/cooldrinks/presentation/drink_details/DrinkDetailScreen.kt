@@ -40,14 +40,6 @@ fun DrinkDetailScreen(
                 bottomBarVisible = false,
                 topAppBarScrollBehavior = {
                     appBarScrollBehavior
-                },
-                topAppBarActions = {
-                    IconButton(onClick = { }) {
-                        Icon(imageVector = Icons.Default.Api, contentDescription = null)
-                    }
-                    IconButton(onClick = { }) {
-                        Icon(imageVector = Icons.Default.Lightbulb, contentDescription = null)
-                    }
                 }
             )
         )

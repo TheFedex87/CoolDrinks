@@ -8,6 +8,5 @@ data class BottomNavigationScreenState(
     val topBarVisible: Boolean = false,
     val bottomBarVisible: Boolean = true,
     val topBarTitle: String = "",
-    val topAppBarScrollBehavior: (@Composable () -> TopAppBarScrollBehavior)? = null,
-    val topAppBarActions: (@Composable RowScope.() -> Unit)? = null
+    val topAppBarScrollBehavior: (@Composable () -> TopAppBarScrollBehavior)? = null
 )
