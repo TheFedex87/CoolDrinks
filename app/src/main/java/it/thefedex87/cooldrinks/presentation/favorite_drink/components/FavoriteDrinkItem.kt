@@ -62,7 +62,6 @@ fun FavoriteDrinkItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1.2f)
-                    .padding(0.dp)
                     .clip(RoundedCornerShape(12.dp)),
                 onLoading = {
                     R.drawable.drink
@@ -98,43 +97,43 @@ fun FavoriteDrinkItem(
                             label = {
                                 Text(text = if (drink.isAlcoholic) "Alcoholic" else "Not Alcoholic")
                             },
-                            icon = {
+                            /*icon = {
                                 Icon(
                                     imageVector = if (drink.isAlcoholic) Icons.Filled.LocalBar else Icons.Filled.NoDrinks,
                                     contentDescription = null
                                 )
-                            }
+                            }*/
                         )
                         SuggestionChip(
                             onClick = {},
                             label = {
                                 Text(text = drink.category)
                             },
-                            icon = {
+                            /*icon = {
                                 Icon(
                                     imageVector = Icons.Filled.Category,
                                     contentDescription = null
                                 )
-                            }
+                            }*/
                         )
                         SuggestionChip(
                             onClick = {},
                             label = {
                                 Text(text = drink.glass)
                             },
-                            icon = {
+                            /*icon = {
                                 Icon(
                                     imageVector = Icons.Filled.WineBar,
                                     contentDescription = null
                                 )
-                            }
+                            }*/
                         )
                     }
                 }
             }
             Button(
                 modifier = Modifier
-                    .padding(4.dp)
+                    .padding(spacing.spaceSmall)
                     .align(alignment = Alignment.End),
                 onClick = { }
             ) {

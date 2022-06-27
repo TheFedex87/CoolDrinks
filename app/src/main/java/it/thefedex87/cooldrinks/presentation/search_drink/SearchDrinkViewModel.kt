@@ -58,18 +58,6 @@ class SearchDrinkViewModel @Inject constructor(
                 is SearchDrinkEvent.OnFavoriteClick -> {
                     changeFavoriteState(event.drink)
                 }
-                is SearchDrinkEvent.ExpandeAlcoholMenu -> {
-                    state = state.copy(alcoholMenuExpanded = true)
-                }
-                is SearchDrinkEvent.CollapseAlcoholMenu -> {
-                    state = state.copy(alcoholMenuExpanded = false)
-                }
-                is SearchDrinkEvent.AlcoholFilterValueChanged -> {
-                    state = state.copy(
-                        alcoholFilter = event.filter,
-                        alcoholMenuExpanded = false
-                    )
-                }
             }
         }
     }
@@ -89,16 +77,9 @@ class SearchDrinkViewModel @Inject constructor(
     }
 
     private suspend fun searchDrink() {
-        val alcoholFilter = when(state.alcoholFilter) {
-            AlcoholFilter.NONE -> null
-            AlcoholFilter.ALCOHOLIC -> "Alcoholic"
-            AlcoholFilter.NOT_ALCOHOLIC -> "Non_Alcoholic"
-        }
-
         drinkRepository
             .searchCocktails(
-                state.searchQuery,
-                alcoholFilter
+                state.searchQuery
             )
             .onSuccess {
                 state = state.copy(

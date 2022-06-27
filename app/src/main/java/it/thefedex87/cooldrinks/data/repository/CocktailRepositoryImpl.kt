@@ -23,13 +23,11 @@ class CocktailRepositoryImpl constructor(
         }
 
     override suspend fun searchCocktails(
-        ingredient: String,
-        alcoholFilter: String?
+        ingredient: String
     ): Result<List<DrinkDomainModel>> {
         return try {
             val drinkLstDto = cocktailDbApi.SearchCocktail(
-                ingredient = ingredient,
-                alcoholic = alcoholFilter
+                ingredient = ingredient
             )
 
             Result.success(drinkLstDto.drinks.mapNotNull {
