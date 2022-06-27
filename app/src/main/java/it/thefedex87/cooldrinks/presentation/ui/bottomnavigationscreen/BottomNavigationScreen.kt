@@ -90,14 +90,6 @@ fun BottomNavigationScreen(
                     }
                 )
             }
-            composable(Route.TEST) {
-                TestScreen(
-                    onComposed = { state ->
-                        bottomNavigationScreenState =
-                            state.copy(topBarTitle = "Test Screen")
-                    },
-                )
-            }
             composable(
                 route = "${Route.DRINK_DETAILS}/{dominantColor}/{drinkId}/{drinkName}",
                 arguments = listOf(

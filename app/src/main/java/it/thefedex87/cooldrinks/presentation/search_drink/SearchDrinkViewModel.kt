@@ -12,9 +12,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.palette.graphics.Palette
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
-import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
-import it.thefedex87.cooldrinks.presentation.mapper.toDrinkDomainModel
 import it.thefedex87.cooldrinks.presentation.mapper.toDrinkUiModel
 import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -45,26 +43,7 @@ class SearchDrinkViewModel @Inject constructor(
                 }
                 is SearchDrinkEvent.OnSearchClick -> {
                     state = state.copy(isLoading = true, foundDrinks = mutableListOf())
-                    drinkRepository
-                        .searchCocktails(state.searchQuery)
-                        .onSuccess {
-                            state = state.copy(
-                                isLoading = false,
-                                searchQuery = "",
-                                showSearchHint = true,
-                                foundDrinks = it.map { drink -> mutableStateOf(drink.toDrinkUiModel()) }.toMutableList(),
-                                showNoDrinkFound = it.isEmpty()
-                            )
-                        }
-                        .onFailure {
-                            state = state.copy(
-                                isLoading = false,
-                                searchQuery = "",
-                                showSearchHint = true,
-                                showNoDrinkFound = false
-                            )
-                            _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.search_drink_error)))
-                        }
+                    searchDrink()
                 }
                 is SearchDrinkEvent.OnSearchQueryChange -> {
                     state = state.copy(
@@ -78,6 +57,18 @@ class SearchDrinkViewModel @Inject constructor(
                 }
                 is SearchDrinkEvent.OnFavoriteClick -> {
                     changeFavoriteState(event.drink)
+                }
+                is SearchDrinkEvent.ExpandeAlcoholMenu -> {
+                    state = state.copy(alcoholMenuExpanded = true)
+                }
+                is SearchDrinkEvent.CollapseAlcoholMenu -> {
+                    state = state.copy(alcoholMenuExpanded = false)
+                }
+                is SearchDrinkEvent.AlcoholFilterValueChanged -> {
+                    state = state.copy(
+                        alcoholFilter = event.filter,
+                        alcoholMenuExpanded = false
+                    )
                 }
             }
         }
@@ -95,6 +86,38 @@ class SearchDrinkViewModel @Inject constructor(
                 onFinish(Color(colorValue))
             }
         }
+    }
+
+    private suspend fun searchDrink() {
+        val alcoholFilter = when(state.alcoholFilter) {
+            AlcoholFilter.NONE -> null
+            AlcoholFilter.ALCOHOLIC -> "Alcoholic"
+            AlcoholFilter.NOT_ALCOHOLIC -> "Non_Alcoholic"
+        }
+
+        drinkRepository
+            .searchCocktails(
+                state.searchQuery,
+                alcoholFilter
+            )
+            .onSuccess {
+                state = state.copy(
+                    isLoading = false,
+                    searchQuery = "",
+                    showSearchHint = true,
+                    foundDrinks = it.map { drink -> mutableStateOf(drink.toDrinkUiModel()) }.toMutableList(),
+                    showNoDrinkFound = it.isEmpty()
+                )
+            }
+            .onFailure {
+                state = state.copy(
+                    isLoading = false,
+                    searchQuery = "",
+                    showSearchHint = true,
+                    showNoDrinkFound = false
+                )
+                _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.search_drink_error)))
+            }
     }
 
     private suspend fun changeFavoriteState(drink: DrinkUiModel) {

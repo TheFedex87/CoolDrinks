@@ -5,7 +5,7 @@ import it.thefedex87.cooldrinks.data.local.entity.FavoriteDrinkEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface DrinkDao {
+interface FavoriteDrinkDao {
     @Query("SELECT * FROM FavoriteDrinkEntity")
     fun getFavoriteDrinks() : Flow<List<FavoriteDrinkEntity>>
 

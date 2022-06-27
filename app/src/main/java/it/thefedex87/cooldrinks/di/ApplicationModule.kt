@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import it.thefedex87.cooldrinks.data.local.CoolDrinkDatabase
-import it.thefedex87.cooldrinks.data.local.DrinkDao
+import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.data.repository.CocktailRepositoryImpl
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
@@ -41,13 +41,13 @@ object ApplicationModule {
     @Singleton
     @Provides
     fun provideDrinkDao(db: CoolDrinkDatabase) =
-        db.drinkDao
+        db.favoriteDrinkDao
 
     @Singleton
     @Provides
     fun provideCocktailRepository(
         cocktailDbApi: TheCocktailDbApi,
-        drinkDao: DrinkDao
+        drinkDao: FavoriteDrinkDao
     ): CocktailRepository =
         CocktailRepositoryImpl(
             cocktailDbApi = cocktailDbApi,

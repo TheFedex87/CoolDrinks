@@ -9,7 +9,8 @@ interface TheCocktailDbApi {
 
     @GET("filter.php?")
     suspend fun SearchCocktail(
-        @Query("i") ingredient: String
+        @Query("i") ingredient: String,
+        @Query("a") alcoholic: String? = null
     ): DrinkListDto
 
     @GET("lookup.php?")

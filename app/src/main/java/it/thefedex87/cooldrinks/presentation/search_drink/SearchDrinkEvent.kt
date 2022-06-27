@@ -9,4 +9,8 @@ sealed class SearchDrinkEvent {
     data class OnSearchFocusChange(val isFocused: Boolean) : SearchDrinkEvent()
     data class OnDrinkClick(val drink: DrinkDomainModel) : SearchDrinkEvent()
     data class OnFavoriteClick(val drink: DrinkUiModel) : SearchDrinkEvent()
+
+    object ExpandeAlcoholMenu : SearchDrinkEvent()
+    object CollapseAlcoholMenu : SearchDrinkEvent()
+    data class AlcoholFilterValueChanged(val filter: AlcoholFilter = AlcoholFilter.NONE) : SearchDrinkEvent()
 }

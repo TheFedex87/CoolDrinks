@@ -1,6 +1,6 @@
 package it.thefedex87.cooldrinks.data.repository
 
-import it.thefedex87.cooldrinks.data.local.DrinkDao
+import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.mapper.toDrinkDetailDomainModel
 import it.thefedex87.cooldrinks.data.mapper.toDrinkDomainModel
 import it.thefedex87.cooldrinks.data.mapper.toFavoriteDrinkEntity
@@ -10,22 +10,28 @@ import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
 import java.io.EOFException
 
 class CocktailRepositoryImpl constructor(
     val cocktailDbApi: TheCocktailDbApi,
-    val drinkDao: DrinkDao
+    val drinkDao: FavoriteDrinkDao,
 ) : CocktailRepository {
     override val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
         get() = drinkDao.getFavoriteDrinks().mapLatest { favoriteDrink ->
             favoriteDrink.map { it.toDrinkDetailDomainModel() }
         }
 
-    override suspend fun searchCocktails(ingredient: String): Result<List<DrinkDomainModel>> {
+    override suspend fun searchCocktails(
+        ingredient: String,
+        alcoholFilter: String?
+    ): Result<List<DrinkDomainModel>> {
         return try {
-            val drinkLstDto = cocktailDbApi.SearchCocktail(ingredient)
+            val drinkLstDto = cocktailDbApi.SearchCocktail(
+                ingredient = ingredient,
+                alcoholic = alcoholFilter
+            )
+
             Result.success(drinkLstDto.drinks.mapNotNull {
                 it.toDrinkDomainModel(favoritesDrinks.first().map { it.idDrink })
             })

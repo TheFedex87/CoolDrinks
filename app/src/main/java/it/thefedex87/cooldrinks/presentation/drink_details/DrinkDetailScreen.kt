@@ -46,20 +46,4 @@ fun DrinkDetailScreen(
     }
 
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .nestedScroll(appBarScrollBehavior.nestedScrollConnection)
-    ) {
-        item {
-            Button(onClick = {
-                navController.navigate(Route.TEST)
-            }) {
-                Text(text = "Navigate to test screen")
-            }
-        }
-        items(50) {
-            Text(text = this.toString())
-        }
-    }
 }

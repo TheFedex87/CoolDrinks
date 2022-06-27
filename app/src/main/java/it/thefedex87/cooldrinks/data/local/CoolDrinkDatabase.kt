@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import it.thefedex87.cooldrinks.data.local.entity.FavoriteDrinkEntity
+import it.thefedex87.cooldrinks.data.local.entity.LastSearchEntity
 
 @Database(
     entities = [
@@ -11,5 +12,5 @@ import it.thefedex87.cooldrinks.data.local.entity.FavoriteDrinkEntity
     version = 1
 )
 abstract class CoolDrinkDatabase : RoomDatabase() {
-    abstract val drinkDao: DrinkDao
+    abstract val favoriteDrinkDao: FavoriteDrinkDao
 }
