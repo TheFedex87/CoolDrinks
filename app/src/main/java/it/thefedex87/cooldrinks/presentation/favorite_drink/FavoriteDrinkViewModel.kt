@@ -26,13 +26,19 @@ class FavoriteDrinkViewModel @Inject constructor(
             repository.favoritesDrinks.collect {
                 val glass = mutableListOf("None")
                 glass.addAll(it.map { g -> g.glass }.distinct())
+
+                val categories = mutableListOf("None")
+                categories.addAll(it.map { g -> g.category }.distinct())
+
                 state = state.copy(
                     drinks = filterDrinks(
                         alcoholFilter = state.alcoholFilter,
+                        categoryFilter = state.categoryFilter,
                         glassFilter = state.glassFilter,
                         drinks = it
                     ),
-                    glasses = glass
+                    glasses = glass,
+                    categories = categories
                 )
             }
         }
@@ -48,6 +54,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         alcoholMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = event.filter,
+                            categoryFilter = state.categoryFilter,
                             glassFilter = state.glassFilter,
                             drinks = repository.favoritesDrinks.first()
                         )
@@ -59,6 +66,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                 is FavoriteDrinkEvent.ExpandeAlcoholMenu -> {
                     state = state.copy(alcoholMenuExpanded = true)
                 }
+
                 is FavoriteDrinkEvent.GlassFilterValueChanged -> {
                     Log.d(TAG, "Glass filter ${event.filter}")
                     state = state.copy(
@@ -66,6 +74,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         glassMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = state.alcoholFilter,
+                            categoryFilter = state.categoryFilter,
                             glassFilter = event.filter,
                             drinks = repository.favoritesDrinks.first()
                         )
@@ -77,33 +86,42 @@ class FavoriteDrinkViewModel @Inject constructor(
                 is FavoriteDrinkEvent.ExpandeGlassMenu -> {
                     state = state.copy(glassMenuExpanded = true)
                 }
+
+                is FavoriteDrinkEvent.CategoryFilterValueChanged -> {
+                    Log.d(TAG, "Category filter ${event.filter}")
+                    state = state.copy(
+                        categoryFilter = event.filter,
+                        categoryMenuExpanded = false,
+                        drinks = filterDrinks(
+                            alcoholFilter = state.alcoholFilter,
+                            categoryFilter = event.filter,
+                            glassFilter = state.glassFilter,
+                            drinks = repository.favoritesDrinks.first()
+                        )
+                    )
+                }
+                is FavoriteDrinkEvent.CollapseCategoryMenu -> {
+                    state = state.copy(categoryMenuExpanded = false)
+                }
+                is FavoriteDrinkEvent.ExpandeCategoryMenu -> {
+                    state = state.copy(categoryMenuExpanded = true)
+                }
             }
         }
     }
 
     private fun filterDrinks(
         alcoholFilter: AlcoholFilter,
+        categoryFilter: CategoryFilter,
         glassFilter: GlassFilter,
         drinks: List<DrinkDetailDomainModel>
     ): List<DrinkDetailDomainModel> {
-        val filterByAlcohol = when (alcoholFilter) {
-            AlcoholFilter.NONE -> {
-                drinks
-            }
-            AlcoholFilter.ALCOHOLIC -> {
-                drinks.filter { it.isAlcoholic }
-            }
-            AlcoholFilter.NOT_ALCOHOLIC -> {
-                drinks.filter { !it.isAlcoholic }
-            }
+        val filteredDrinks = drinks.filter {
+            it.isAlcoholic == (if(alcoholFilter == AlcoholFilter.NONE) it.isAlcoholic else alcoholFilter == AlcoholFilter.ALCOHOLIC) &&
+            it.glass.lowercase() == (if(glassFilter == GlassFilter.NONE) it.glass.lowercase() else glassFilter.toString().lowercase()) &&
+            it.category.lowercase() == (if(categoryFilter == CategoryFilter.NONE) it.category.lowercase() else categoryFilter.toString().lowercase())
         }
 
-        val filterByGlass = if (glassFilter == GlassFilter.NONE) {
-            filterByAlcohol
-        } else {
-            filterByAlcohol.filter { it.glass == glassFilter.toString() }
-        }
-
-        return  filterByGlass
+        return filteredDrinks
     }
 }

@@ -49,6 +49,15 @@ fun FavoriteDrinkScreen(
         )
     }
 
+    val categories = viewModel.state.categories.map {
+        DropDownItem(
+            label = it,
+            onItemClick = {
+                viewModel.onEvent(FavoriteDrinkEvent.CategoryFilterValueChanged(CategoryFilter.toEnum(it)))
+            }
+        )
+    }
+
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -140,6 +149,33 @@ fun FavoriteDrinkScreen(
                         )
                     },
                     dropDownItems = glasses
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                DropDownChip(
+                    isChipSelected = viewModel.state.categoryFilter != CategoryFilter.NONE,
+                    onChipClick = {
+                        viewModel.onEvent(FavoriteDrinkEvent.ExpandeCategoryMenu)
+                    },
+                    label = viewModel.state.categoryFilter.toString(),
+                    isMenuExpanded = viewModel.state.categoryMenuExpanded,
+                    onDismissRequest = {
+                        viewModel.onEvent(FavoriteDrinkEvent.CollapseCategoryMenu)
+                    },
+                    selectedIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = "Category filter enabled"
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = if (viewModel.state.categoryMenuExpanded)
+                                Icons.Default.ArrowDropUp else
+                                Icons.Default.ArrowDropDown,
+                            contentDescription = "Expand category filter"
+                        )
+                    },
+                    dropDownItems = categories
                 )
             }
         }

@@ -10,4 +10,8 @@ sealed class FavoriteDrinkEvent {
     object ExpandeGlassMenu : FavoriteDrinkEvent()
     object CollapseGlassMenu : FavoriteDrinkEvent()
     data class GlassFilterValueChanged(val filter: GlassFilter = GlassFilter.NONE) : FavoriteDrinkEvent()
+
+    object ExpandeCategoryMenu : FavoriteDrinkEvent()
+    object CollapseCategoryMenu : FavoriteDrinkEvent()
+    data class CategoryFilterValueChanged(val filter: CategoryFilter = CategoryFilter.NONE) : FavoriteDrinkEvent()
 }
