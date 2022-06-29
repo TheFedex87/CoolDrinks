@@ -1,20 +1,19 @@
 package it.thefedex87.cooldrinks.presentation.favorite_drink
 
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.presentation.components.DropDownChip
 import it.thefedex87.cooldrinks.presentation.components.DropDownItem
@@ -40,6 +39,15 @@ fun FavoriteDrinkScreen(
     }
 
     val spacing = LocalSpacing.current
+
+    val glasses = viewModel.state.glasses.map {
+        DropDownItem(
+            label = it,
+            onItemClick = {
+                viewModel.onEvent(FavoriteDrinkEvent.GlassFilterValueChanged(GlassFilter.toEnum(it)))
+            }
+        )
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -105,6 +113,33 @@ fun FavoriteDrinkScreen(
                             }
                         )
                     )
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                DropDownChip(
+                    isChipSelected = viewModel.state.glassFilter != GlassFilter.NONE,
+                    onChipClick = {
+                        viewModel.onEvent(FavoriteDrinkEvent.ExpandeGlassMenu)
+                    },
+                    label = viewModel.state.glassFilter.toString(),
+                    isMenuExpanded = viewModel.state.glassMenuExpanded,
+                    onDismissRequest = {
+                        viewModel.onEvent(FavoriteDrinkEvent.CollapseGlassMenu)
+                    },
+                    selectedIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Done,
+                            contentDescription = "Glass filter enabled"
+                        )
+                    },
+                    trailingIcon = {
+                        Icon(
+                            imageVector = if (viewModel.state.glassMenuExpanded)
+                                Icons.Default.ArrowDropUp else
+                                Icons.Default.ArrowDropDown,
+                            contentDescription = "Expand glass filter"
+                        )
+                    },
+                    dropDownItems = glasses
                 )
             }
         }

@@ -1,11 +1,9 @@
 package it.thefedex87.cooldrinks.presentation.components
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import it.thefedex87.cooldrinks.util.Consts.TAG
+import androidx.compose.ui.Modifier
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -18,44 +16,31 @@ fun DropDownChip(
     selectedIcon: (@Composable () -> Unit)? = null,
     isMenuExpanded: Boolean,
     onDismissRequest: () -> Unit,
-    dropDownItems: List<DropDownItem>
+    dropDownItems: List<DropDownItem>,
+    modifier: Modifier = Modifier
 ) {
-    Column {
+    Column(modifier = modifier) {
         FilterChip(
             selected = isChipSelected,
-            onClick = {
-                onChipClick()
-            },
+            onClick = onChipClick,
             label = {
                 Text(text = label)
             },
-            leadingIcon = {
-                leadingIcon?.invoke()
-            },
-            trailingIcon = {
-                trailingIcon?.invoke()
-            },
-            selectedIcon = {
-                selectedIcon?.invoke()
-            }
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            selectedIcon = selectedIcon
         )
         DropdownMenu(
             expanded = isMenuExpanded,
-            onDismissRequest = {
-                onDismissRequest()
-            }
+            onDismissRequest = onDismissRequest
         ) {
             dropDownItems.map {
                 DropdownMenuItem(
                     text = {
                         Text(text = it.label)
                     },
-                    onClick = {
-                        it.onItemClick()
-                    },
-                    leadingIcon = {
-                        it.icon?.invoke()
-                    }
+                    onClick = it.onItemClick,
+                    leadingIcon = it.icon
                 )
             }
         }

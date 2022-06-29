@@ -24,11 +24,15 @@ class FavoriteDrinkViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             repository.favoritesDrinks.collect {
+                val glass = mutableListOf("None")
+                glass.addAll(it.map { g -> g.glass }.distinct())
                 state = state.copy(
                     drinks = filterDrinks(
                         alcoholFilter = state.alcoholFilter,
+                        glassFilter = state.glassFilter,
                         drinks = it
-                    )
+                    ),
+                    glasses = glass
                 )
             }
         }
@@ -44,6 +48,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         alcoholMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = event.filter,
+                            glassFilter = state.glassFilter,
                             drinks = repository.favoritesDrinks.first()
                         )
                     )
@@ -54,15 +59,34 @@ class FavoriteDrinkViewModel @Inject constructor(
                 is FavoriteDrinkEvent.ExpandeAlcoholMenu -> {
                     state = state.copy(alcoholMenuExpanded = true)
                 }
+                is FavoriteDrinkEvent.GlassFilterValueChanged -> {
+                    Log.d(TAG, "Glass filter ${event.filter}")
+                    state = state.copy(
+                        glassFilter = event.filter,
+                        glassMenuExpanded = false,
+                        drinks = filterDrinks(
+                            alcoholFilter = state.alcoholFilter,
+                            glassFilter = event.filter,
+                            drinks = repository.favoritesDrinks.first()
+                        )
+                    )
+                }
+                is FavoriteDrinkEvent.CollapseGlassMenu -> {
+                    state = state.copy(glassMenuExpanded = false)
+                }
+                is FavoriteDrinkEvent.ExpandeGlassMenu -> {
+                    state = state.copy(glassMenuExpanded = true)
+                }
             }
         }
     }
 
     private fun filterDrinks(
         alcoholFilter: AlcoholFilter,
+        glassFilter: GlassFilter,
         drinks: List<DrinkDetailDomainModel>
     ): List<DrinkDetailDomainModel> {
-        return when (alcoholFilter) {
+        val filterByAlcohol = when (alcoholFilter) {
             AlcoholFilter.NONE -> {
                 drinks
             }
@@ -73,5 +97,13 @@ class FavoriteDrinkViewModel @Inject constructor(
                 drinks.filter { !it.isAlcoholic }
             }
         }
+
+        val filterByGlass = if (glassFilter == GlassFilter.NONE) {
+            filterByAlcohol
+        } else {
+            filterByAlcohol.filter { it.glass == glassFilter.toString() }
+        }
+
+        return  filterByGlass
     }
 }
