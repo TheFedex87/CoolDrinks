@@ -9,6 +9,7 @@ interface CocktailRepository {
     suspend fun getDrinkDetails(id: Int) : Result<List<DrinkDetailDomainModel>>
 
     val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
+    suspend fun getFavoriteDrink(id: Int) : DrinkDetailDomainModel
 
     suspend fun insertIntoFavorite(drink: DrinkDetailDomainModel)
     suspend fun removeFromFavorite(drinkId: Int)

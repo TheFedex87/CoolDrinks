@@ -22,6 +22,10 @@ class CocktailRepositoryImpl constructor(
             favoriteDrink.map { it.toDrinkDetailDomainModel() }
         }
 
+    override suspend fun getFavoriteDrink(id: Int): DrinkDetailDomainModel {
+        return drinkDao.getFavoriteDrink(id).toDrinkDetailDomainModel()
+    }
+
     override suspend fun searchCocktails(
         ingredient: String
     ): Result<List<DrinkDomainModel>> {
