@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.presentation.search_drink
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -64,13 +65,13 @@ class SearchDrinkViewModel @Inject constructor(
 
     fun calcDominantColor(
         drawable: Drawable,
-        drink: DrinkUiModel,
+        drink: MutableState<DrinkUiModel>,
         onFinish: (Color) -> Unit
     ) {
         val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
         Palette.from(bmp).generate { palette ->
             palette?.dominantSwatch?.rgb?.let { colorValue ->
-                drink.copy(dominantColor = colorValue)
+                drink.value = drink.value.copy(dominantColor = colorValue)
                 onFinish(Color(colorValue))
             }
         }

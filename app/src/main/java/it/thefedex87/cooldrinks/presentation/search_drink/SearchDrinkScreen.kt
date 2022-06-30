@@ -46,7 +46,8 @@ fun SearchDrinkScreen(
             BottomNavigationScreenState(
                 topBarVisible = false,
                 bottomBarVisible = true,
-                topAppBarScrollBehavior = null
+                topAppBarScrollBehavior = null,
+                topBarColor = null
             )
         )
 
@@ -98,7 +99,7 @@ fun SearchDrinkScreen(
                             viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
                         },
                         calcDominantColor = { drawable, onFinish ->
-                            viewModel.calcDominantColor(drawable, drink.value, onFinish)
+                            viewModel.calcDominantColor(drawable, drink, onFinish)
                         }
                     )
                 }

@@ -33,7 +33,8 @@ fun FavoriteDrinkScreen(
             BottomNavigationScreenState(
                 topBarVisible = false,
                 bottomBarVisible = true,
-                topAppBarScrollBehavior = null
+                topAppBarScrollBehavior = null,
+                topBarColor = null
             )
         )
     }

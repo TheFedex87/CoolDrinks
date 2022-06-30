@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,8 +42,9 @@ fun BottomNavigationScreen(
     snackbarHostState: SnackbarHostState,
     navController: NavHostController
 ) {
+    val topBarColor = MaterialTheme.colorScheme.surface
     var bottomNavigationScreenState by remember {
-        mutableStateOf(BottomNavigationScreenState())
+        mutableStateOf(BottomNavigationScreenState(topBarColor = topBarColor))
     }
 
     Scaffold(
@@ -51,7 +53,9 @@ fun BottomNavigationScreen(
                 title = bottomNavigationScreenState.topBarTitle,
                 topBarVisible = bottomNavigationScreenState.topBarVisible,
                 scrollBehavior = bottomNavigationScreenState.topAppBarScrollBehavior?.invoke(),
-                navController = navController
+                navController = navController,
+                actions = bottomNavigationScreenState.topBarActions ?: {},
+                color = bottomNavigationScreenState.topBarColor ?: MaterialTheme.colorScheme.surface
             )
         },
         bottomBar = {
@@ -114,8 +118,7 @@ fun BottomNavigationScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState =
                             state.copy(topBarTitle = it.arguments?.getString("drinkName")!!)
-                    },
-                    navController = navController
+                    }
                 )
             }
         }
@@ -127,10 +130,15 @@ fun TopAppBar(
     title: String,
     topBarVisible: Boolean,
     scrollBehavior: TopAppBarScrollBehavior?,
-    navController: NavHostController
+    navController: NavHostController,
+    actions: @Composable RowScope.() -> Unit = {  },
+    color: Color
 ) {
     if (topBarVisible)
         SmallTopAppBar(
+            colors = TopAppBarDefaults.smallTopAppBarColors(
+                containerColor = color
+            ),
             title = {
                 Text(text = title)
             },
@@ -146,7 +154,8 @@ fun TopAppBar(
                     )
                 }
             },
-            scrollBehavior = scrollBehavior
+            scrollBehavior = scrollBehavior,
+            actions = actions
         )
 
 }
@@ -215,6 +224,7 @@ fun TestScreen(
 ) {
     val appBarScrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+    val topBarColor = MaterialTheme.colorScheme.surface
 
     onComposed(
         BottomNavigationScreenState(
@@ -222,7 +232,8 @@ fun TestScreen(
             bottomBarVisible = false,
             topAppBarScrollBehavior = {
                 appBarScrollBehavior
-            }
+            },
+            topBarColor = topBarColor
         )
     )
 

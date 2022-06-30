@@ -10,6 +10,7 @@ import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.mapLatest
 import java.io.EOFException
 
@@ -22,8 +23,8 @@ class CocktailRepositoryImpl constructor(
             favoriteDrink.map { it.toDrinkDetailDomainModel() }
         }
 
-    override suspend fun getFavoriteDrink(id: Int): DrinkDetailDomainModel {
-        return drinkDao.getFavoriteDrink(id).toDrinkDetailDomainModel()
+    override suspend fun getFavoriteDrink(id: Int): Flow<DrinkDetailDomainModel?> = flow {
+        emit(drinkDao.getFavoriteDrink(id)?.toDrinkDetailDomainModel())
     }
 
     override suspend fun searchCocktails(
@@ -55,8 +56,8 @@ class CocktailRepositoryImpl constructor(
         }
     }
 
-    override suspend fun insertIntoFavorite(drink: DrinkDetailDomainModel) {
-        drinkDao.insertFavoriteDrink(drink.toFavoriteDrinkEntity())
+    override suspend fun insertIntoFavorite(drink: DrinkDetailDomainModel): Long {
+        return drinkDao.insertFavoriteDrink(drink.toFavoriteDrinkEntity())
     }
 
     override suspend fun removeFromFavorite(drinkId: Int) {
