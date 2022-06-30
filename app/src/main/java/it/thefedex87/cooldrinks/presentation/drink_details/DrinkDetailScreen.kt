@@ -6,7 +6,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -136,7 +135,7 @@ fun DrinkDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                top = 150.dp,
+                                top = 170.dp,
                                 start = spacing.spaceSmall,
                                 end = spacing.spaceSmall,
                                 bottom = spacing.spaceSmall
@@ -152,27 +151,35 @@ fun DrinkDetailScreen(
                 Box(
                     modifier = Modifier
                         .align(alignment = Alignment.TopCenter)
-                        .size(220.dp)
+                        .size(225.dp)
                         .clip(CircleShape)
-                        .background(dominantColor.copy(alpha = 0.7f)),
+                        .background(MaterialTheme.colorScheme.background),
                 ) {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(viewModel.state.drinkImagePath)
-                            .crossfade(true)
-                            .build(),
+                    Box(
                         modifier = Modifier
+                            .align(alignment = Alignment.Center)
+                            .size(215.dp)
                             .clip(CircleShape)
-                            .size(200.dp)
-                            .align(Alignment.Center),
-                        onLoading = {
-                            R.drawable.drink
-                        },
-                        onError = {
-                            R.drawable.drink
-                        },
-                        contentDescription = viewModel.state.drinkName
-                    )
+                            .background(dominantColor.copy(alpha = 0.6f)),
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                .data(viewModel.state.drinkImagePath)
+                                .crossfade(true)
+                                .build(),
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(200.dp)
+                                .align(Alignment.Center),
+                            onLoading = {
+                                R.drawable.drink
+                            },
+                            onError = {
+                                R.drawable.drink
+                            },
+                            contentDescription = viewModel.state.drinkName
+                        )
+                    }
                 }
             }
         }
