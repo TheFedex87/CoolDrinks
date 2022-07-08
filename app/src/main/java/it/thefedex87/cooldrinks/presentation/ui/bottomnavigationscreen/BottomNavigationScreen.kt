@@ -39,7 +39,6 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 @Composable
 fun BottomNavigationScreen(
     modifier: Modifier = Modifier,
-    snackbarHostState: SnackbarHostState,
     navController: NavHostController
 ) {
     val topBarColor = MaterialTheme.colorScheme.surface
@@ -47,7 +46,12 @@ fun BottomNavigationScreen(
         mutableStateOf(BottomNavigationScreenState(topBarColor = topBarColor))
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
+        },
         topBar = {
             TopAppBar(
                 title = bottomNavigationScreenState.topBarTitle,

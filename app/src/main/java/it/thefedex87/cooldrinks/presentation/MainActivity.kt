@@ -38,13 +38,11 @@ class MainActivity : ComponentActivity() {
         setContent {
             CoolDrinksTheme {
                 val navController = rememberNavController()
-                val snackbarHostState = remember { SnackbarHostState() }
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     BottomNavigationScreen(
-                        snackbarHostState = snackbarHostState,
                         navController = navController
                     )
                 }

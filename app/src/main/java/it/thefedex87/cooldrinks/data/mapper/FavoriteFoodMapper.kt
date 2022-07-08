@@ -14,9 +14,9 @@ fun FavoriteDrinkEntity.toDrinkDetailDomainModel(): DrinkDetailDomainModel {
         name = name,
         drinkThumb = drinkThumb,
         glass = glass,
-        ingredients = ingredients.split(","),
+        ingredients = ingredients.split(",").map { it.trim() },
         instructions = instructions,
-        measures = measures.split(","),
+        measures = measures.split(",").map { it.trim() },
         addedDate = LocalDate.of(addedYear, addedMonth, addedDayOfMonth),
         dominantColor = dominantColor
     )
@@ -32,9 +32,9 @@ fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): FavoriteDrinkEntity {
         name = name,
         drinkThumb = drinkThumb,
         glass = glass,
-        ingredients = ingredients.joinToString { "$it" },
+        ingredients = ingredients.filterNotNull().joinToString { it },
         instructions = instructions,
-        measures = measures.joinToString { "$it" },
+        measures = measures.joinToString { it ?: "" },
         addedDayOfMonth = now.dayOfMonth,
         addedMonth = now.monthValue,
         addedYear = now.year,

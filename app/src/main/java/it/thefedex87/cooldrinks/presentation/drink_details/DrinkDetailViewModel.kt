@@ -48,11 +48,16 @@ class DrinkDetailViewModel @Inject constructor(
             repository.getFavoriteDrink(drinkId).collect { drink ->
                 if (drink != null) {
                     favoriteDrink = drink
+                    val ingredients = favoriteDrink.ingredients.mapIndexedNotNull { index, s ->
+                        Pair(s!!, favoriteDrink.measures[index] ?: "")
+                    }
                     state = state.copy(
                         drinkImagePath = drink.drinkThumb,
                         drinkName = drink.name,
+                        drinkIngredients = ingredients,
                         drinkCategory = drink.category,
                         drinkGlass = drink.glass,
+                        drinkInstructions = drink.instructions,
                         drinkAlcoholic = if (drink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
                         showConfirmRemoveFavoriteDialog = false,
                         isFavorite = true
@@ -63,10 +68,15 @@ class DrinkDetailViewModel @Inject constructor(
                         .getDrinkDetails(drinkId)
                         .onSuccess {
                             favoriteDrink = it.first()
+                            val ingredients = favoriteDrink.ingredients.mapIndexedNotNull { index, s ->
+                                Pair(s!!, favoriteDrink.measures[index]!!)
+                            }
                             state = state.copy(
                                 isLoading = false,
                                 drinkImagePath = favoriteDrink.drinkThumb,
                                 drinkName = favoriteDrink.name,
+                                drinkIngredients = ingredients,
+                                drinkInstructions = favoriteDrink.instructions,
                                 drinkCategory = favoriteDrink.category,
                                 drinkGlass = favoriteDrink.glass,
                                 drinkAlcoholic = if (favoriteDrink.isAlcoholic) "Alcoholic" else "Non Alcoholic",

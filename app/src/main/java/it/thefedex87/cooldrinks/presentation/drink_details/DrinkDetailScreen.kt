@@ -2,17 +2,21 @@ package it.thefedex87.cooldrinks.presentation.drink_details
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -20,8 +24,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.drink_details.components.CharacteristicSection
+import it.thefedex87.cooldrinks.presentation.drink_details.components.IngredientItem
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
+import it.thefedex87.cooldrinks.presentation.ui.theme.Red40
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,7 +85,7 @@ fun DrinkDetailScreen(
                                 Icons.Default.FavoriteBorder else
                                 Icons.Default.Favorite,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = Color.Red
                         )
                     }
                 }
@@ -110,7 +116,9 @@ fun DrinkDetailScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(spacing.spaceSmall)
+                .nestedScroll(appBarScrollBehavior.nestedScrollConnection)
+                .padding(horizontal = spacing.spaceSmall)
+                .verticalScroll(rememberScrollState())
         ) {
             Box(
                 modifier = Modifier
@@ -129,36 +137,73 @@ fun DrinkDetailScreen(
                     elevation = CardDefaults.elevatedCardElevation(
                         defaultElevation = 4.dp
                     )
-
                 ) {
-                    Box(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(
-                                top = 170.dp,
-                                start = spacing.spaceSmall,
-                                end = spacing.spaceSmall,
-                                bottom = spacing.spaceSmall
-                            )
                     ) {
-                        CharacteristicSection(
-                            drinkGlass = viewModel.state.drinkGlass,
-                            drinkCategory = viewModel.state.drinkCategory,
-                            drinkAlcoholic = viewModel.state.drinkAlcoholic
-                        )
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    top = 180.dp,
+                                    start = spacing.spaceSmall,
+                                    end = spacing.spaceSmall,
+                                    bottom = spacing.spaceSmall
+                                )
+                        ) {
+                            CharacteristicSection(
+                                drinkGlass = viewModel.state.drinkGlass,
+                                drinkCategory = viewModel.state.drinkCategory,
+                                drinkAlcoholic = viewModel.state.drinkAlcoholic
+                            )
+                        }
+
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    start = spacing.spaceSmall,
+                                    end = spacing.spaceSmall,
+                                    bottom = spacing.spaceSmall
+                                ),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(spacing.spaceSmall),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Ingredients",
+                                    style = MaterialTheme.typography.headlineSmall
+                                )
+                                Spacer(modifier = Modifier.height(spacing.spaceSmall))
+                                viewModel.state.drinkIngredients?.map {
+                                    IngredientItem(ingredientName = it.first, ingredientMeasure = it.second)
+                                }
+                            }
+                        }
+                        viewModel.state.drinkInstructions?.let { instructions ->
+                            Text(
+                                modifier = Modifier
+                                    .padding(spacing.spaceMedium),
+                                text = instructions
+                            )
+                        }
                     }
                 }
                 Box(
                     modifier = Modifier
                         .align(alignment = Alignment.TopCenter)
-                        .size(225.dp)
+                        .size(245.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.background),
                 ) {
                     Box(
                         modifier = Modifier
                             .align(alignment = Alignment.Center)
-                            .size(215.dp)
+                            .size(235.dp)
                             .clip(CircleShape)
                             .background(dominantColor.copy(alpha = 0.6f)),
                     ) {
@@ -169,7 +214,7 @@ fun DrinkDetailScreen(
                                 .build(),
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .size(200.dp)
+                                .size(220.dp)
                                 .align(Alignment.Center),
                             onLoading = {
                                 R.drawable.drink

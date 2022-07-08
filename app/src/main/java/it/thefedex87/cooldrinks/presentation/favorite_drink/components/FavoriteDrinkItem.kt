@@ -29,6 +29,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 fun FavoriteDrinkItem(
     drink: DrinkDetailDomainModel,
     onDrinkClicked: (Int, Int, String) -> Unit,
+    onUnfavoriteClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -135,7 +136,7 @@ fun FavoriteDrinkItem(
                 modifier = Modifier
                     .padding(spacing.spaceSmall)
                     .align(alignment = Alignment.End),
-                onClick = { }
+                onClick = onUnfavoriteClicked
             ) {
                 Row(
                     horizontalArrangement = Arrangement.SpaceAround,

@@ -7,6 +7,9 @@ data class FavoriteDrinkState(
     val glasses: List<String> = emptyList(),
     val categories: List<String> = emptyList(),
 
+    val showConfirmRemoveFavoriteDialog: Boolean = false,
+    val drinkToRemove: DrinkDetailDomainModel? = null,
+
     val alcoholMenuExpanded: Boolean = false,
     val alcoholFilter: AlcoholFilter = AlcoholFilter.NONE,
 
