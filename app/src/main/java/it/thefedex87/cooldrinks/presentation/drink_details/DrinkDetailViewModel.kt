@@ -10,13 +10,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
-import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -30,7 +26,7 @@ class DrinkDetailViewModel @Inject constructor(
     var state by mutableStateOf(DrinkDetailState())
         private set
 
-    private lateinit var favoriteDrink: DrinkDetailDomainModel
+    private lateinit var drinkDetails: DrinkDetailDomainModel
 
     private var collectFavoriteDrinkJob: Job? = null
 
@@ -47,9 +43,9 @@ class DrinkDetailViewModel @Inject constructor(
         collectFavoriteDrinkJob = viewModelScope.launch {
             repository.getFavoriteDrink(drinkId).collect { drink ->
                 if (drink != null) {
-                    favoriteDrink = drink
-                    val ingredients = favoriteDrink.ingredients.mapIndexedNotNull { index, s ->
-                        Pair(s!!, favoriteDrink.measures[index] ?: "")
+                    drinkDetails = drink
+                    val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
+                        Pair(s!!, drinkDetails.measures[index] ?: "")
                     }
                     state = state.copy(
                         drinkImagePath = drink.drinkThumb,
@@ -67,19 +63,21 @@ class DrinkDetailViewModel @Inject constructor(
                     repository
                         .getDrinkDetails(drinkId)
                         .onSuccess {
-                            favoriteDrink = it.first()
-                            val ingredients = favoriteDrink.ingredients.mapIndexedNotNull { index, s ->
-                                Pair(s!!, favoriteDrink.measures[index]!!)
+                            drinkDetails = it.first()
+                            val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
+                                s?.let { i->
+                                    Pair(i, drinkDetails.measures[index] ?: "")
+                                }
                             }
                             state = state.copy(
                                 isLoading = false,
-                                drinkImagePath = favoriteDrink.drinkThumb,
-                                drinkName = favoriteDrink.name,
+                                drinkImagePath = drinkDetails.drinkThumb,
+                                drinkName = drinkDetails.name,
                                 drinkIngredients = ingredients,
-                                drinkInstructions = favoriteDrink.instructions,
-                                drinkCategory = favoriteDrink.category,
-                                drinkGlass = favoriteDrink.glass,
-                                drinkAlcoholic = if (favoriteDrink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
+                                drinkInstructions = drinkDetails.instructions,
+                                drinkCategory = drinkDetails.category,
+                                drinkGlass = drinkDetails.glass,
+                                drinkAlcoholic = if (drinkDetails.isAlcoholic) "Alcoholic" else "Non Alcoholic",
                                 showConfirmRemoveFavoriteDialog = false,
                                 isFavorite = false
                             )
@@ -97,14 +95,14 @@ class DrinkDetailViewModel @Inject constructor(
                         state = state.copy(showConfirmRemoveFavoriteDialog = true)
                     } else {
                         withContext(Dispatchers.IO) {
-                            repository.insertIntoFavorite(favoriteDrink)
+                            repository.insertIntoFavorite(drinkDetails)
                             state = state.copy(isFavorite = true)
                         }
                     }
                 }
                 is DrinkDetailEvent.RemoveFromFavoriteConfirmed -> {
                     withContext(Dispatchers.IO) {
-                        repository.removeFromFavorite(favoriteDrink.idDrink)
+                        repository.removeFromFavorite(drinkDetails.idDrink)
                     }
                     state = state.copy(
                         isFavorite = false,

@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.presentation.components
 
+import android.graphics.drawable.Icon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,8 @@ fun SearchTextField(
     onSearch: () -> Unit,
     onValueChanged: (String) -> Unit,
     onFocusChanged: (FocusState) -> Unit,
+    trailingIcon: ImageVector = Icons.Default.Search,
+    trailingIconOnClick: () -> Unit = onSearch,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -56,11 +60,11 @@ fun SearchTextField(
                 .fillMaxWidth(),
             trailingIcon = {
                 IconButton(
-                    onClick = onSearch,
+                    onClick = trailingIconOnClick,
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Search,
+                        imageVector = trailingIcon,
                         contentDescription = stringResource(id = R.string.search)
                     )
                 }

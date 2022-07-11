@@ -1,23 +1,23 @@
 package it.thefedex87.cooldrinks.presentation.search_drink
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.ArrowDropUp
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Liquor
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -34,7 +34,9 @@ import it.thefedex87.cooldrinks.presentation.util.UiEvent
 fun SearchDrinkScreen(
     snackbarHostState: SnackbarHostState,
     onDrinkClicked: (Int, Int, String) -> Unit,
+    onIngredientListClicked: () -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    ingredient: String? = null,
     viewModel: SearchDrinkViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -50,6 +52,11 @@ fun SearchDrinkScreen(
                 topBarColor = null
             )
         )
+
+        ingredient?.let {
+            viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
+            viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+        }
 
         viewModel.uiEvent.collect {
             when (it) {
@@ -81,6 +88,8 @@ fun SearchDrinkScreen(
             onFocusChanged = {
                 viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
             },
+            trailingIcon = Icons.Default.List,
+            trailingIconOnClick = onIngredientListClicked,
             modifier = Modifier.padding(
                 horizontal = spacing.spaceExtraSmall,
                 vertical = spacing.spaceSmall
@@ -106,14 +115,20 @@ fun SearchDrinkScreen(
             }
         } else {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+                modifier = Modifier.fillMaxSize()
             ) {
-                if (viewModel.state.showNoDrinkFound)
-                    Text(text = stringResource(id = R.string.no_drink_found))
-
+                //if (viewModel.state.showNoDrinkFound)
+                //    Text(text = stringResource(id = R.string.no_drink_found))
+                Image(
+                    painter = painterResource(id = R.drawable.search_background),
+                    contentDescription = null,
+                    modifier = Modifier.width(250.dp).align(Alignment.Center)
+                )
                 if (viewModel.state.isLoading)
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.TopCenter)
+                            .padding(spacing.spaceMedium)
+                    )
             }
         }
     }

@@ -31,6 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
+import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkScreen
 import it.thefedex87.cooldrinks.util.Consts.TAG
@@ -76,12 +77,24 @@ fun BottomNavigationScreen(
                 values
             )
         ) {
-            composable(BottomNavScreen.Search.route) {
+            composable(
+                route = BottomNavScreen.Search.route
+            ) {
+                val ingredient = navController.currentBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<String>("ingredient")
+
+                Log.d(TAG, "Passed ingredient is: $ingredient")
+
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
+                    onIngredientListClicked = {
+                        navController.navigate(Route.INGREDIENTS)
+                    },
+                    ingredient = ingredient,
                     onDrinkClicked = { id, color, name ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
@@ -125,6 +138,35 @@ fun BottomNavigationScreen(
                     }
                 )
             }
+            composable(
+                route = Route.INGREDIENTS
+            ) {
+                /*Button(onClick = {
+                    /*navController.navigate(
+                        route = "${BottomNavScreen.Search.route}?ingredient=lime"
+                    ) {
+                        popUpTo("${BottomNavScreen.Search.route}?ingredient={ingredient}") { inclusive = true }
+                    }*/
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set("ingredient", "lime")
+                    navController.popBackStack()
+                }) {
+                    Text(text = "TEST BACK")
+                }*/
+                IngredientsScreen(
+                    onComposed = { state ->
+                        bottomNavigationScreenState =
+                            state
+                    },
+                    onItemClick = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("ingredient", it)
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }
@@ -135,7 +177,7 @@ fun TopAppBar(
     topBarVisible: Boolean,
     scrollBehavior: TopAppBarScrollBehavior?,
     navController: NavHostController,
-    actions: @Composable RowScope.() -> Unit = {  },
+    actions: @Composable RowScope.() -> Unit = { },
     color: Color
 ) {
     if (topBarVisible)

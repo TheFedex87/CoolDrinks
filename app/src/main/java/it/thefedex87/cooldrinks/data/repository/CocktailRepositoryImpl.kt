@@ -4,9 +4,11 @@ import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.mapper.toDrinkDetailDomainModel
 import it.thefedex87.cooldrinks.data.mapper.toDrinkDomainModel
 import it.thefedex87.cooldrinks.data.mapper.toFavoriteDrinkEntity
+import it.thefedex87.cooldrinks.data.mapper.toIngredientDomainModel
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
+import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -31,7 +33,7 @@ class CocktailRepositoryImpl constructor(
         ingredient: String
     ): Result<List<DrinkDomainModel>> {
         return try {
-            val drinkLstDto = cocktailDbApi.SearchCocktail(
+            val drinkLstDto = cocktailDbApi.searchCocktail(
                 ingredient = ingredient
             )
 
@@ -46,9 +48,22 @@ class CocktailRepositoryImpl constructor(
         }
     }
 
+    override suspend fun getIngredients(): Result<List<IngredientDomainModel>> {
+        return try {
+            val ingredients = cocktailDbApi.ingredients().drinks
+
+            Result.success(ingredients.map {
+                it.toIngredientDomainModel()
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
     override suspend fun getDrinkDetails(id: Int): Result<List<DrinkDetailDomainModel>> {
         return try {
-            val drinksDetailsDto = cocktailDbApi.DrinkDetails(id)
+            val drinksDetailsDto = cocktailDbApi.drinkDetails(id)
             Result.success(drinksDetailsDto.drinks.mapNotNull { it.toDrinkDetailDomainModel() })
         } catch (e: Exception) {
             e.printStackTrace()
