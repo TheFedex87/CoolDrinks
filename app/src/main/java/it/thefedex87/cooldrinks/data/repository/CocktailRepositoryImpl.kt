@@ -1,13 +1,11 @@
 package it.thefedex87.cooldrinks.data.repository
 
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
-import it.thefedex87.cooldrinks.data.mapper.toDrinkDetailDomainModel
-import it.thefedex87.cooldrinks.data.mapper.toDrinkDomainModel
-import it.thefedex87.cooldrinks.data.mapper.toFavoriteDrinkEntity
-import it.thefedex87.cooldrinks.data.mapper.toIngredientDomainModel
+import it.thefedex87.cooldrinks.data.mapper.*
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
+import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import kotlinx.coroutines.flow.Flow
@@ -55,6 +53,20 @@ class CocktailRepositoryImpl constructor(
             Result.success(ingredients.map {
                 it.toIngredientDomainModel()
             })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getIngredientDetails(ingredient: String): Result<IngredientDetailsDomainModel> {
+        return try {
+            val ingredient = cocktailDbApi
+                .ingredientDetail(ingredient = ingredient)
+                .ingredients
+                .first()
+
+            return Result.success(ingredient.toIngredientDetailsDomainModel())
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

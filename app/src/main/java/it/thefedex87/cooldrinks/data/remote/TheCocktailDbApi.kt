@@ -1,9 +1,6 @@
 package it.thefedex87.cooldrinks.data.remote
 
-import it.thefedex87.cooldrinks.data.remote.dto.DrinkListDto
-import it.thefedex87.cooldrinks.data.remote.dto.DrinksDetailDto
-import it.thefedex87.cooldrinks.data.remote.dto.IngredientDto
-import it.thefedex87.cooldrinks.data.remote.dto.IngredientsDto
+import it.thefedex87.cooldrinks.data.remote.dto.*
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -21,6 +18,11 @@ interface TheCocktailDbApi {
 
     @GET("list.php?i=list")
     suspend fun ingredients(): IngredientsDto
+
+    @GET("search.php?")
+    suspend fun ingredientDetail(
+        @Query("i")ingredient: String
+    ): IngredientsDetailsDto
 
     companion object {
         const val BASE_URL = "https://www.thecocktaildb.com/api/json/v1/1/"

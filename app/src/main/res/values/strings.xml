@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">CoolDrinks</string>
-    <string name="search_hint">Type an ingredient...</string>
+    <string name="search_hint">Type an ingredient…</string>
     <string name="search">Search</string>
+    <string name="alcoholic">Alcoholic</string>
+    <string name="non_alcoholic">Non Alcoholic</string>
+    <string name="no_info">No info</string>
     <string name="search_drink_error">Something went wrong…please retry</string>
     <string name="no_drink_found">No drink found with the specified ingredient</string>
     <string name="drink_removed_from_favorite">Drink removed from favorite</string>

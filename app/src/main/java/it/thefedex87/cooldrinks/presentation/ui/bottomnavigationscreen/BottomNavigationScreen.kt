@@ -99,6 +99,10 @@ fun BottomNavigationScreen(
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
                 )
+
+                navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.remove<String>("ingredient")
             }
             composable(BottomNavScreen.Favorite.route) {
                 FavoriteDrinkScreen(
