@@ -32,59 +32,67 @@ class DrinkDetailViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val drinkId = savedStateHandle.get<Int>("drinkId")!!
+            val drinkId = savedStateHandle.get<Int>("drinkId")
             Log.d(TAG, "Received id drink: $drinkId")
             collectFavoriteDrink(drinkId)
         }
     }
 
-    private fun collectFavoriteDrink(drinkId: Int) {
+    private fun collectFavoriteDrink(drinkId: Int?) {
         collectFavoriteDrinkJob?.cancel()
         collectFavoriteDrinkJob = viewModelScope.launch {
-            repository.getFavoriteDrink(drinkId).collect { drink ->
-                if (drink != null) {
-                    drinkDetails = drink
-                    val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
-                        Pair(s!!, drinkDetails.measures[index] ?: "")
-                    }
-                    state = state.copy(
-                        drinkImagePath = drink.drinkThumb,
-                        drinkName = drink.name,
-                        drinkIngredients = ingredients,
-                        drinkCategory = drink.category,
-                        drinkGlass = drink.glass,
-                        drinkInstructions = drink.instructions,
-                        drinkAlcoholic = if (drink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
-                        showConfirmRemoveFavoriteDialog = false,
-                        isFavorite = true
-                    )
-                } else {
-                    state = state.copy(isLoading = true)
-                    repository
-                        .getDrinkDetails(drinkId)
-                        .onSuccess {
-                            drinkDetails = it.first()
-                            val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
-                                s?.let { i->
-                                    Pair(i, drinkDetails.measures[index] ?: "")
-                                }
-                            }
-                            state = state.copy(
-                                isLoading = false,
-                                drinkImagePath = drinkDetails.drinkThumb,
-                                drinkName = drinkDetails.name,
-                                drinkIngredients = ingredients,
-                                drinkInstructions = drinkDetails.instructions,
-                                drinkCategory = drinkDetails.category,
-                                drinkGlass = drinkDetails.glass,
-                                drinkAlcoholic = if (drinkDetails.isAlcoholic) "Alcoholic" else "Non Alcoholic",
-                                showConfirmRemoveFavoriteDialog = false,
-                                isFavorite = false
-                            )
+            if(drinkId != null) {
+                repository.getFavoriteDrink(drinkId).collect { drink ->
+                    if (drink != null) {
+                        drinkDetails = drink
+                        val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
+                            Pair(s!!, drinkDetails.measures[index] ?: "")
                         }
+                        state = state.copy(
+                            drinkImagePath = drink.drinkThumb,
+                            drinkName = drink.name,
+                            drinkIngredients = ingredients,
+                            drinkCategory = drink.category,
+                            drinkGlass = drink.glass,
+                            drinkInstructions = drink.instructions,
+                            drinkAlcoholic = if (drink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
+                            showConfirmRemoveFavoriteDialog = false,
+                            isFavorite = true
+                        )
+                    } else {
+                        getDrinkDetails(drinkId = drinkId)
+                    }
                 }
+            } else {
+                getDrinkDetails(drinkId = drinkId)
             }
         }
+    }
+
+    private suspend fun getDrinkDetails(drinkId: Int?) {
+        state = state.copy(isLoading = true)
+        repository
+            .getDrinkDetails(drinkId)
+            .onSuccess {
+                drinkDetails = it.first()
+                val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
+                    s?.let { i->
+                        Pair(i, drinkDetails.measures[index] ?: "")
+                    }
+                }
+                state = state.copy(
+                    isLoading = false,
+                    drinkImagePath = drinkDetails.drinkThumb,
+                    drinkName = drinkDetails.name,
+                    drinkIngredients = ingredients,
+                    drinkInstructions = drinkDetails.instructions,
+                    drinkCategory = drinkDetails.category,
+                    drinkGlass = drinkDetails.glass,
+                    drinkAlcoholic = if (drinkDetails.isAlcoholic) "Alcoholic" else "Non Alcoholic",
+                    showConfirmRemoveFavoriteDialog = false,
+                    isFavorite = false
+                )
+            }
     }
 
     fun onEvent(event: DrinkDetailEvent) {
@@ -111,6 +119,9 @@ class DrinkDetailViewModel @Inject constructor(
                 }
                 is DrinkDetailEvent.RemoveFromFavoriteCanceled -> {
                     state = state.copy(showConfirmRemoveFavoriteDialog = false)
+                }
+                is DrinkDetailEvent.GetRandomCocktail -> {
+                    getDrinkDetails(null)
                 }
             }
         }

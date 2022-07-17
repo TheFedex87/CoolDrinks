@@ -1,6 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.Composable
@@ -14,4 +15,5 @@ sealed class BottomNavScreen(
 ) {
     object Search : BottomNavScreen(route = Route.SEARCH_ONLINE_DRINK, icon = Icons.Default.Search, title = "Search")
     object Favorite : BottomNavScreen(route = Route.FAVORITES, icon = Icons.Default.Favorite, title = "Favorite")
+    object RandomDrink : BottomNavScreen(route = Route.RANDOM_DRINK, icon = Icons.Default.Casino, title = "Feel lucky")
 }

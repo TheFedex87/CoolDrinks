@@ -29,17 +29,19 @@ fun FavoriteDrinkScreen(
     snackbarHostState: SnackbarHostState,
     onDrinkClicked: (Int, Int, String) -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     viewModel: FavoriteDrinkViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
 
     LaunchedEffect(key1 = true) {
         onComposed(
-            BottomNavigationScreenState(
+            currentBottomNavigationScreenState.copy(
                 topBarVisible = false,
                 bottomBarVisible = true,
                 topAppBarScrollBehavior = null,
-                topBarColor = null
+                topBarColor = null,
+                floatingActionButtonVisible = false
             )
         )
 

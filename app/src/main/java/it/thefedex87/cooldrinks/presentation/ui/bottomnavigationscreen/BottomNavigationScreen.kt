@@ -2,23 +2,20 @@ package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 
 import android.os.Bundle
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -53,10 +50,20 @@ fun BottomNavigationScreen(
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
+        floatingActionButton = {
+            MyFloatingActionButton(
+                label = bottomNavigationScreenState.floatingActionButtonLabel,
+                prevLabel = bottomNavigationScreenState.floatingActionButtonPrevLabel,
+                visible = bottomNavigationScreenState.floatingActionButtonVisible,
+                onFabClicked = bottomNavigationScreenState.floatingActionButtonClicked ?: {}
+            )
+        },
+        floatingActionButtonPosition = FabPosition.End,
         topBar = {
             TopAppBar(
                 title = bottomNavigationScreenState.topBarTitle,
                 topBarVisible = bottomNavigationScreenState.topBarVisible,
+                showBack = bottomNavigationScreenState.topBarShowBack,
                 scrollBehavior = bottomNavigationScreenState.topAppBarScrollBehavior?.invoke(),
                 navController = navController,
                 actions = bottomNavigationScreenState.topBarActions ?: {},
@@ -91,6 +98,7 @@ fun BottomNavigationScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
+                    currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onIngredientListClicked = {
                         navController.navigate(Route.INGREDIENTS)
                     },
@@ -110,8 +118,23 @@ fun BottomNavigationScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
+                    currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onDrinkClicked = { id, color, name ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
+                    }
+                )
+            }
+            composable(BottomNavScreen.RandomDrink.route) {
+                DrinkDetailScreen(
+                    calculatedDominantColor = null,
+                    drinkId = null,
+                    onDrinkLoaded = {
+                        bottomNavigationScreenState = bottomNavigationScreenState.copy(
+                            topBarTitle = it
+                        )
+                    },
+                    onComposed = { state ->
+                        bottomNavigationScreenState = state
                     }
                 )
             }
@@ -134,8 +157,9 @@ fun BottomNavigationScreen(
                         ?: Color.White
                 val drinkId = it.arguments?.getInt("drinkId")!!
                 DrinkDetailScreen(
-                    dominantColor = dominantColor,
+                    calculatedDominantColor = dominantColor,
                     drinkId = drinkId,
+                    onDrinkLoaded = null,
                     onComposed = { state ->
                         bottomNavigationScreenState =
                             state.copy(topBarTitle = it.arguments?.getString("drinkName")!!)
@@ -179,6 +203,7 @@ fun BottomNavigationScreen(
 fun TopAppBar(
     title: String,
     topBarVisible: Boolean,
+    showBack: Boolean,
     scrollBehavior: TopAppBarScrollBehavior?,
     navController: NavHostController,
     actions: @Composable RowScope.() -> Unit = { },
@@ -193,15 +218,17 @@ fun TopAppBar(
                 Text(text = title)
             },
             navigationIcon = {
-                IconButton(
-                    onClick = {
-                        navController.popBackStack()
+                if(showBack) {
+                    IconButton(
+                        onClick = {
+                            navController.popBackStack()
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = "Navigate back"
+                        )
                     }
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = "Navigate back"
-                    )
                 }
             },
             scrollBehavior = scrollBehavior,
@@ -217,7 +244,8 @@ fun BottomBar(
 ) {
     val screens = listOf(
         BottomNavScreen.Search,
-        BottomNavScreen.Favorite
+        BottomNavScreen.Favorite,
+        BottomNavScreen.RandomDrink
     )
 
     AnimatedVisibility(
@@ -240,8 +268,6 @@ fun BottomBar(
             }
         }
     }
-
-
 }
 
 @Composable
@@ -265,6 +291,36 @@ fun RowScope.AddItem(
             }
         }
     )
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+fun MyFloatingActionButton(
+    label: String?,
+    prevLabel: String?,
+    onFabClicked: () -> Unit,
+    visible: Boolean
+) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = scaleIn(initialScale = 0f),
+        exit = scaleOut(targetScale = 0f),
+    ) {
+        ExtendedFloatingActionButton(
+            onClick = onFabClicked
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.LocalBar,
+                    contentDescription = "Get random cocktail"
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(text = label ?: prevLabel ?: "")
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

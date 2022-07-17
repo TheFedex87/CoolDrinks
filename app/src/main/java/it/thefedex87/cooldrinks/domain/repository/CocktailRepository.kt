@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface CocktailRepository {
     suspend fun searchCocktails(ingredient: String): Result<List<DrinkDomainModel>>
-    suspend fun getDrinkDetails(id: Int) : Result<List<DrinkDetailDomainModel>>
+    suspend fun getDrinkDetails(id: Int?) : Result<List<DrinkDetailDomainModel>>
     suspend fun getIngredients(): Result<List<IngredientDomainModel>>
     suspend fun getIngredientDetails(ingredient: String): Result<IngredientDetailsDomainModel>
 

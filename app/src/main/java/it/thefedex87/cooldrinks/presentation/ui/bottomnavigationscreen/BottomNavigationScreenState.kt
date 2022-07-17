@@ -11,5 +11,10 @@ data class BottomNavigationScreenState(
     val bottomBarVisible: Boolean = true,
     val topBarTitle: String = "",
     val topBarActions: (@Composable RowScope.() -> Unit)? = null,
+    val topBarShowBack: Boolean = true,
     val topAppBarScrollBehavior: (@Composable () -> TopAppBarScrollBehavior)? = null,
+    val floatingActionButtonVisible: Boolean = false,
+    val floatingActionButtonLabel: String? = null,
+    val floatingActionButtonPrevLabel: String? = null,
+    val floatingActionButtonClicked: (() -> Unit)? = null,
 )

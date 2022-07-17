@@ -4,4 +4,5 @@ sealed class DrinkDetailEvent {
     object FavoriteClicked : DrinkDetailEvent()
     object RemoveFromFavoriteConfirmed: DrinkDetailEvent()
     object RemoveFromFavoriteCanceled: DrinkDetailEvent()
+    object GetRandomCocktail: DrinkDetailEvent()
 }

@@ -65,20 +65,6 @@ class SearchDrinkViewModel @Inject constructor(
         }
     }
 
-    fun calcDominantColor(
-        drawable: Drawable,
-        drink: MutableState<DrinkUiModel>,
-        onFinish: (Color) -> Unit
-    ) {
-        val bmp = (drawable as BitmapDrawable).bitmap.copy(Bitmap.Config.ARGB_8888, true)
-        Palette.from(bmp).generate { palette ->
-            palette?.dominantSwatch?.rgb?.let { colorValue ->
-                drink.value = drink.value.copy(dominantColor = colorValue)
-                onFinish(Color(colorValue))
-            }
-        }
-    }
-
     private suspend fun searchDrink() {
         drinkRepository
             .searchCocktails(

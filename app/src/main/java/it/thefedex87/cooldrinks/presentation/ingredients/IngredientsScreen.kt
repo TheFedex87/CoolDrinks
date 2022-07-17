@@ -56,7 +56,8 @@ fun IngredientsScreen(
                 topBarVisible = false,
                 bottomBarVisible = false,
                 topAppBarScrollBehavior = null,
-                topBarColor = null
+                topBarColor = null,
+                floatingActionButtonVisible = false
             )
         )
     }

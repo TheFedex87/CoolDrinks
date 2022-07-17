@@ -27,6 +27,7 @@ import it.thefedex87.cooldrinks.presentation.search_drink.components.DrinkItem
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
+import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 
 @OptIn(ExperimentalMaterial3Api::class)
 @ExperimentalComposeUiApi
@@ -36,6 +37,7 @@ fun SearchDrinkScreen(
     onDrinkClicked: (Int, Int, String) -> Unit,
     onIngredientListClicked: () -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     ingredient: String? = null,
     viewModel: SearchDrinkViewModel = hiltViewModel()
 ) {
@@ -45,11 +47,12 @@ fun SearchDrinkScreen(
 
     LaunchedEffect(key1 = true) {
         onComposed(
-            BottomNavigationScreenState(
+            currentBottomNavigationScreenState.copy(
                 topBarVisible = false,
                 bottomBarVisible = true,
                 topAppBarScrollBehavior = null,
-                topBarColor = null
+                topBarColor = null,
+                floatingActionButtonVisible = false
             )
         )
 
@@ -108,7 +111,7 @@ fun SearchDrinkScreen(
                             viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
                         },
                         calcDominantColor = { drawable, onFinish ->
-                            viewModel.calcDominantColor(drawable, drink, onFinish)
+                            calcDominantColor(drawable, drink, onFinish)
                         }
                     )
                 }

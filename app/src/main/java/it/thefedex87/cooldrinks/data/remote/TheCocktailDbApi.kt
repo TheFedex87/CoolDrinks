@@ -16,6 +16,9 @@ interface TheCocktailDbApi {
         @Query("i") id: Int
     ): DrinksDetailDto
 
+    @GET("random.php")
+    suspend fun randomDrink(): DrinksDetailDto
+
     @GET("list.php?i=list")
     suspend fun ingredients(): IngredientsDto
 

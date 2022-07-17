@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.data.repository
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.mapper.*
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
+import it.thefedex87.cooldrinks.data.remote.dto.DrinksDetailDto
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
@@ -73,9 +74,14 @@ class CocktailRepositoryImpl constructor(
         }
     }
 
-    override suspend fun getDrinkDetails(id: Int): Result<List<DrinkDetailDomainModel>> {
+    override suspend fun getDrinkDetails(id: Int?): Result<List<DrinkDetailDomainModel>> {
         return try {
-            val drinksDetailsDto = cocktailDbApi.drinkDetails(id)
+            val drinksDetailsDto =
+                if (id != null)
+                    cocktailDbApi.drinkDetails(id)
+                else
+                    cocktailDbApi.randomDrink()
+
             Result.success(drinksDetailsDto.drinks.mapNotNull { it.toDrinkDetailDomainModel() })
         } catch (e: Exception) {
             e.printStackTrace()

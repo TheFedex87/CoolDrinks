@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.presentation.drink_details
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -8,10 +9,9 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -28,15 +28,22 @@ import it.thefedex87.cooldrinks.presentation.drink_details.components.Ingredient
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.ui.theme.Red40
+import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
+import it.thefedex87.cooldrinks.util.Consts
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrinkDetailScreen(
-    dominantColor: Color,
-    drinkId: Int,
+    calculatedDominantColor: Color?,
+    drinkId: Int?,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    onDrinkLoaded: ((String) -> Unit)?,
     viewModel: DrinkDetailViewModel = hiltViewModel()
 ) {
+    var dominantColor by remember {
+        mutableStateOf(calculatedDominantColor)
+    }
+
     val appBarScrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
 
@@ -72,22 +79,40 @@ fun DrinkDetailScreen(
         onComposed(
             BottomNavigationScreenState(
                 topBarVisible = true,
-                bottomBarVisible = false,
+                bottomBarVisible = drinkId == null,
                 topAppBarScrollBehavior = {
                     appBarScrollBehavior
                 },
                 topBarActions = {
-                    IconButton(onClick = {
-                        viewModel.onEvent(DrinkDetailEvent.FavoriteClicked)
-                    }) {
-                        Icon(
-                            imageVector = if (viewModel.state.isFavorite == false)
-                                Icons.Default.FavoriteBorder else
-                                Icons.Default.Favorite,
-                            contentDescription = null,
-                            tint = Color.Red
-                        )
+                    Row {
+                        if (drinkId == null) {
+                            IconButton(onClick = {
+                                viewModel.onEvent(DrinkDetailEvent.GetRandomCocktail)
+                            }) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = "Get new random cocktail"
+                                )
+                            }
+                        }
+                        IconButton(onClick = {
+                            viewModel.onEvent(DrinkDetailEvent.FavoriteClicked)
+                        }) {
+                            Icon(
+                                imageVector = if (viewModel.state.isFavorite == false)
+                                    Icons.Default.FavoriteBorder else
+                                    Icons.Default.Favorite,
+                                contentDescription = null,
+                                tint = Color.Red
+                            )
+                        }
                     }
+                },
+                topBarShowBack = drinkId != null,
+                floatingActionButtonVisible = false,//drinkId == null,
+                floatingActionButtonLabel = null,//if(drinkId != null) null else "Random Drink",
+                floatingActionButtonClicked = {
+                    //viewModel.onEvent(DrinkDetailEvent.GetRandomCocktail)
                 }
             )
         )
@@ -109,10 +134,12 @@ fun DrinkDetailScreen(
     )*/
 
     if (viewModel.state.isLoading) {
+        dominantColor = null
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     } else {
+        onDrinkLoaded?.invoke(viewModel.state.drinkName!!)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -180,7 +207,10 @@ fun DrinkDetailScreen(
                                 )
                                 Spacer(modifier = Modifier.height(spacing.spaceSmall))
                                 viewModel.state.drinkIngredients?.map {
-                                    IngredientItem(ingredientName = it.first, ingredientMeasure = it.second)
+                                    IngredientItem(
+                                        ingredientName = it.first,
+                                        ingredientMeasure = it.second
+                                    )
                                 }
                             }
                         }
@@ -205,7 +235,10 @@ fun DrinkDetailScreen(
                             .align(alignment = Alignment.Center)
                             .size(235.dp)
                             .clip(CircleShape)
-                            .background(dominantColor.copy(alpha = 0.6f)),
+                            .background(
+                                (dominantColor
+                                    ?: MaterialTheme.colorScheme.background).copy(alpha = 0.6f)
+                            ),
                     ) {
                         AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
@@ -219,6 +252,14 @@ fun DrinkDetailScreen(
                             onLoading = {
                                 R.drawable.drink
                             },
+                            onSuccess = {
+                                if (calculatedDominantColor == null) {
+                                    Log.d(Consts.TAG, "Calculate dominant color")
+                                    calcDominantColor(it.result.drawable, null) { color ->
+                                        dominantColor = color
+                                    }
+                                }
+                            },
                             onError = {
                                 R.drawable.drink
                             },
@@ -227,6 +268,9 @@ fun DrinkDetailScreen(
                     }
                 }
             }
+            /*if (drinkId == null) {
+                Spacer(modifier = Modifier.height(70.dp))
+            }*/
         }
     }
 }
