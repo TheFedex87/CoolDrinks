@@ -13,6 +13,8 @@ import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,7 +30,7 @@ class DrinkDetailViewModel @Inject constructor(
 
     private lateinit var drinkDetails: DrinkDetailDomainModel
 
-    private var collectFavoriteDrinkJob: Job? = null
+    //private var collectFavoriteDrinkJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -39,30 +41,30 @@ class DrinkDetailViewModel @Inject constructor(
     }
 
     private fun collectFavoriteDrink(drinkId: Int?) {
-        collectFavoriteDrinkJob?.cancel()
-        collectFavoriteDrinkJob = viewModelScope.launch {
-            if(drinkId != null) {
-                repository.getFavoriteDrink(drinkId).collect { drink ->
-                    if (drink != null) {
-                        drinkDetails = drink
-                        val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
-                            Pair(s!!, drinkDetails.measures[index] ?: "")
-                        }
-                        state = state.copy(
-                            drinkImagePath = drink.drinkThumb,
-                            drinkName = drink.name,
-                            drinkIngredients = ingredients,
-                            drinkCategory = drink.category,
-                            drinkGlass = drink.glass,
-                            drinkInstructions = drink.instructions,
-                            drinkAlcoholic = if (drink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
-                            showConfirmRemoveFavoriteDialog = false,
-                            isFavorite = true
-                        )
-                    } else {
-                        getDrinkDetails(drinkId = drinkId)
+        //collectFavoriteDrinkJob?.cancel()
+        /*collectFavoriteDrinkJob = */viewModelScope.launch {
+            if (drinkId != null) {
+                val drink = repository.getFavoriteDrink(drinkId).first()
+                if (drink != null) {
+                    drinkDetails = drink
+                    val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
+                        Pair(s!!, drinkDetails.measures[index] ?: "")
                     }
+                    state = state.copy(
+                        drinkImagePath = drink.drinkThumb,
+                        drinkName = drink.name,
+                        drinkIngredients = ingredients,
+                        drinkCategory = drink.category,
+                        drinkGlass = drink.glass,
+                        drinkInstructions = drink.instructions,
+                        drinkAlcoholic = if (drink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
+                        showConfirmRemoveFavoriteDialog = false,
+                        isFavorite = true
+                    )
+                } else {
+                    getDrinkDetails(drinkId = drinkId)
                 }
+
             } else {
                 getDrinkDetails(drinkId = drinkId)
             }
@@ -76,10 +78,16 @@ class DrinkDetailViewModel @Inject constructor(
             .onSuccess {
                 drinkDetails = it.first()
                 val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
-                    s?.let { i->
+                    s?.let { i ->
                         Pair(i, drinkDetails.measures[index] ?: "")
                     }
                 }
+
+                val isFavorite = if (drinkId == null) {
+                    val favorite = repository.getFavoriteDrink(drinkDetails.idDrink).first()
+                    favorite != null
+                } else false
+
                 state = state.copy(
                     isLoading = false,
                     drinkImagePath = drinkDetails.drinkThumb,
@@ -90,7 +98,7 @@ class DrinkDetailViewModel @Inject constructor(
                     drinkGlass = drinkDetails.glass,
                     drinkAlcoholic = if (drinkDetails.isAlcoholic) "Alcoholic" else "Non Alcoholic",
                     showConfirmRemoveFavoriteDialog = false,
-                    isFavorite = false
+                    isFavorite = isFavorite
                 )
             }
     }
@@ -99,7 +107,7 @@ class DrinkDetailViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is DrinkDetailEvent.FavoriteClicked -> {
-                    if(state.isFavorite == true) {
+                    if (state.isFavorite == true) {
                         state = state.copy(showConfirmRemoveFavoriteDialog = true)
                     } else {
                         withContext(Dispatchers.IO) {
