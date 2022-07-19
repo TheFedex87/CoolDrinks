@@ -250,7 +250,7 @@ fun DrinkDetailScreen(
                                 .size(220.dp)
                                 .align(Alignment.Center),
                             onLoading = {
-                                R.drawable.drink
+                                R.drawable.search_background
                             },
                             onSuccess = {
                                 if (calculatedDominantColor == null) {
@@ -261,7 +261,7 @@ fun DrinkDetailScreen(
                                 }
                             },
                             onError = {
-                                R.drawable.drink
+                                R.drawable.search_background
                             },
                             contentDescription = viewModel.state.drinkName
                         )

@@ -65,10 +65,10 @@ fun FavoriteDrinkItem(
                     .weight(1.2f)
                     .clip(RoundedCornerShape(12.dp)),
                 onLoading = {
-                    R.drawable.drink
+                    R.drawable.search_background
                 },
                 onError = {
-                    R.drawable.drink
+                    R.drawable.search_background
                 },
                 contentDescription = drink.name,
                 contentScale = ContentScale.FillWidth

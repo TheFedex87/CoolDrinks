@@ -174,10 +174,10 @@ fun DrinkItem(
                         }
                     },
                     onLoading = {
-                        R.drawable.drink
+                        R.drawable.search_background
                     },
                     onError = {
-                        R.drawable.drink
+                        R.drawable.search_background
                     },
                     model = ImageRequest.Builder(LocalContext.current)
                         .data(drink.image)
