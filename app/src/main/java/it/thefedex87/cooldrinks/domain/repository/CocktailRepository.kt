@@ -1,9 +1,7 @@
 package it.thefedex87.cooldrinks.domain.repository
 
-import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
-import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
-import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
-import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
+import it.thefedex87.cooldrinks.domain.model.*
+import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import kotlinx.coroutines.flow.Flow
 
 interface CocktailRepository {
@@ -17,4 +15,7 @@ interface CocktailRepository {
 
     suspend fun insertIntoFavorite(drink: DrinkDetailDomainModel): Long
     suspend fun removeFromFavorite(drinkId: Int)
+
+    suspend fun updateVisualizationType(type: VisualizationType)
+    val appPreferencesManager: Flow<AppPreferences>
 }

@@ -23,6 +23,8 @@ import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +39,14 @@ class SearchDrinkViewModel @Inject constructor(
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        viewModelScope.launch {
+            drinkRepository.appPreferencesManager.collectLatest {
+                state = state.copy(visualizationType = it.visualizationType)
+            }
+        }
+    }
 
     fun onEvent(event: SearchDrinkEvent) {
         viewModelScope.launch {
@@ -60,6 +70,9 @@ class SearchDrinkViewModel @Inject constructor(
                 }
                 is SearchDrinkEvent.OnFavoriteClick -> {
                     changeFavoriteState(event.drink)
+                }
+                is SearchDrinkEvent.OnVisualizationTypeChange -> {
+                    drinkRepository.updateVisualizationType(event.visualizationType)
                 }
             }
         }

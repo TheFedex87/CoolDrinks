@@ -3,11 +3,8 @@ package it.thefedex87.cooldrinks.data.repository
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.mapper.*
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
-import it.thefedex87.cooldrinks.data.remote.dto.DrinksDetailDto
-import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
-import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
-import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
-import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
+import it.thefedex87.cooldrinks.domain.model.*
+import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -16,9 +13,17 @@ import kotlinx.coroutines.flow.mapLatest
 import java.io.EOFException
 
 class CocktailRepositoryImpl constructor(
-    val cocktailDbApi: TheCocktailDbApi,
-    val drinkDao: FavoriteDrinkDao,
+    private val cocktailDbApi: TheCocktailDbApi,
+    private val drinkDao: FavoriteDrinkDao,
+    private val preferencesManager: PreferencesManager
 ) : CocktailRepository {
+    override val appPreferencesManager: Flow<AppPreferences>
+        get() = preferencesManager.preferencesFlow()
+
+    override suspend fun updateVisualizationType(type: VisualizationType) {
+        preferencesManager.updateVisualizationType(type)
+    }
+
     override val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
         get() = drinkDao.getFavoriteDrinks().mapLatest { favoriteDrink ->
             favoriteDrink.map { it.toDrinkDetailDomainModel() }

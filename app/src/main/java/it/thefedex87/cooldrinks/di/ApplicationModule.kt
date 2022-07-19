@@ -1,15 +1,19 @@
 package it.thefedex87.cooldrinks.di
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import it.thefedex87.cooldrinks.data.local.CoolDrinkDatabase
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
+import it.thefedex87.cooldrinks.data.preferences.DefaultPreferencesManager
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.data.repository.CocktailRepositoryImpl
+import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -37,6 +41,13 @@ object ApplicationModule {
             "cool_drink_db"
         ).build()
 
+    @Singleton
+    @Provides
+    fun providePrefrencesManager(
+        @ApplicationContext context: Context
+    ): PreferencesManager {
+        return DefaultPreferencesManager(context = context)
+    }
 
     @Singleton
     @Provides
@@ -47,10 +58,12 @@ object ApplicationModule {
     @Provides
     fun provideCocktailRepository(
         cocktailDbApi: TheCocktailDbApi,
-        drinkDao: FavoriteDrinkDao
+        drinkDao: FavoriteDrinkDao,
+        preferencesManager: PreferencesManager
     ): CocktailRepository =
         CocktailRepositoryImpl(
             cocktailDbApi = cocktailDbApi,
-            drinkDao = drinkDao
+            drinkDao = drinkDao,
+            preferencesManager = preferencesManager
         )
 }

@@ -69,11 +69,7 @@ fun SearchTextField(
                     )
                 }
             },
-            shape = MaterialTheme.shapes.extraLarge,
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                //containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                //focusedTrailingIconColor = MaterialTheme.colorScheme.primary
-            )
+            shape = MaterialTheme.shapes.extraLarge
         )
     }
 }

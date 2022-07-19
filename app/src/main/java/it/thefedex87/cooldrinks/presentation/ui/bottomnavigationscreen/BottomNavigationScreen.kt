@@ -98,6 +98,7 @@ fun BottomNavigationScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
+                    paddingValues = values,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onIngredientListClicked = {
                         navController.navigate(Route.INGREDIENTS)
