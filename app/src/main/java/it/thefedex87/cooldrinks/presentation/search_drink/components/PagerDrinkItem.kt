@@ -127,6 +127,7 @@ fun PagerScope.PagerDrinkItem(
                 Icon(
                     imageVector = if (drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Favorite",
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier
                         .size(100.dp)
                         .clickable {
