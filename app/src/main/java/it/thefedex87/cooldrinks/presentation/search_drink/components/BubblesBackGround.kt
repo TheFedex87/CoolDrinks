@@ -27,39 +27,33 @@ fun BubblesBackGround(
         Box(
             modifier = Modifier
                 .height(400.dp)
-                .fillMaxWidth()
+                .width(400.dp)
                 .offset(y = (-270).dp, x = 120.dp)
                 .blur(3.dp)
                 .padding(20.dp)
                 .border(
                     width = 6.dp,
                     color = color,
-                    shape = RoundedCornerShape(
-                        bottomStart = (configuration.screenWidthDp / 2).dp,
-                        bottomEnd = (configuration.screenWidthDp / 2).dp
-                    )
+                    shape = CircleShape
                 )
                 .align(Alignment.TopEnd)
         )
         Box(
             modifier = Modifier
                 .height(399.dp)
-                .fillMaxWidth()
+                .width(399.dp)
                 .offset(y = (-271).dp, x = 120.dp)
                 .padding(20.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
-                    shape = RoundedCornerShape(
-                        bottomStart = (configuration.screenWidthDp / 2).dp,
-                        bottomEnd = (configuration.screenWidthDp / 2).dp
-                    )
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
+                    shape = CircleShape
                 )
                 .align(Alignment.TopEnd)
         )
 
 
-        Box(
+        /*Box(
             modifier = Modifier
                 .height(120.dp)
                 .width(120.dp)
@@ -221,38 +215,32 @@ fun BubblesBackGround(
                     shape = CircleShape
                 )
                 .align(Alignment.BottomEnd)
-        )
+        )*/
 
         Box(
             modifier = Modifier
                 .height(400.dp)
-                .fillMaxWidth()
+                .width(400.dp)
                 .offset(y = (300).dp - bottomPadding, x = (-200).dp)
                 .blur(3.dp)
                 .padding(20.dp)
                 .border(
                     width = 6.dp,
                     color = color,
-                    shape = RoundedCornerShape(
-                        topStart = (configuration.screenWidthDp / 2).dp,
-                        topEnd = (configuration.screenWidthDp / 2).dp
-                    )
+                    shape = CircleShape
                 )
                 .align(Alignment.BottomStart)
         )
         Box(
             modifier = Modifier
                 .height(399.dp)
-                .fillMaxWidth()
-                .offset(y = (301).dp - bottomPadding, x = (-202).dp)
+                .width(399.dp)
+                .offset(y = (301).dp - bottomPadding, x = (-200).dp)
                 .padding(20.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
-                    shape = RoundedCornerShape(
-                        topStart = (configuration.screenWidthDp / 2).dp,
-                        topEnd = (configuration.screenWidthDp / 2).dp
-                    )
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
+                    shape = CircleShape
                 )
                 .align(Alignment.BottomStart)
         )

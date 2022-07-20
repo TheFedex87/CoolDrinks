@@ -139,7 +139,7 @@ fun SearchDrinkScreen(
         if (viewModel.state.isLoading)
             CircularProgressIndicator(
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
+                    .align(Alignment.Center)
                     .padding(spacing.spaceMedium)
             )
     }
@@ -179,51 +179,19 @@ fun SearchDrinkScreen(
                 ) { page ->
                     if (page <= viewModel.state.foundDrinks.lastIndex) {
                         val drink = viewModel.state.foundDrinks[page]
-                        Card(modifier = Modifier
-                            .fillMaxSize()
-                            .padding(8.dp)
-                            .graphicsLayer {
-                                // Calculate the absolute offset for the current page from the
-                                // scroll position. We use the absolute value which allows us to mirror
-                                // any effects for both directions
-                                val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
-
-                                // We animate the scaleX + scaleY, between 85% and 100%
-                                lerp(
-                                    start = 0.85f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                ).also { scale ->
-                                    scaleX = scale
-                                    scaleY = scale
-                                }
-
-                                // We animate the alpha, between 50% and 100%
-                                alpha = lerp(
-                                    start = 0.5f,
-                                    stop = 1f,
-                                    fraction = 1f - pageOffset.coerceIn(0f, 1f)
-                                )
-                            }) {
-                            PagerDrinkItem(
-                                drink = drink.value,
-                                onItemClick = { id, color, name ->
-                                    onDrinkClicked(id, color, name)
-                                },
-                                onFavoriteClick = {
-                                    viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                                },
-                                calcDominantColor = { drawable, onFinish ->
-                                    Log.d(TAG, "Calculated dominant color")
-                                    calcDominantColor(drawable, drink) {
-                                        onFinish(it)
-                                        if (page == 0) {
-                                            dominantColor = it
-                                        }
-                                    }
-                                }
-                            )
-                        }
+                        PagerDrinkItem(
+                            drink = drink.value,
+                            onItemClick = { id, color, name ->
+                                onDrinkClicked(id, color, name)
+                            },
+                            page = page,
+                            onFavoriteClick = {
+                                viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                            },
+                            calcDominantColor = { drawable, onFinish ->
+                                calcDominantColor(drawable, drink, onFinish)
+                            }
+                        )
                     }
                 }
             } else if (viewModel.state.visualizationType == VisualizationType.List) {

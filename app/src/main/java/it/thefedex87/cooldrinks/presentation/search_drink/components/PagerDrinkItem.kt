@@ -8,34 +8,72 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.PagerScope
+import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
 import it.thefedex87.cooldrinks.util.Consts
+import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPagerApi::class)
 @Composable
-fun PagerDrinkItem(
+fun PagerScope.PagerDrinkItem(
     drink: DrinkUiModel,
     modifier: Modifier = Modifier,
     onItemClick: (Int, Int, String) -> Unit,
+    page: Int,
     onFavoriteClick: (DrinkUiModel) -> Unit,
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
 ) {
+    ElevatedCard(modifier = modifier
+        .fillMaxSize()
+        .clickable {
+            onItemClick(
+                drink.id,
+                drink.dominantColor,
+                drink.name
+            )
+        }
+        .padding(8.dp)
+        .graphicsLayer {
+            // Calculate the absolute offset for the current page from the
+            // scroll position. We use the absolute value which allows us to mirror
+            // any effects for both directions
+            val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
+
+            // We animate the scaleX + scaleY, between 85% and 100%
+            lerp(
+                start = 0.85f,
+                stop = 1f,
+                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+            ).also { scale ->
+                scaleX = scale
+                scaleY = scale
+            }
+
+            // We animate the alpha, between 50% and 100%
+            alpha = lerp(
+                start = 0.5f,
+                stop = 1f,
+                fraction = 1f - pageOffset.coerceIn(0f, 1f)
+            )
+        }) {
     Column(modifier = Modifier.fillMaxSize()) {
         AsyncImage(
             modifier = Modifier
@@ -66,18 +104,20 @@ fun PagerDrinkItem(
             contentScale = ContentScale.FillWidth
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Box(modifier = Modifier
-            .weight(1f)
-            .fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxSize()
+        ) {
             Text(
-                modifier = Modifier.align(Alignment.TopCenter),
+                modifier = Modifier.align(Alignment.TopCenter).padding(horizontal = 4.dp),
                 text = drink.name,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
-            if(drink.isLoadingFavorite) {
+            if (drink.isLoadingFavorite) {
                 CircularProgressIndicator(
                     modifier = Modifier
                         .size(30.dp)
@@ -85,7 +125,7 @@ fun PagerDrinkItem(
                 )
             } else {
                 Icon(
-                    imageVector = if(drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                    imageVector = if (drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                     contentDescription = "Favorite",
                     modifier = Modifier
                         .size(100.dp)
@@ -96,6 +136,6 @@ fun PagerDrinkItem(
                 )
             }
         }
-
+    }
     }
 }
