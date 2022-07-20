@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -216,10 +217,14 @@ fun TopAppBar(
                 containerColor = color
             ),
             title = {
-                Text(text = title)
+                Text(
+                    text = title,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             },
             navigationIcon = {
-                if(showBack) {
+                if (showBack) {
                     IconButton(
                         onClick = {
                             navController.popBackStack()
