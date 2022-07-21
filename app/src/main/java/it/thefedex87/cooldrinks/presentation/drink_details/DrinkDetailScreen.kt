@@ -248,7 +248,7 @@ fun DrinkDetailScreen(
                                     expandedIndex = 1
                                 },
                                 colors = CardDefaults.elevatedCardColors(
-                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                    containerColor = MaterialTheme.colorScheme.surfaceVariant
                                 ),
                                 shape = RoundedCornerShape(31.dp)
                             ) {
@@ -272,7 +272,12 @@ fun DrinkDetailScreen(
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .verticalScroll(rememberScrollState())
+                                                .let {
+                                                    if(expandedIndex == 1) {
+                                                        it.verticalScroll(rememberScrollState())
+                                                    } else it
+                                                }
+
                                         ) {
                                             viewModel.state.drinkIngredients?.map {
                                                 IngredientItem(
@@ -290,7 +295,7 @@ fun DrinkDetailScreen(
                                             expandedIndex = 2
                                         },
                                         colors = CardDefaults.elevatedCardColors(
-                                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                            containerColor = MaterialTheme.colorScheme.inverseSurface
                                         ),
                                         shape = RoundedCornerShape(31.dp)
                                     ) {
@@ -315,7 +320,11 @@ fun DrinkDetailScreen(
                                                             .height(
                                                                 expandedHeight * anim3.value
                                                             )
-                                                            .verticalScroll(state = rememberScrollState()),
+                                                            .let {
+                                                                if(expandedIndex == 2) {
+                                                                    it.verticalScroll(state = rememberScrollState())
+                                                                } else it
+                                                            },
                                                         text = it
                                                     )
                                                 }
