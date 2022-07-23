@@ -5,6 +5,7 @@ import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
 
 data class IngredientsState(
     val isLoading: Boolean = false,
+    val showRetryButton: Boolean = false,
     val ingredients: List<IngredientDomainModel> = emptyList(),
     val showDetailOfIngredient: String? = null,
     val isLoadingIngredientInfo: Boolean = false,

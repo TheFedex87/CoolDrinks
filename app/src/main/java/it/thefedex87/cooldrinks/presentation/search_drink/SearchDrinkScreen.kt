@@ -33,6 +33,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
 @ExperimentalComposeUiApi
@@ -83,10 +84,13 @@ fun SearchDrinkScreen(
             when (it) {
                 is UiEvent.ShowSnackBar -> {
                     keyboardController?.hide()
-                    snackbarHostState.showSnackbar(
-                        message = it.message.asString(context),
-                        duration = SnackbarDuration.Long
-                    )
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    launch {
+                        snackbarHostState.showSnackbar(
+                            message = it.message.asString(context),
+                            duration = SnackbarDuration.Long
+                        )
+                    }
                 }
             }
         }

@@ -188,6 +188,7 @@ fun BottomNavigationScreen(
                     Text(text = "TEST BACK")
                 }*/
                 IngredientsScreen(
+                    snackbarHostState = snackbarHostState,
                     onComposed = { state ->
                         bottomNavigationScreenState =
                             state

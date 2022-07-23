@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.data.remote
 
+import it.thefedex87.cooldrinks.BuildConfig
 import it.thefedex87.cooldrinks.data.remote.dto.*
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -28,6 +29,6 @@ interface TheCocktailDbApi {
     ): IngredientsDetailsDto
 
     companion object {
-        const val BASE_URL = "https://www.thecocktaildb.com/api/json/v1/1/"
+        const val BASE_URL = "https://www.thecocktaildb.com/api/json/v2/${BuildConfig.THE_COCKTAIL_DB_API}/"
     }
 }

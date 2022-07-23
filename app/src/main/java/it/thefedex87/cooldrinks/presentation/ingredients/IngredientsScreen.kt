@@ -10,15 +10,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -28,15 +27,20 @@ import it.thefedex87.cooldrinks.presentation.ingredients.components.IngredientDe
 import it.thefedex87.cooldrinks.presentation.ingredients.components.IngredientItem
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
+import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 @Composable
 fun IngredientsScreen(
+    snackbarHostState: SnackbarHostState,
     onItemClick: (String) -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
     viewModel: IngredientsViewModel = hiltViewModel()
 ) {
     val spacing = LocalSpacing.current
+    val context = LocalContext.current
 
     if (viewModel.state.showDetailOfIngredient != null) {
         IngredientDetailsDialog(
@@ -60,24 +64,53 @@ fun IngredientsScreen(
                 floatingActionButtonVisible = false
             )
         )
+
+        viewModel.uiEvent.collect {
+            when (it) {
+                is UiEvent.ShowSnackBar -> {
+                    snackbarHostState.currentSnackbarData?.dismiss()
+                    launch {
+                        snackbarHostState.showSnackbar(
+                            it.message.asString(context),
+                            duration = SnackbarDuration.Long
+                        )
+                    }
+                }
+            }
+        }
     }
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(spacing.spaceMedium)
-    ) {
-        items(viewModel.state.ingredients) { ingredient ->
-            IngredientItem(
-                name = ingredient.name,
-                onIngredientInfoClick = {
-                    viewModel.onEvent(IngredientsEvent.ShowIngredientsDetails(ingredient = ingredient.name))
-                },
-                showSeparator = viewModel.state.ingredients.indexOf(ingredient) < viewModel.state.ingredients.lastIndex,
-                onItemClick = {
-                    onItemClick(ingredient.name)
+    if (viewModel.state.ingredients.isNotEmpty()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(spacing.spaceMedium)
+        ) {
+            items(viewModel.state.ingredients) { ingredient ->
+                IngredientItem(
+                    name = ingredient.name,
+                    onIngredientInfoClick = {
+                        viewModel.onEvent(IngredientsEvent.ShowIngredientsDetails(ingredient = ingredient.name))
+                    },
+                    showSeparator = viewModel.state.ingredients.indexOf(ingredient) < viewModel.state.ingredients.lastIndex,
+                    onItemClick = {
+                        onItemClick(ingredient.name)
+                    }
+                )
+            }
+        }
+    }
+
+    if (viewModel.state.showRetryButton) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            OutlinedButton(
+                modifier = Modifier.align(Alignment.Center),
+                onClick = {
+                    viewModel.onEvent(IngredientsEvent.RetryFetchIngredients)
                 }
-            )
+            ) {
+                Text(text = stringResource(id = R.string.retry))
+            }
         }
     }
 }

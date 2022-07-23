@@ -31,4 +31,6 @@
     <string name="navigate_back">Navigate back</string>
     <string name="favorites">Favorites</string>
     <string name="feel_lucky">Feel lucky</string>
+    <string name="generic_error">Something went wrong…please retry</string>
+    <string name="retry">Retry</string>
 </resources>
