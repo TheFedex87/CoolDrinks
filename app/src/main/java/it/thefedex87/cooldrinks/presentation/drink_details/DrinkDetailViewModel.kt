@@ -1,15 +1,19 @@
 package it.thefedex87.cooldrinks.presentation.drink_details
 
+import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -35,12 +39,13 @@ class DrinkDetailViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             val drinkId = savedStateHandle.get<Int>("drinkId")
+            val dominantColor = savedStateHandle.get<Int>("dominantColor")
             Log.d(TAG, "Received id drink: $drinkId")
-            collectFavoriteDrink(drinkId)
+            collectFavoriteDrink(drinkId, dominantColor)
         }
     }
 
-    private fun collectFavoriteDrink(drinkId: Int?) {
+    private fun collectFavoriteDrink(drinkId: Int?, dominantColor: Int?) {
         //collectFavoriteDrinkJob?.cancel()
         /*collectFavoriteDrinkJob = */viewModelScope.launch {
             if (drinkId != null) {
@@ -57,26 +62,27 @@ class DrinkDetailViewModel @Inject constructor(
                         drinkCategory = drink.category,
                         drinkGlass = drink.glass,
                         drinkInstructions = drink.instructions,
-                        drinkAlcoholic = if (drink.isAlcoholic) "Alcoholic" else "Non Alcoholic",
+                        drinkAlcoholic = if (drink.isAlcoholic) UiText.StringResource(R.string.alcoholic) else UiText.StringResource(R.string.non_alcoholic),
                         showConfirmRemoveFavoriteDialog = false,
-                        isFavorite = true
+                        isFavorite = true,
+                        drinkDominantColor = drink.dominantColor
                     )
                 } else {
-                    getDrinkDetails(drinkId = drinkId)
+                    getDrinkDetails(drinkId = drinkId, dominantColor)
                 }
 
             } else {
-                getDrinkDetails(drinkId = drinkId)
+                getDrinkDetails(drinkId = drinkId, dominantColor)
             }
         }
     }
 
-    private suspend fun getDrinkDetails(drinkId: Int?) {
+    private suspend fun getDrinkDetails(drinkId: Int?, dominantColor: Int?) {
         state = state.copy(isLoading = true)
         repository
             .getDrinkDetails(drinkId)
             .onSuccess {
-                drinkDetails = it.first()
+                drinkDetails = it.first().copy(dominantColor = dominantColor)
                 val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
                     s?.let { i ->
                         Pair(i, drinkDetails.measures[index] ?: "")
@@ -96,9 +102,10 @@ class DrinkDetailViewModel @Inject constructor(
                     drinkInstructions = drinkDetails.instructions,
                     drinkCategory = drinkDetails.category,
                     drinkGlass = drinkDetails.glass,
-                    drinkAlcoholic = if (drinkDetails.isAlcoholic) "Alcoholic" else "Non Alcoholic",
+                    drinkAlcoholic = if (drinkDetails.isAlcoholic) UiText.StringResource(R.string.alcoholic) else UiText.StringResource(R.string.non_alcoholic),
                     showConfirmRemoveFavoriteDialog = false,
-                    isFavorite = isFavorite
+                    isFavorite = isFavorite,
+                    drinkDominantColor = dominantColor
                 )
             }
     }
@@ -129,9 +136,22 @@ class DrinkDetailViewModel @Inject constructor(
                     state = state.copy(showConfirmRemoveFavoriteDialog = false)
                 }
                 is DrinkDetailEvent.GetRandomCocktail -> {
-                    getDrinkDetails(null)
+                    getDrinkDetails(null, null)
+                }
+                is DrinkDetailEvent.DrawableLoaded -> {
+                    calcDominantColor(event.drawable)
                 }
             }
+        }
+    }
+
+    private fun calcDominantColor(drawable: Drawable) {
+        it.thefedex87.cooldrinks.presentation.util.calcDominantColor(
+            drawable,
+            null
+        ) { color ->
+            state = state.copy(drinkDominantColor = color.toArgb())
+            drinkDetails = drinkDetails.copy(dominantColor = color.toArgb())
         }
     }
 }

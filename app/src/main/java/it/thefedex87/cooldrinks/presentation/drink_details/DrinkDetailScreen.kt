@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,7 @@ import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNav
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 import it.thefedex87.cooldrinks.util.Consts
+import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
@@ -43,9 +45,9 @@ fun DrinkDetailScreen(
     onDrinkLoaded: ((String) -> Unit)?,
     viewModel: DrinkDetailViewModel = hiltViewModel()
 ) {
-    var dominantColor by remember {
+    /*var dominantColor by remember {
         mutableStateOf(calculatedDominantColor)
-    }
+    }*/
 
     val appBarScrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
@@ -137,7 +139,7 @@ fun DrinkDetailScreen(
     )*/
 
     if (viewModel.state.isLoading) {
-        dominantColor = null
+        //dominantColor = null
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
@@ -193,7 +195,7 @@ fun DrinkDetailScreen(
                         }
 
                         LaunchedEffect(key1 = expandedIndex) {
-                            when(expandedIndex) {
+                            when (expandedIndex) {
                                 0 -> {
                                     awaitAll(
                                         async { anim1.animateTo(1f) },
@@ -232,7 +234,9 @@ fun DrinkDetailScreen(
                             CharacteristicSection(
                                 drinkGlass = viewModel.state.drinkGlass,
                                 drinkCategory = viewModel.state.drinkCategory,
-                                drinkAlcoholic = viewModel.state.drinkAlcoholic,
+                                drinkAlcoholic = viewModel.state.drinkAlcoholic?.asString(
+                                    LocalContext.current
+                                ),
                                 modifier = Modifier
                                     .height(
                                         expandedHeight * anim1.value
@@ -260,17 +264,19 @@ fun DrinkDetailScreen(
                                             .height(closeCardHeight - 16.dp)
                                     )
                                     //Spacer(modifier = Modifier.height(spacing.spaceSmall))
-                                    Box(modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 8.dp)
-                                        .height(
-                                            expandedHeight * anim2.value
-                                        )) {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 8.dp)
+                                            .height(
+                                                expandedHeight * anim2.value
+                                            )
+                                    ) {
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .let {
-                                                    if(expandedIndex == 1) {
+                                                    if (expandedIndex == 1) {
                                                         it.verticalScroll(rememberScrollState())
                                                     } else it
                                                 }
@@ -307,9 +313,10 @@ fun DrinkDetailScreen(
                                                     .padding(vertical = 8.dp, horizontal = 16.dp)
                                                     .height(closeCardHeight - 16.dp)
                                             )
-                                            Box(modifier = Modifier
-                                                .padding(8.dp)
-                                                .height(expandedHeight * anim3.value)
+                                            Box(
+                                                modifier = Modifier
+                                                    .padding(8.dp)
+                                                    .height(expandedHeight * anim3.value)
                                             ) {
                                                 viewModel.state.drinkInstructions?.let {
                                                     Text(
@@ -318,7 +325,7 @@ fun DrinkDetailScreen(
                                                                 expandedHeight * anim3.value
                                                             )
                                                             .let {
-                                                                if(expandedIndex == 2) {
+                                                                if (expandedIndex == 2) {
                                                                     it.verticalScroll(state = rememberScrollState())
                                                                 } else it
                                                             },
@@ -335,6 +342,8 @@ fun DrinkDetailScreen(
 
                 }
             }
+
+            //val screenWidth = LocalConfiguration.current.screenWidthDp
             Box(
                 modifier = Modifier
                     .align(alignment = Alignment.TopCenter)
@@ -348,8 +357,9 @@ fun DrinkDetailScreen(
                         .size(235.dp)
                         .clip(CircleShape)
                         .background(
-                            (dominantColor
-                                ?: MaterialTheme.colorScheme.background).copy(alpha = 0.6f)
+                            (if (viewModel.state.drinkDominantColor != null)
+                                Color(viewModel.state.drinkDominantColor!!) else
+                                MaterialTheme.colorScheme.onBackground).copy(alpha = 0.6f)
                         ),
                 ) {
                     AsyncImage(
@@ -366,10 +376,11 @@ fun DrinkDetailScreen(
                         },
                         onSuccess = {
                             if (calculatedDominantColor == null) {
-                                Log.d(Consts.TAG, "Calculate dominant color")
-                                calcDominantColor(it.result.drawable, null) { color ->
-                                    dominantColor = color
-                                }
+                                Log.d(
+                                    Consts.TAG,
+                                    "Calculate dominant color inside drink details screen"
+                                )
+                                viewModel.onEvent(DrinkDetailEvent.DrawableLoaded(it.result.drawable))
                             }
                         },
                         onError = {
