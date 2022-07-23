@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -96,7 +97,11 @@ fun FavoriteDrinkItem(
                         SuggestionChip(
                             onClick = {},
                             label = {
-                                Text(text = if (drink.isAlcoholic) "Alcoholic" else "Not Alcoholic")
+                                Text(
+                                    text = if (drink.isAlcoholic) stringResource(id = R.string.alcoholic) else stringResource(
+                                        id = R.string.non_alcoholic
+                                    )
+                                )
                             },
                             /*icon = {
                                 Icon(
@@ -142,9 +147,12 @@ fun FavoriteDrinkItem(
                     horizontalArrangement = Arrangement.SpaceAround,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(imageVector = Icons.Default.FavoriteBorder, contentDescription = "Unfavorite")
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = stringResource(id = R.string.unfavorite)
+                    )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = "Unfavorite")
+                    Text(text = stringResource(id = R.string.unfavorite))
                 }
 
             }

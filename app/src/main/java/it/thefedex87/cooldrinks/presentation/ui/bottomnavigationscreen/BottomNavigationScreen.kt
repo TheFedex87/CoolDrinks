@@ -19,6 +19,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.*
@@ -27,6 +29,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
+import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
@@ -232,7 +235,7 @@ fun TopAppBar(
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Navigate back"
+                            contentDescription = stringResource(id = R.string.navigate_back)
                         )
                     }
                 }
@@ -284,10 +287,10 @@ fun RowScope.AddItem(
 ) {
     NavigationBarItem(
         icon = {
-            Icon(imageVector = screen.icon, contentDescription = "Teams screen")
+            Icon(imageVector = screen.icon, contentDescription = screen.title.asString(LocalContext.current))
         },
         label = {
-            Text(text = screen.title)
+            Text(text = screen.title.asString(LocalContext.current))
         },
         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
         onClick = {
@@ -320,7 +323,7 @@ fun MyFloatingActionButton(
             ) {
                 Icon(
                     imageVector = Icons.Default.LocalBar,
-                    contentDescription = "Get random cocktail"
+                    contentDescription = stringResource(id = R.string.get_random_cocktail)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(text = label ?: prevLabel ?: "")

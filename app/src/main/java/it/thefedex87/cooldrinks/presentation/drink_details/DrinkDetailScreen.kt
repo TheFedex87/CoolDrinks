@@ -1,10 +1,8 @@
 package it.thefedex87.cooldrinks.presentation.drink_details
 
 import android.util.Log
-import androidx.compose.animation.Animatable
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -19,10 +17,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
@@ -62,21 +59,21 @@ fun DrinkDetailScreen(
                 TextButton(onClick = {
                     viewModel.onEvent(DrinkDetailEvent.RemoveFromFavoriteConfirmed)
                 }) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     viewModel.onEvent(DrinkDetailEvent.RemoveFromFavoriteCanceled)
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(id = R.string.cancel))
                 }
             },
             title = {
-                Text(text = "Confirm Remove")
+                Text(text = stringResource(id = R.string.confirm_remove_title))
             },
             text = {
-                Text(text = "Do you really want remove this drink from the favorites?")
+                Text(text = stringResource(id = R.string.confirm_remove_body))
             }
         )
     }
@@ -97,7 +94,7 @@ fun DrinkDetailScreen(
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Refresh,
-                                    contentDescription = "Get new random cocktail"
+                                    contentDescription = stringResource(id = R.string.get_random_cocktail)
                                 )
                             }
                         }

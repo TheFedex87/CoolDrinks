@@ -9,4 +9,26 @@
     <string name="no_drink_found">No drink found with the specified ingredient</string>
     <string name="drink_removed_from_favorite">Drink removed from favorite</string>
     <string name="drink_remove_error_from_favorite">Error removing drink from favorite</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm_remove_title">Confirm remove?</string>
+    <string name="confirm_remove_body">Do you really want remove this drink from the favorites?</string>
+    <string name="get_random_cocktail">Get new random cocktail</string>
+    <string name="unfavorite">Unfavorite</string>
+    <string name="alcohol_filter_enabled">Alcohol filter enabled</string>
+    <string name="alcohol_filter_disabled">Alcohol filter disabled</string>
+    <string name="expand_alcohol_filter">Expand alcohol filter</string>
+    <string name="none">None</string>
+    <string name="remove_filter">Remove filter</string>
+    <string name="alcohol_filter">Alcohol filter</string>
+    <string name="non_alcoholic_filter">Non alcoholic filter</string>
+    <string name="glass_filter_enabled">Glass filter enabled</string>
+    <string name="expand_glass_filter">Expand glass filter</string>
+    <string name="category_filter_enabled">Category filter enabled</string>
+    <string name="expand_category_filter">Expand category filter</string>
+    <string name="add_some_favorites">Add some favorites…</string>
+    <string name="ingredient_info">Ingredient info</string>
+    <string name="navigate_back">Navigate back</string>
+    <string name="favorites">Favorites</string>
+    <string name="feel_lucky">Feel lucky</string>
 </resources>

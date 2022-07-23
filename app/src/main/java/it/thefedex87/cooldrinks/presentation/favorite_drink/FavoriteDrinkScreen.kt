@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
@@ -75,21 +76,21 @@ fun FavoriteDrinkScreen(
                 TextButton(onClick = {
                     viewModel.onEvent(FavoriteDrinkEvent.RemoveFromFavoriteConfirmed(viewModel.state.drinkToRemove!!))
                 }) {
-                    Text(text = "Confirm")
+                    Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     viewModel.onEvent(FavoriteDrinkEvent.RemoveFromFavoriteCanceled)
                 }) {
-                    Text(text = "Cancel")
+                    Text(text = stringResource(id = R.string.cancel))
                 }
             },
             title = {
-                Text(text = "Confirm Remove")
+                Text(text = stringResource(id = R.string.confirm_remove_title))
             },
             text = {
-                Text(text = "Do you really want remove this drink from the favorites?")
+                Text(text = stringResource(id = R.string.confirm_remove_body))
             }
         )
     }
@@ -145,7 +146,7 @@ fun FavoriteDrinkScreen(
                         selectedIcon = {
                             Icon(
                                 imageVector = Icons.Default.Done,
-                                contentDescription = "Alcohol filter enabled"
+                                contentDescription = stringResource(id = R.string.alcohol_filter_enabled)
                             )
                         },
                         trailingIcon = {
@@ -153,12 +154,12 @@ fun FavoriteDrinkScreen(
                                 imageVector = if (viewModel.state.alcoholMenuExpanded)
                                     Icons.Default.ArrowDropUp else
                                     Icons.Default.ArrowDropDown,
-                                contentDescription = "Expand alcohol filter"
+                                contentDescription = stringResource(id = R.string.expand_alcohol_filter)
                             )
                         },
                         dropDownItems = listOf(
                             DropDownItem(
-                                label = "None",
+                                label = stringResource(id = R.string.none),
                                 onItemClick = {
                                     viewModel.onEvent(
                                         FavoriteDrinkEvent.AlcoholFilterValueChanged(
@@ -169,7 +170,7 @@ fun FavoriteDrinkScreen(
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Remove Filter"
+                                        contentDescription = stringResource(id = R.string.remove_filter)
                                     )
                                 }
                             ),
@@ -185,7 +186,7 @@ fun FavoriteDrinkScreen(
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.LocalBar,
-                                        contentDescription = "Alcoholic Filter"
+                                        contentDescription = stringResource(id = R.string.alcohol_filter)
                                     )
                                 }
                             ),
@@ -201,7 +202,7 @@ fun FavoriteDrinkScreen(
                                 icon = {
                                     Icon(
                                         imageVector = Icons.Default.NoDrinks,
-                                        contentDescription = "Non Alcoholic Filter"
+                                        contentDescription = stringResource(id = R.string.non_alcoholic_filter)
                                     )
                                 }
                             )
@@ -221,7 +222,7 @@ fun FavoriteDrinkScreen(
                         selectedIcon = {
                             Icon(
                                 imageVector = Icons.Default.Done,
-                                contentDescription = "Glass filter enabled"
+                                contentDescription = stringResource(id = R.string.glass_filter_enabled)
                             )
                         },
                         trailingIcon = {
@@ -229,7 +230,7 @@ fun FavoriteDrinkScreen(
                                 imageVector = if (viewModel.state.glassMenuExpanded)
                                     Icons.Default.ArrowDropUp else
                                     Icons.Default.ArrowDropDown,
-                                contentDescription = "Expand glass filter"
+                                contentDescription = stringResource(id = R.string.expand_glass_filter)
                             )
                         },
                         dropDownItems = glasses
@@ -248,7 +249,7 @@ fun FavoriteDrinkScreen(
                         selectedIcon = {
                             Icon(
                                 imageVector = Icons.Default.Done,
-                                contentDescription = "Category filter enabled"
+                                contentDescription = stringResource(id = R.string.category_filter_enabled)
                             )
                         },
                         trailingIcon = {
@@ -256,7 +257,7 @@ fun FavoriteDrinkScreen(
                                 imageVector = if (viewModel.state.categoryMenuExpanded)
                                     Icons.Default.ArrowDropUp else
                                     Icons.Default.ArrowDropDown,
-                                contentDescription = "Expand category filter"
+                                contentDescription = stringResource(id = R.string.expand_category_filter)
                             )
                         },
                         dropDownItems = categories
@@ -292,7 +293,7 @@ fun FavoriteDrinkScreen(
                 modifier = Modifier
                     .width(250.dp)
             )
-            Text(text = "Add some favorites...")
+            Text(text = stringResource(id = R.string.add_some_favorites))
         }
     }
 }
