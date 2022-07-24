@@ -47,6 +47,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         glassFilter = state.glassFilter,
                         drinks = it
                     ),
+                    showFilterChips = it.isNotEmpty(),
                     glasses = glass,
                     categories = categories
                 )

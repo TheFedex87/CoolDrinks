@@ -119,14 +119,14 @@ fun FavoriteDrinkScreen(
         )
     }
 
-    if (viewModel.state.drinks.isNotEmpty()) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(spacing.spaceMedium)
+    ) {
+        if(viewModel.state.showFilterChips) {
 
 
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(spacing.spaceMedium)
-        ) {
             item {
                 Row(
                     modifier = Modifier
@@ -264,23 +264,25 @@ fun FavoriteDrinkScreen(
                     )
                 }
             }
-
-            items(viewModel.state.drinks) { drink ->
-                FavoriteDrinkItem(
-                    drink = drink,
-                    onDrinkClicked = { id, color, name ->
-                        onDrinkClicked(id, color, name)
-                    },
-                    onUnfavoriteClicked = {
-                        viewModel.onEvent(FavoriteDrinkEvent.UnfavoriteClicked(drink))
-                    },
-                    modifier = Modifier.padding(
-                        vertical = spacing.spaceSmall
-                    )
-                )
-            }
         }
-    } else {
+
+        items(viewModel.state.drinks) { drink ->
+            FavoriteDrinkItem(
+                drink = drink,
+                onDrinkClicked = { id, color, name ->
+                    onDrinkClicked(id, color, name)
+                },
+                onUnfavoriteClicked = {
+                    viewModel.onEvent(FavoriteDrinkEvent.UnfavoriteClicked(drink))
+                },
+                modifier = Modifier.padding(
+                    vertical = spacing.spaceSmall
+                )
+            )
+        }
+    }
+
+    if(!viewModel.state.showFilterChips) {
         Column(
             modifier = Modifier
                 .fillMaxSize(),

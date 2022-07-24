@@ -343,18 +343,19 @@ fun DrinkDetailScreen(
                 }
             }
 
-            //val screenWidth = LocalConfiguration.current.screenWidthDp
+            val screenWidth = LocalConfiguration.current.screenWidthDp
+            val imageSize: Double = if(screenWidth * 0.7 > 245) 245.0 else screenWidth * 0.7
             Box(
                 modifier = Modifier
                     .align(alignment = Alignment.TopCenter)
-                    .size(245.dp)
+                    .size(imageSize.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.background),
             ) {
                 Box(
                     modifier = Modifier
                         .align(alignment = Alignment.Center)
-                        .size(235.dp)
+                        .size((imageSize - 10).dp)
                         .clip(CircleShape)
                         .background(
                             (if (viewModel.state.drinkDominantColor != null)
@@ -369,7 +370,7 @@ fun DrinkDetailScreen(
                             .build(),
                         modifier = Modifier
                             .clip(CircleShape)
-                            .size(220.dp)
+                            .size((imageSize - 25).dp)
                             .align(Alignment.Center),
                         onLoading = {
                             R.drawable.search_background

@@ -43,118 +43,132 @@ fun FavoriteDrinkItem(
             fallback(R.drawable.drink)
         }
     )*/
-
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(390.dp)
-            .clickable {
-                onDrinkClicked(drink.idDrink, drink.dominantColor!!, drink.name)
-            },
-        shape = MaterialTheme.shapes.medium
-    ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+        val constraints = this
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .let {
+                    if(constraints.maxWidth > 600.dp) {
+                        it.height(600.dp)
+                    } else {
+                        it.height(390.dp)
+                    }
+                }
+                .clickable {
+                    onDrinkClicked(drink.idDrink, drink.dominantColor!!, drink.name)
+                },
+            shape = MaterialTheme.shapes.medium
         ) {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(drink.drinkThumb)
-                    .crossfade(true)
-                    .build(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1.2f)
-                    .clip(RoundedCornerShape(12.dp)),
-                onLoading = {
-                    R.drawable.search_background
-                },
-                onError = {
-                    R.drawable.search_background
-                },
-                contentDescription = drink.name,
-                contentScale = ContentScale.FillWidth
-            )
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(spacing.spaceSmall),
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Column(
-                    modifier = Modifier.fillMaxSize()
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(drink.drinkThumb)
+                        .crossfade(true)
+                        .build(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .let {
+                            if(constraints.maxWidth > 600.dp) {
+                                it.weight(4f)
+                            } else {
+                                it.weight(1.2f)
+                            }
+                        }
+                        .clip(RoundedCornerShape(12.dp)),
+                    onLoading = {
+                        R.drawable.search_background
+                    },
+                    onError = {
+                        R.drawable.search_background
+                    },
+                    contentDescription = drink.name,
+                    contentScale = ContentScale.FillWidth
+                )
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(spacing.spaceSmall),
                 ) {
-                    Text(
-                        text = drink.name,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Light)
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    FlowRow(
-                        modifier = Modifier.fillMaxWidth(),
-                        mainAxisSpacing = 8.dp,
-                        mainAxisSize = SizeMode.Expand
+                    Column(
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        SuggestionChip(
-                            onClick = {},
-                            label = {
-                                Text(
-                                    text = if (drink.isAlcoholic) stringResource(id = R.string.alcoholic) else stringResource(
-                                        id = R.string.non_alcoholic
+                        Text(
+                            text = drink.name,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Light)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            mainAxisSpacing = 8.dp,
+                            mainAxisSize = SizeMode.Expand
+                        ) {
+                            SuggestionChip(
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        text = if (drink.isAlcoholic) stringResource(id = R.string.alcoholic) else stringResource(
+                                            id = R.string.non_alcoholic
+                                        )
                                     )
-                                )
-                            },
-                            /*icon = {
+                                },
+                                /*icon = {
                                 Icon(
                                     imageVector = if (drink.isAlcoholic) Icons.Filled.LocalBar else Icons.Filled.NoDrinks,
                                     contentDescription = null
                                 )
                             }*/
-                        )
-                        SuggestionChip(
-                            onClick = {},
-                            label = {
-                                Text(text = drink.category)
-                            },
-                            /*icon = {
+                            )
+                            SuggestionChip(
+                                onClick = {},
+                                label = {
+                                    Text(text = drink.category)
+                                },
+                                /*icon = {
                                 Icon(
                                     imageVector = Icons.Filled.Category,
                                     contentDescription = null
                                 )
                             }*/
-                        )
-                        SuggestionChip(
-                            onClick = {},
-                            label = {
-                                Text(text = drink.glass)
-                            },
-                            /*icon = {
+                            )
+                            SuggestionChip(
+                                onClick = {},
+                                label = {
+                                    Text(text = drink.glass)
+                                },
+                                /*icon = {
                                 Icon(
                                     imageVector = Icons.Filled.WineBar,
                                     contentDescription = null
                                 )
                             }*/
-                        )
+                            )
+                        }
                     }
                 }
-            }
-            Button(
-                modifier = Modifier
-                    .padding(spacing.spaceSmall)
-                    .align(alignment = Alignment.End),
-                onClick = onUnfavoriteClicked
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                Button(
+                    modifier = Modifier
+                        .padding(spacing.spaceSmall)
+                        .align(alignment = Alignment.End),
+                    onClick = onUnfavoriteClicked
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = stringResource(id = R.string.unfavorite)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = stringResource(id = R.string.unfavorite))
-                }
+                    Row(
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FavoriteBorder,
+                            contentDescription = stringResource(id = R.string.unfavorite)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(text = stringResource(id = R.string.unfavorite))
+                    }
 
+                }
             }
         }
     }

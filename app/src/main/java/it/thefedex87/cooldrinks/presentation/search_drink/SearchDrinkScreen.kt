@@ -133,84 +133,94 @@ fun SearchDrinkScreen(
             )
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        SearchTextField(
-            text = viewModel.state.searchQuery,
-            showHint = viewModel.state.showSearchHint,
-            onSearch = {
-                keyboardController?.hide()
-                viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
-            },
-            onValueChanged = {
-                viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
-            },
-            onFocusChanged = {
-                viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
-            },
-            trailingIcon = Icons.Default.List,
-            trailingIconOnClick = onIngredientListClicked,
-            modifier = Modifier.padding(
-                horizontal = spacing.spaceExtraSmall,
-                vertical = spacing.spaceSmall
-            )
-        )
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val constraints = this
 
-        if (viewModel.state.foundDrinks.isNotEmpty()) {
-            if (viewModel.state.visualizationType == VisualizationType.Card) {
-                HorizontalPager(
-                    modifier = Modifier.weight(1f),
-                    count = viewModel.state.foundDrinks.size,
-                    contentPadding = PaddingValues(64.dp),
-                    state = pagerState
-                ) { page ->
-                    if (page <= viewModel.state.foundDrinks.lastIndex) {
-                        val drink = viewModel.state.foundDrinks[page]
-                        PagerDrinkItem(
-                            drink = drink.value,
-                            onItemClick = { id, color, name ->
-                                onDrinkClicked(id, color, name)
-                            },
-                            page = page,
-                            onFavoriteClick = {
-                                viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                            },
-                            calcDominantColor = { drawable, onFinish ->
-                                calcDominantColor(drawable, drink, onFinish)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            SearchTextField(
+                text = viewModel.state.searchQuery,
+                showHint = viewModel.state.showSearchHint,
+                onSearch = {
+                    keyboardController?.hide()
+                    viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+                },
+                onValueChanged = {
+                    viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
+                },
+                onFocusChanged = {
+                    viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
+                },
+                trailingIcon = Icons.Default.List,
+                trailingIconOnClick = onIngredientListClicked,
+                modifier = Modifier.padding(
+                    horizontal = spacing.spaceExtraSmall,
+                    vertical = spacing.spaceSmall
+                )
+            )
+
+            if (viewModel.state.foundDrinks.isNotEmpty()) {
+                if (viewModel.state.visualizationType == VisualizationType.Card) {
+                    HorizontalPager(
+                        modifier = Modifier.weight(1f),
+                        count = viewModel.state.foundDrinks.size,
+                        contentPadding = PaddingValues(
+                            if(constraints.maxWidth > 600.dp) {
+                                128.dp
+                            } else {
+                                64.dp
                             }
-                        )
+                        ),
+                        state = pagerState
+                    ) { page ->
+                        if (page <= viewModel.state.foundDrinks.lastIndex) {
+                            val drink = viewModel.state.foundDrinks[page]
+                            PagerDrinkItem(
+                                drink = drink.value,
+                                onItemClick = { id, color, name ->
+                                    onDrinkClicked(id, color, name)
+                                },
+                                page = page,
+                                onFavoriteClick = {
+                                    viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                                },
+                                calcDominantColor = { drawable, onFinish ->
+                                    calcDominantColor(drawable, drink, onFinish)
+                                }
+                            )
+                        }
+                    }
+                } else if (viewModel.state.visualizationType == VisualizationType.List) {
+                    LazyColumn(
+                        modifier = Modifier.weight(1f),
+                        state = columnState
+                    ) {
+                        items(viewModel.state.foundDrinks) { drink ->
+                            DrinkItem(
+                                drink = drink.value,
+                                onItemClick = { id, color, name ->
+                                    onDrinkClicked(id, color, name)
+                                },
+                                onFavoriteClick = {
+                                    viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                                },
+                                calcDominantColor = { drawable, onFinish ->
+                                    calcDominantColor(drawable, drink, onFinish)
+                                }
+                            )
+                        }
                     }
                 }
-            } else if (viewModel.state.visualizationType == VisualizationType.List) {
-                LazyColumn(
-                    modifier = Modifier.weight(1f),
-                    state = columnState
-                ) {
-                    items(viewModel.state.foundDrinks) { drink ->
-                        DrinkItem(
-                            drink = drink.value,
-                            onItemClick = { id, color, name ->
-                                onDrinkClicked(id, color, name)
-                            },
-                            onFavoriteClick = {
-                                viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                            },
-                            calcDominantColor = { drawable, onFinish ->
-                                calcDominantColor(drawable, drink, onFinish)
-                            }
-                        )
+
+                VisualizationTypeSelector(
+                    selectedVisualizationType = viewModel.state.visualizationType,
+                    onClick = {
+                        viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
                     }
-                }
+                )
             }
-
-            VisualizationTypeSelector(
-                selectedVisualizationType = viewModel.state.visualizationType,
-                onClick = {
-                    viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
-                }
-            )
         }
     }
 }
