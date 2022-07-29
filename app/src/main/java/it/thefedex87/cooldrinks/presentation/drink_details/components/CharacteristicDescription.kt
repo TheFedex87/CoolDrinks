@@ -22,12 +22,12 @@ fun CharacteristicDescription(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.height(80.dp),
+        modifier = modifier.height(74.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            modifier = Modifier.size(32.dp),
+            modifier = Modifier.size(28.dp),
             imageVector = icon,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary

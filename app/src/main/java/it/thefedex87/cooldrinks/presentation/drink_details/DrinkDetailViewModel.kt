@@ -107,6 +107,7 @@ class DrinkDetailViewModel @Inject constructor(
                     isFavorite = isFavorite,
                     drinkDominantColor = dominantColor
                 )
+                Log.d(TAG, "Is favorite: $isFavorite")
             }
     }
 

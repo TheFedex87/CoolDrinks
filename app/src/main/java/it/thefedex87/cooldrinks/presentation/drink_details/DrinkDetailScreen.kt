@@ -104,9 +104,9 @@ fun DrinkDetailScreen(
                             viewModel.onEvent(DrinkDetailEvent.FavoriteClicked)
                         }) {
                             Icon(
-                                imageVector = if (viewModel.state.isFavorite == false)
-                                    Icons.Default.FavoriteBorder else
-                                    Icons.Default.Favorite,
+                                imageVector = if (viewModel.state.isFavorite == true)
+                                    Icons.Default.Favorite else
+                                    Icons.Default.FavoriteBorder,
                                 contentDescription = null,
                                 tint = Color.Red
                             )
@@ -157,6 +157,9 @@ fun DrinkDetailScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
+            val screenWidth = LocalConfiguration.current.screenWidthDp
+            val imageSize: Double = if(screenWidth * 0.60 > 245) 245.0 else screenWidth * 0.60
+
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -179,7 +182,7 @@ fun DrinkDetailScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .animateContentSize()
-                            .padding(top = 180.dp)
+                            .padding(top = (imageSize * 0.6).dp)
                     ) {
                         val maxHeight = this.maxHeight
                         val expandedHeight = maxHeight - closeCardHeight * 3
@@ -343,8 +346,6 @@ fun DrinkDetailScreen(
                 }
             }
 
-            val screenWidth = LocalConfiguration.current.screenWidthDp
-            val imageSize: Double = if(screenWidth * 0.7 > 245) 245.0 else screenWidth * 0.7
             Box(
                 modifier = Modifier
                     .align(alignment = Alignment.TopCenter)
