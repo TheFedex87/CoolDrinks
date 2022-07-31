@@ -13,6 +13,7 @@ import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -40,6 +41,7 @@ class IngredientsViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is IngredientsEvent.HideIngredientsDetails -> {
+                    loadingIngredientInfoJob?.cancel()
                     state = state.copy(
                         showDetailOfIngredient = null,
                         getIngredientInfoError = null,
@@ -62,6 +64,10 @@ class IngredientsViewModel @Inject constructor(
                                 )
                             }
                             .onFailure {
+                                if(it is CancellationException) {
+                                    throw it
+                                }
+                                Log.d(TAG, "Error on getIngredientDetails: $it")
                                 state = state.copy(
                                     isLoadingIngredientInfo = false,
                                     getIngredientInfoError = it.message
