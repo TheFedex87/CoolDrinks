@@ -86,10 +86,10 @@ fun PagerScope.PagerDrinkItem(
                         )
                         .fillMaxWidth()
                         .let {
-                            if(constraints.maxWidth > 600.dp) {
+                            if (constraints.maxWidth > 600.dp) {
                                 it.weight(1.5f)
                             } else {
-                                it
+                                it.weight(1f)
                             }
                         },
                     onSuccess = {
@@ -118,41 +118,50 @@ fun PagerScope.PagerDrinkItem(
                     modifier = Modifier
                         .fillMaxSize()
                         .let {
-                            if(constraints.maxWidth > 600.dp) {
+                            if (constraints.maxWidth > 600.dp) {
                                 it.weight(0.5f)
                             } else {
                                 it.weight(1f)
                             }
                         }
                 ) {
-                    Text(
-                        modifier = Modifier
-                            .align(Alignment.TopCenter)
-                            .padding(horizontal = 4.dp),
-                        text = drink.name,
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    if (drink.isLoadingFavorite) {
-                        CircularProgressIndicator(
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
                             modifier = Modifier
-                                .size(30.dp)
-                                .align(Alignment.Center)
+                                .padding(horizontal = 4.dp),
+                            text = drink.name,
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                         )
-                    } else {
-                        Icon(
-                            imageVector = if (drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = "Favorite",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier
-                                .size(100.dp)
-                                .clickable {
-                                    onFavoriteClick(drink)
-                                }
-                                .align(Alignment.Center)
-                        )
+
+                        BoxWithConstraints(
+                            modifier = Modifier.weight(1f),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (drink.isLoadingFavorite) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier
+                                        .size(if (this.maxHeight > 30.dp) 30.dp else this.maxHeight)
+                                )
+                            } else {
+                                Icon(
+                                    imageVector = if (drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    contentDescription = "Favorite",
+                                    tint = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier
+                                        .clickable {
+                                            onFavoriteClick(drink)
+                                        }
+                                        .size(if (this.maxHeight > 100.dp) 100.dp else this.maxHeight - 10.dp)
+                                )
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
                 }
             }

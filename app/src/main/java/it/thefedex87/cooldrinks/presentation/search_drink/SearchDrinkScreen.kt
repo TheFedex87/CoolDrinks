@@ -162,12 +162,14 @@ fun SearchDrinkScreen(
             )
 
             if (viewModel.state.foundDrinks.isNotEmpty()) {
-                if (viewModel.state.visualizationType == VisualizationType.Card) {
+                if (constraints.maxHeight > 1200.dp &&
+                    viewModel.state.visualizationType == VisualizationType.Card
+                ) {
                     HorizontalPager(
                         modifier = Modifier.weight(1f),
                         count = viewModel.state.foundDrinks.size,
                         contentPadding = PaddingValues(
-                            if(constraints.maxWidth > 600.dp) {
+                            if (constraints.maxWidth > 600.dp) {
                                 128.dp
                             } else {
                                 64.dp
@@ -192,7 +194,9 @@ fun SearchDrinkScreen(
                             )
                         }
                     }
-                } else if (viewModel.state.visualizationType == VisualizationType.List) {
+                } else if (constraints.maxHeight <= 1200.dp ||
+                    viewModel.state.visualizationType == VisualizationType.List
+                ) {
                     LazyColumn(
                         modifier = Modifier.weight(1f),
                         state = columnState
@@ -214,12 +218,15 @@ fun SearchDrinkScreen(
                     }
                 }
 
-                VisualizationTypeSelector(
-                    selectedVisualizationType = viewModel.state.visualizationType,
-                    onClick = {
-                        viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
-                    }
-                )
+                if (constraints.maxHeight > 1200.dp) {
+                    VisualizationTypeSelector(
+                        selectedVisualizationType = viewModel.state.visualizationType,
+                        onClick = {
+                            viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
+                        }
+                    )
+                }
+
             }
         }
     }
