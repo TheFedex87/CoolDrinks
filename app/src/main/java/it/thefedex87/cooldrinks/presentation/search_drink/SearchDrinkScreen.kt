@@ -162,7 +162,7 @@ fun SearchDrinkScreen(
             )
 
             if (viewModel.state.foundDrinks.isNotEmpty()) {
-                if (constraints.maxHeight > 1200.dp &&
+                if (constraints.maxHeight > 500.dp &&
                     viewModel.state.visualizationType == VisualizationType.Card
                 ) {
                     HorizontalPager(
@@ -194,7 +194,7 @@ fun SearchDrinkScreen(
                             )
                         }
                     }
-                } else if (constraints.maxHeight <= 1200.dp ||
+                } else if (constraints.maxHeight <= 500.dp ||
                     viewModel.state.visualizationType == VisualizationType.List
                 ) {
                     LazyColumn(
@@ -218,7 +218,7 @@ fun SearchDrinkScreen(
                     }
                 }
 
-                if (constraints.maxHeight > 1200.dp) {
+                if (constraints.maxHeight > 500.dp) {
                     VisualizationTypeSelector(
                         selectedVisualizationType = viewModel.state.visualizationType,
                         onClick = {

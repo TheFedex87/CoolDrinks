@@ -132,13 +132,13 @@ fun DrinkDetailScreen(
     } else {
         onDrinkLoaded?.invoke(viewModel.state.drinkName!!)
 
-        val screenHeightInPx = with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp.toPx() }
-        Log.d(TAG, "Screen height: ${LocalConfiguration.current.screenHeightDp}")
+        val screenHeightInPx = with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp }
+        Log.d(TAG, "Screen height in dp: ${LocalConfiguration.current.screenHeightDp} - screen height in px: $screenHeightInPx")
 
         val screenWidth = LocalConfiguration.current.screenWidthDp
         val imageSize: Double = if (screenWidth * 0.60 > 245) 245.0 else screenWidth * 0.60
 
-        if (screenHeightInPx > 1200) {
+        if (screenHeightInPx > 680.dp) {
             DrinkDetailScreenAdvanced(
                 calculatedDominantColor = calculatedDominantColor,
                 viewModel = viewModel,
