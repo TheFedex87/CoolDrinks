@@ -8,16 +8,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -30,6 +28,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.presentation.bar.BarScreen
+import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
+import it.thefedex87.cooldrinks.presentation.components.MultiChoiceActionButton
+import it.thefedex87.cooldrinks.presentation.components.MultiFabState
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
@@ -56,10 +58,8 @@ fun BottomNavigationScreen(
         },
         floatingActionButton = {
             MyFloatingActionButton(
-                label = bottomNavigationScreenState.floatingActionButtonLabel,
-                prevLabel = bottomNavigationScreenState.floatingActionButtonPrevLabel,
-                visible = bottomNavigationScreenState.floatingActionButtonVisible,
-                onFabClicked = bottomNavigationScreenState.floatingActionButtonClicked ?: {}
+                fabState = bottomNavigationScreenState.fabState,
+                prevFabState = bottomNavigationScreenState.prevFabState
             )
         },
         floatingActionButtonPosition = FabPosition.End,
@@ -83,11 +83,28 @@ fun BottomNavigationScreen(
     ) { values ->
         NavHost(
             navController = navController,
-            startDestination = BottomNavScreen.Search.route,
+            startDestination = BottomNavScreen.Bar.route,
             modifier = modifier.padding(
                 values
             )
         ) {
+            composable(
+                route = BottomNavScreen.Bar.route
+            ) {
+                BarScreen(
+                    currentBottomNavigationScreenState = bottomNavigationScreenState,
+                    onComposed = {
+                        bottomNavigationScreenState = it
+                    },
+                    paddingValues = values,
+                    onMiniFabCustomIngredientClicked = {
+
+                    },
+                    onMiniFabIngredientsListClicked = {
+                        navController.navigate("${Route.INGREDIENTS}/false")
+                    }
+                )
+            }
             composable(
                 route = BottomNavScreen.Search.route
             ) {
@@ -105,7 +122,7 @@ fun BottomNavigationScreen(
                     paddingValues = values,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onIngredientListClicked = {
-                        navController.navigate(Route.INGREDIENTS)
+                        navController.navigate("${Route.INGREDIENTS}/true")
                     },
                     ingredient = ingredient,
                     onDrinkClicked = { id, color, name ->
@@ -140,7 +157,8 @@ fun BottomNavigationScreen(
                     },
                     onComposed = { state ->
                         bottomNavigationScreenState = state
-                    }
+                    },
+                    currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }
             composable(
@@ -172,7 +190,12 @@ fun BottomNavigationScreen(
                 )
             }
             composable(
-                route = Route.INGREDIENTS
+                route = "${Route.INGREDIENTS}/{ingredientForSearch}",
+                arguments = listOf(
+                    navArgument("ingredientForSearch") {
+                        type = NavType.BoolType
+                    }
+                )
             ) {
                 /*Button(onClick = {
                     /*navController.navigate(
@@ -187,18 +210,26 @@ fun BottomNavigationScreen(
                 }) {
                     Text(text = "TEST BACK")
                 }*/
+                val ingredientForSearch = it.arguments?.getBoolean("ingredientForSearch") ?: true
+
                 IngredientsScreen(
                     snackbarHostState = snackbarHostState,
                     onComposed = { state ->
-                        bottomNavigationScreenState =
-                            state
+                        bottomNavigationScreenState = state
                     },
                     onItemClick = {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("ingredient", it)
-                        navController.popBackStack()
-                    }
+                        if(ingredientForSearch) {
+                            navController.previousBackStackEntry
+                                ?.savedStateHandle
+                                ?.set("ingredient", it)
+                            navController.popBackStack()
+                        } else {
+
+                        }
+                    },
+                    isSelectionEnabled = !ingredientForSearch,
+                    currentBottomNavigationScreenState = bottomNavigationScreenState,
+                    navController = navController
                 )
             }
         }
@@ -253,6 +284,7 @@ fun BottomBar(
     navController: NavHostController
 ) {
     val screens = listOf(
+        BottomNavScreen.Bar,
         BottomNavScreen.Search,
         BottomNavScreen.Favorite,
         BottomNavScreen.RandomDrink
@@ -288,7 +320,10 @@ fun RowScope.AddItem(
 ) {
     NavigationBarItem(
         icon = {
-            Icon(imageVector = screen.icon, contentDescription = screen.title.asString(LocalContext.current))
+            Icon(
+                imageVector = screen.icon,
+                contentDescription = screen.title.asString(LocalContext.current)
+            )
         },
         label = {
             Text(text = screen.title.asString(LocalContext.current))
@@ -306,29 +341,42 @@ fun RowScope.AddItem(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun MyFloatingActionButton(
-    label: String?,
-    prevLabel: String?,
-    onFabClicked: () -> Unit,
-    visible: Boolean
+    fabState: BottomNavigationScreenFabState,
+    prevFabState: BottomNavigationScreenFabState
 ) {
     AnimatedVisibility(
-        visible = visible,
+        visible = fabState.floatingActionButtonVisible,
         enter = scaleIn(initialScale = 0f),
         exit = scaleOut(targetScale = 0f),
     ) {
-        ExtendedFloatingActionButton(
-            onClick = onFabClicked
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
+        if (if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoice?.isEmpty() != false else prevFabState.floatingActionButtonMultiChoice?.isEmpty() != false) {
+            ExtendedFloatingActionButton(
+                onClick = fabState.floatingActionButtonClicked ?: {}
             ) {
-                Icon(
-                    imageVector = Icons.Default.LocalBar,
-                    contentDescription = stringResource(id = R.string.get_random_cocktail)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(text = label ?: prevLabel ?: "")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = (if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonIcon else prevFabState.floatingActionButtonIcon) ?: Icons.Default.Add,
+                        contentDescription = stringResource(id = R.string.get_random_cocktail)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(text = (if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonLabel else prevFabState.floatingActionButtonLabel) ?: "")
+                }
             }
+        } else {
+            var multiFabState by remember {
+                mutableStateOf(MultiFabState.COLLAPSED)
+            }
+            MultiChoiceActionButton(
+                onClick = {
+                    multiFabState = it
+                },
+                state = multiFabState,
+                miniFabs = if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoice!! else prevFabState.floatingActionButtonMultiChoice!!,
+                isExtendedFab = if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoiceExtended else prevFabState.floatingActionButtonMultiChoiceExtended,
+                extendedLabel = if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonLabel else prevFabState.floatingActionButtonLabel
+            )
         }
     }
 }

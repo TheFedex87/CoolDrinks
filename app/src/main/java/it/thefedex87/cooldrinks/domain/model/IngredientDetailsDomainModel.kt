@@ -5,5 +5,7 @@ data class IngredientDetailsDomainModel(
     val name: String,
     val description: String?,
     val type: String,
-    val alcoholic: Boolean
+    val alcoholic: Boolean,
+    val imagePath: String?,
+    val availableLocal: Boolean
 )

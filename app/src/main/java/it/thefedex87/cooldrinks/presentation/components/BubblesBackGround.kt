@@ -53,7 +53,7 @@ fun BubblesBackGround(
         )
 
 
-        /*Box(
+        Box(
             modifier = Modifier
                 .height(120.dp)
                 .width(120.dp)
@@ -74,8 +74,8 @@ fun BubblesBackGround(
                 .offset(x = (50).dp, y = 200.dp)
                 .padding(5.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
                 .align(Alignment.TopEnd)
@@ -101,8 +101,8 @@ fun BubblesBackGround(
                 .offset(x = 40.dp, y = 120.dp)
                 .padding(5.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
         )
@@ -127,8 +127,8 @@ fun BubblesBackGround(
                 .offset(x = 180.dp, y = 300.dp)
                 .padding(5.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
         )
@@ -154,8 +154,8 @@ fun BubblesBackGround(
                 .offset(x = 41.dp, y = 61.dp)
                 .padding(5.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
                 .align(Alignment.CenterStart)
@@ -183,7 +183,7 @@ fun BubblesBackGround(
                 .padding(5.dp)
                 .border(
                     width = 1.dp,
-                    color = color,
+                    color = color.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
                 .align(Alignment.BottomEnd)
@@ -210,12 +210,12 @@ fun BubblesBackGround(
                 .offset(x = (-20).dp, y = 60.dp)
                 .padding(5.dp)
                 .border(
-                    width = 1.dp,
-                    color = color,
+                    width = 2.dp,
+                    color = color.copy(alpha = 0.7f),
                     shape = CircleShape
                 )
                 .align(Alignment.BottomEnd)
-        )*/
+        )
 
         Box(
             modifier = Modifier

@@ -9,17 +9,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.mapper.toIngredientDomainModel
+import it.thefedex87.cooldrinks.presentation.mapper.toIngredientUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.Exception
 
 @HiltViewModel
 class IngredientsViewModel @Inject constructor(
@@ -64,7 +65,7 @@ class IngredientsViewModel @Inject constructor(
                                 )
                             }
                             .onFailure {
-                                if(it is CancellationException) {
+                                if (it is CancellationException) {
                                     throw it
                                 }
                                 Log.d(TAG, "Error on getIngredientDetails: $it")
@@ -77,6 +78,45 @@ class IngredientsViewModel @Inject constructor(
                 }
                 is IngredientsEvent.RetryFetchIngredients -> {
                     fetchIngredients()
+                }
+                is IngredientsEvent.MultiSelectionStateChanged -> {
+                    if (!event.enabled) {
+                        state.ingredients.forEach {
+                            it.isSelected.value = false
+                        }
+                    }
+                    state = state.copy(isMultiSelectionEnabled = event.enabled)
+                }
+                is IngredientsEvent.StoreIngredients -> {
+                    try {
+                        val selectedIngredient = state.ingredients.filter { it.isSelected.value }
+
+                        val ingredientsDeferred =
+                            mutableListOf<Deferred<Result<IngredientDetailsDomainModel>>>()
+
+                        selectedIngredient.forEach {
+                            ingredientsDeferred.add(async {
+                                repository.getIngredientDetails(it.name)
+                            })
+                        }
+
+                        val result = ingredientsDeferred.awaitAll().map {
+                            it.getOrElse { ex ->
+                                ex
+                            }
+                        }
+
+                        if(!result.any { it is Exception }) {
+                            repository.storeIngredients(
+                                result.map { (it as IngredientDetailsDomainModel) }
+                            )
+                            _uiEvent.send(UiEvent.PopBackStack)
+                        } else {
+                            _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_storing_ingredient)))
+                        }
+                    } catch (ex: Exception) {
+                        ex.printStackTrace()
+                    }
                 }
             }
         }
@@ -93,7 +133,7 @@ class IngredientsViewModel @Inject constructor(
                     Log.d(TAG, "GetIngredients success")
                     state = state.copy(
                         isLoading = false,
-                        ingredients = it,
+                        ingredients = it.map { i -> i.toIngredientUiModel() },
                         showRetryButton = false
                     )
                 }

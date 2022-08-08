@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Casino
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.LocalBar
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.graphics.vector.ImageVector
 import it.thefedex87.cooldrinks.R
@@ -14,6 +15,14 @@ sealed class BottomNavScreen(
     val icon: ImageVector,
     val title: UiText
 ) {
+    object Bar : BottomNavScreen(
+        route = Route.BAR,
+        icon = Icons.Default.LocalBar,
+        title = UiText.StringResource(
+            R.string.bar
+        )
+    )
+
     object Search : BottomNavScreen(
         route = Route.SEARCH_ONLINE_DRINK,
         icon = Icons.Default.Search,

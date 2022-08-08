@@ -2,6 +2,7 @@ package it.thefedex87.cooldrinks.presentation.ingredients
 
 import android.util.Log
 import android.widget.Space
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -10,6 +11,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.ingredients.components.IngredientDetailsDialog
 import it.thefedex87.cooldrinks.presentation.ingredients.components.IngredientItem
@@ -37,10 +41,17 @@ fun IngredientsScreen(
     snackbarHostState: SnackbarHostState,
     onItemClick: (String) -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    isSelectionEnabled: Boolean,
+    currentBottomNavigationScreenState: BottomNavigationScreenState,
+    navController: NavController,
     viewModel: IngredientsViewModel = hiltViewModel()
 ) {
     val spacing = LocalSpacing.current
     val context = LocalContext.current
+
+    BackHandler(enabled = viewModel.state.isMultiSelectionEnabled) {
+        viewModel.onEvent(IngredientsEvent.MultiSelectionStateChanged(false))
+    }
 
     if (viewModel.state.showDetailOfIngredient != null) {
         IngredientDetailsDialog(
@@ -55,15 +66,15 @@ fun IngredientsScreen(
     }
 
     LaunchedEffect(key1 = true) {
-        onComposed(
-            BottomNavigationScreenState(
+        /*onComposed(
+            currentBottomNavigationScreenState.copy(
                 topBarVisible = false,
                 bottomBarVisible = false,
                 topAppBarScrollBehavior = null,
                 topBarColor = null,
                 floatingActionButtonVisible = false
             )
-        )
+        )*/
 
         viewModel.uiEvent.collect {
             when (it) {
@@ -76,25 +87,56 @@ fun IngredientsScreen(
                         )
                     }
                 }
+                is UiEvent.PopBackStack -> {
+                    navController.popBackStack()
+                }
             }
         }
+    }
+
+    val saveLabel = stringResource(id = R.string.add)
+    LaunchedEffect(key1 = viewModel.state.isMultiSelectionEnabled) {
+        onComposed(
+            currentBottomNavigationScreenState.copy(
+                prevFabState = currentBottomNavigationScreenState.fabState.copy(),
+                fabState = currentBottomNavigationScreenState.fabState.copy(
+                    floatingActionButtonVisible = viewModel.state.isMultiSelectionEnabled,
+                    floatingActionButtonLabel = saveLabel,
+                    floatingActionButtonClicked = {
+                        viewModel.onEvent(IngredientsEvent.StoreIngredients)
+                    },
+                    floatingActionButtonMultiChoice = null,
+                    floatingActionButtonMultiChoiceExtended = false,
+                    floatingActionButtonIcon = Icons.Default.Add
+                )
+            )
+        )
     }
 
     if (viewModel.state.ingredients.isNotEmpty()) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(spacing.spaceMedium)
         ) {
             items(viewModel.state.ingredients) { ingredient ->
                 IngredientItem(
-                    name = ingredient.name,
+                    ingredient = ingredient,
                     onIngredientInfoClick = {
                         viewModel.onEvent(IngredientsEvent.ShowIngredientsDetails(ingredient = ingredient.name))
                     },
                     showSeparator = viewModel.state.ingredients.indexOf(ingredient) < viewModel.state.ingredients.lastIndex,
                     onItemClick = {
-                        onItemClick(ingredient.name)
+                        if (!viewModel.state.isMultiSelectionEnabled) {
+                            onItemClick(ingredient.name)
+                        } else {
+                            ingredient.isSelected.value = !ingredient.isSelected.value
+                        }
+                    },
+                    onItemLongClick = {
+                        if (isSelectionEnabled && !viewModel.state.isMultiSelectionEnabled) {
+                            ingredient.isSelected.value = true
+                            viewModel.onEvent(IngredientsEvent.MultiSelectionStateChanged(enabled = true))
+                        }
                     }
                 )
             }

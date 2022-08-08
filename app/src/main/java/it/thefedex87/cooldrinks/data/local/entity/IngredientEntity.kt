@@ -6,5 +6,11 @@ import androidx.room.PrimaryKey
 @Entity
 data class IngredientEntity(
     @PrimaryKey
-    val name: String
+    val id: Int,
+    val name: String,
+    val description: String?,
+    val imagePath: String?,
+    val type: String,
+    val alcoholic: Boolean,
+    val availableLocal: Boolean
 )

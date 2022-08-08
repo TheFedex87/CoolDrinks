@@ -1,6 +1,7 @@
 package it.thefedex87.cooldrinks.data.repository
 
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
+import it.thefedex87.cooldrinks.data.local.IngredientsDao
 import it.thefedex87.cooldrinks.data.mapper.*
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.domain.model.*
@@ -15,6 +16,7 @@ import java.io.EOFException
 class CocktailRepositoryImpl constructor(
     private val cocktailDbApi: TheCocktailDbApi,
     private val drinkDao: FavoriteDrinkDao,
+    private val ingredientDao: IngredientsDao,
     private val preferencesManager: PreferencesManager
 ) : CocktailRepository {
     override val appPreferencesManager: Flow<AppPreferences>
@@ -101,5 +103,23 @@ class CocktailRepositoryImpl constructor(
     override suspend fun removeFromFavorite(drinkId: Int) {
         val drink = drinkDao.getFavoriteDrinks().first().first { it.idDrink == drinkId }
         drinkDao.deleteFavoriteDrink(drink)
+    }
+
+    override val storedLiquors: Flow<List<IngredientDetailsDomainModel>>
+        get() = ingredientDao.getStoredIngredient().mapLatest { ingredients ->
+            ingredients.map { i -> i.toIngredientDetailsDomainModel() }
+        }
+
+    override suspend fun storeIngredients(ingredients: List<IngredientDetailsDomainModel>) {
+        try {
+            ingredientDao.insertIngredient(ingredients = ingredients.map { it.toIngredientEntity() })
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw ex
+        }
+    }
+
+    override suspend fun updateIngredient(ingredient: IngredientDetailsDomainModel) {
+        TODO("Not yet implemented")
     }
 }

@@ -30,6 +30,7 @@ fun DrinkDetailScreen(
     calculatedDominantColor: Color?,
     drinkId: Int?,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     onDrinkLoaded: ((String) -> Unit)?,
     viewModel: DrinkDetailViewModel = hiltViewModel()
 ) {
@@ -70,7 +71,7 @@ fun DrinkDetailScreen(
 
     LaunchedEffect(key1 = viewModel.state.isFavorite) {
         onComposed(
-            BottomNavigationScreenState(
+            currentBottomNavigationScreenState.copy(
                 topBarVisible = true,
                 bottomBarVisible = drinkId == null,
                 topAppBarScrollBehavior = {
@@ -102,11 +103,15 @@ fun DrinkDetailScreen(
                     }
                 },
                 topBarShowBack = drinkId != null,
-                floatingActionButtonVisible = false,//drinkId == null,
-                floatingActionButtonLabel = null,//if(drinkId != null) null else "Random Drink",
-                floatingActionButtonClicked = {
+                fabState = currentBottomNavigationScreenState.fabState.copy(
+                    floatingActionButtonVisible = false
+                ),
+                prevFabState = currentBottomNavigationScreenState.fabState.copy()
+                //drinkId == null,
+                //floatingActionButtonLabel = null,//if(drinkId != null) null else "Random Drink",
+                /*floatingActionButtonClicked = {
                     //viewModel.onEvent(DrinkDetailEvent.GetRandomCocktail)
-                }
+                }*/
             )
         )
     }

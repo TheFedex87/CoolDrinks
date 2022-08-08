@@ -48,7 +48,10 @@ fun FavoriteDrinkScreen(
                 bottomBarVisible = true,
                 topAppBarScrollBehavior = null,
                 topBarColor = null,
-                floatingActionButtonVisible = false
+                fabState = currentBottomNavigationScreenState.fabState.copy(
+                    floatingActionButtonVisible = false
+                ),
+                prevFabState = currentBottomNavigationScreenState.fabState.copy()
             )
         )
 

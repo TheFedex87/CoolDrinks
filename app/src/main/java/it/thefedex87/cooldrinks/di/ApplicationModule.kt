@@ -10,6 +10,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import it.thefedex87.cooldrinks.data.local.CoolDrinkDatabase
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
+import it.thefedex87.cooldrinks.data.local.IngredientsDao
 import it.thefedex87.cooldrinks.data.preferences.DefaultPreferencesManager
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.data.repository.CocktailRepositoryImpl
@@ -56,14 +57,21 @@ object ApplicationModule {
 
     @Singleton
     @Provides
+    fun provideIngredientDao(db: CoolDrinkDatabase) =
+        db.ingredientDao
+
+    @Singleton
+    @Provides
     fun provideCocktailRepository(
         cocktailDbApi: TheCocktailDbApi,
         drinkDao: FavoriteDrinkDao,
+        ingredientsDao: IngredientsDao,
         preferencesManager: PreferencesManager
     ): CocktailRepository =
         CocktailRepositoryImpl(
             cocktailDbApi = cocktailDbApi,
             drinkDao = drinkDao,
+            ingredientDao = ingredientsDao,
             preferencesManager = preferencesManager
         )
 }

@@ -71,7 +71,10 @@ fun SearchDrinkScreen(
                 bottomBarVisible = true,
                 topAppBarScrollBehavior = null,
                 topBarColor = null,
-                floatingActionButtonVisible = false
+                prevFabState = currentBottomNavigationScreenState.fabState.copy(),
+                fabState = currentBottomNavigationScreenState.fabState.copy(
+                    floatingActionButtonVisible = false
+                )
             )
         )
 

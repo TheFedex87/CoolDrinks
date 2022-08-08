@@ -35,6 +35,12 @@ android {
         }
 
         buildConfigField("String", "THE_COCKTAIL_DB_API", apiKeyProperties['THE_COCKTAIL_DB_API'])
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildTypes {

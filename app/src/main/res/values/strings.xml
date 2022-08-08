@@ -33,4 +33,7 @@
     <string name="feel_lucky">Feel lucky</string>
     <string name="generic_error">Something went wrong…please retry</string>
     <string name="retry">Retry</string>
+    <string name="bar">Bar</string>
+    <string name="add">Add</string>
+    <string name="error_storing_ingredient">One or more error occurred saving ingredients. Check you have internet connection in order to store ingredients.</string>
 </resources>
