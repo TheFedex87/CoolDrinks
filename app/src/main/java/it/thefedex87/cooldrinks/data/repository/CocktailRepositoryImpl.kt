@@ -120,6 +120,11 @@ class CocktailRepositoryImpl constructor(
     }
 
     override suspend fun updateIngredient(ingredient: IngredientDetailsDomainModel) {
-        TODO("Not yet implemented")
+        try {
+            ingredientDao.updateIngredient(ingredient.toIngredientEntity())
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw ex
+        }
     }
 }

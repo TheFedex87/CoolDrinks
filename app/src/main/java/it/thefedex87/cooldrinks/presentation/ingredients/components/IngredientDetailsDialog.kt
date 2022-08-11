@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
+import it.thefedex87.cooldrinks.presentation.components.IngredientDetails
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.util.Consts.TAG
 
@@ -41,48 +42,13 @@ fun IngredientDetailsDialog(
                 .clip(RoundedCornerShape(12.dp))
                 .padding(spacing.spaceMedium)
         ) {
-            Column(
-                modifier = Modifier
-                    .verticalScroll(rememberScrollState())
-                    .fillMaxSize()
-                    .padding(spacing.spaceSmall),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    text = ingredient,
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                if (isLoadingIngredientInfo) {
-                    CircularProgressIndicator()
-                } else {
-                    if (getIngredientInfoError != null) {
-                        Text(text = getIngredientInfoError!!)
-                    } else {
-                        ingredientInfo?.let { ii ->
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
-                                Text(text = "#${ii.id}")
-                                Text(
-                                    text = if (ii.alcoholic) {
-                                        stringResource(id = R.string.alcoholic)
-                                    } else {
-                                        stringResource(id = R.string.non_alcoholic)
-                                    }
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = ii.description ?: stringResource(id = R.string.no_info),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-            }
+            IngredientDetails(
+                ingredient = ingredient,
+                isLoadingIngredientInfo = isLoadingIngredientInfo,
+                getIngredientInfoError = getIngredientInfoError,
+                ingredientInfo = ingredientInfo,
+                modifier = Modifier.padding(spacing.spaceSmall)
+            )
         }
     }
 }

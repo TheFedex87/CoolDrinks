@@ -102,17 +102,32 @@ fun BottomNavigationScreen(
                     },
                     onMiniFabIngredientsListClicked = {
                         navController.navigate("${Route.INGREDIENTS}/false")
+                    },
+                    onSearchDrinkClicked = {
+                        navController.navigate("${BottomNavScreen.Search.route}?ingredient=$it")
                     }
                 )
             }
             composable(
-                route = BottomNavScreen.Search.route
+                route = "${BottomNavScreen.Search.route}?ingredient={ingredientForSearch}",
+                arguments = listOf(
+                    navArgument("ingredientForSearch") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+
             ) {
+                // Ingredient which is got when ingredient is selected from the whole list of ingredients
                 val ingredient = navController.currentBackStackEntry
                     ?.savedStateHandle
                     ?.get<String>("ingredient")
 
-                Log.d(TAG, "Passed ingredient is: $ingredient")
+                // Ingredient which is got when click search from bar screen
+                val ingredientForSearch = it.arguments?.getString("ingredientForSearch")
+
+                Log.d(TAG, "Passed ingredient is: $ingredientForSearch")
 
                 SearchDrinkScreen(
                     snackbarHostState = snackbarHostState,
@@ -124,7 +139,7 @@ fun BottomNavigationScreen(
                     onIngredientListClicked = {
                         navController.navigate("${Route.INGREDIENTS}/true")
                     },
-                    ingredient = ingredient,
+                    ingredient = ingredient ?: ingredientForSearch,
                     onDrinkClicked = { id, color, name ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
@@ -224,7 +239,7 @@ fun BottomNavigationScreen(
                                 ?.set("ingredient", it)
                             navController.popBackStack()
                         } else {
-
+                            //TODO: implement when we this screen has been opened from bar screen
                         }
                     },
                     isSelectionEnabled = !ingredientForSearch,

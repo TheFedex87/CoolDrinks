@@ -36,4 +36,8 @@
     <string name="bar">Bar</string>
     <string name="add">Add</string>
     <string name="error_storing_ingredient">One or more error occurred saving ingredients. Check you have internet connection in order to store ingredients.</string>
+    <string name="look_for_drink">Look for drink</string>
+    <string name="available">Available</string>
+    <string name="not_available">Not available</string>
+    <string name="search_drink">Search for drink</string>
 </resources>

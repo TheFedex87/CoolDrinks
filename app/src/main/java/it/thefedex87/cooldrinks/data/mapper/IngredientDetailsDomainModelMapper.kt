@@ -33,7 +33,7 @@ fun IngredientDetailsDomainModel.toIngredientEntity(): IngredientEntity {
         id = id,
         name = name,
         description = description,
-        type = type,
+        type = type ?: "",
         alcoholic = alcoholic,
         imagePath = imagePath,
         availableLocal = availableLocal

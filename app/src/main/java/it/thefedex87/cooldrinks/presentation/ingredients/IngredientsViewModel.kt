@@ -108,7 +108,7 @@ class IngredientsViewModel @Inject constructor(
 
                         if(!result.any { it is Exception }) {
                             repository.storeIngredients(
-                                result.map { (it as IngredientDetailsDomainModel) }
+                                result.map { (it as IngredientDetailsDomainModel).copy(availableLocal = true) }
                             )
                             _uiEvent.send(UiEvent.PopBackStack)
                         } else {
