@@ -39,6 +39,7 @@ fun PagerScope.PagerDrinkItem(
     onItemClick: (Int, Int, String) -> Unit,
     page: Int,
     onFavoriteClick: (DrinkUiModel) -> Unit,
+    onImageLoaded: (Drawable) -> Unit,
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
 ) {
     ElevatedCard(modifier = modifier
@@ -93,6 +94,7 @@ fun PagerScope.PagerDrinkItem(
                             }
                         },
                     onSuccess = {
+                        onImageLoaded(it.result.drawable)
                         if (drink.dominantColor == 0) {
                             Log.d(Consts.TAG, "Calculate dominant color")
                             calcDominantColor(it.result.drawable) { color ->

@@ -104,12 +104,16 @@ fun BottomNavigationScreen(
                         navController.navigate("${Route.INGREDIENTS}/false")
                     },
                     onSearchDrinkClicked = {
-                        navController.navigate("${BottomNavScreen.Search.route}?ingredient=$it")
+                        //navController.navigate("${BottomNavScreen.Search.route}?ingredient=$it")
+                        navController.currentBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("ingredient", it)
+                        navController.navigate(BottomNavScreen.Search.route)
                     }
                 )
             }
             composable(
-                route = "${BottomNavScreen.Search.route}?ingredient={ingredientForSearch}",
+                route = BottomNavScreen.Search.route,
                 arguments = listOf(
                     navArgument("ingredientForSearch") {
                         type = NavType.StringType
@@ -125,7 +129,9 @@ fun BottomNavigationScreen(
                     ?.get<String>("ingredient")
 
                 // Ingredient which is got when click search from bar screen
-                val ingredientForSearch = it.arguments?.getString("ingredientForSearch")
+                val ingredientForSearch = navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<String>("ingredient")
 
                 Log.d(TAG, "Passed ingredient is: $ingredientForSearch")
 

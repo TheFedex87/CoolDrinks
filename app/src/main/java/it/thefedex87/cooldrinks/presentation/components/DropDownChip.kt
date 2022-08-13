@@ -28,7 +28,10 @@ fun DropDownChip(
             },
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
-            selectedIcon = selectedIcon
+            selectedIcon = selectedIcon,
+            colors = FilterChipDefaults.filterChipColors(
+                containerColor = MaterialTheme.colorScheme.surface
+            )
         )
         DropdownMenu(
             expanded = isMenuExpanded,
