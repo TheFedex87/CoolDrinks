@@ -117,7 +117,7 @@ fun BarScreen(
             ) {
                 val constraints = this
                 Column(modifier = Modifier.fillMaxHeight()) {
-                    ElevatedCard(
+                    Card(
                         modifier = Modifier
                             .weight(1.5f)
                             .fillMaxWidth()

@@ -34,6 +34,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteDrinkScreen(
     snackbarHostState: SnackbarHostState,
@@ -140,7 +141,7 @@ fun FavoriteDrinkScreen(
                 .fillMaxSize()
                 .padding(spacing.spaceMedium)
         ) {
-            if(viewModel.state.showFilterChips) {
+            if (viewModel.state.showFilterChips) {
 
 
                 item {
@@ -298,8 +299,8 @@ fun FavoriteDrinkScreen(
             }
         }
 
-        if(!viewModel.state.showFilterChips) {
-            Column(
+        if (!viewModel.state.showFilterChips) {
+            /*Column(
                 modifier = Modifier
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -312,6 +313,26 @@ fun FavoriteDrinkScreen(
                         .width(250.dp)
                 )
                 Text(text = stringResource(id = R.string.add_some_favorites))
+            }*/
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.Center)
+                    .padding(spacing.spaceMedium)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(spacing.spaceMedium),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.FavoriteBorder,
+                        contentDescription = null,
+                        modifier = Modifier.size(56.dp)
+                    )
+                    Text(text = stringResource(id = R.string.add_some_favorites))
+                }
             }
         }
     }

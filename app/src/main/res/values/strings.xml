@@ -40,4 +40,5 @@
     <string name="available">Available</string>
     <string name="not_available">Not available</string>
     <string name="search_drink">Search for drink</string>
+    <string name="search_for_drink">Search for some drinks…</string>
 </resources>
