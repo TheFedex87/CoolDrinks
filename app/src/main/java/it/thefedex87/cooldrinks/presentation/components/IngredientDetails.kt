@@ -74,7 +74,7 @@ fun IngredientDetails(
                         }
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = ii.description ?: stringResource(id = R.string.no_info),
+                            text = if(ii.description.isNullOrBlank()) stringResource(id = R.string.no_info) else ii.description,
                             modifier = Modifier.fillMaxWidth()
                         )
                     }

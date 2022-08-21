@@ -1,7 +1,7 @@
 package it.thefedex87.cooldrinks.domain.model
 
 data class IngredientDetailsDomainModel(
-    val id: Int,
+    val id: Int? = null,
     val name: String,
     val description: String?,
     val type: String?,

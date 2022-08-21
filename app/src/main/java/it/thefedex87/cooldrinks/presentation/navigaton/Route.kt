@@ -7,4 +7,5 @@ object Route {
     const val RANDOM_DRINK = "random_drink"
     const val DRINK_DETAILS = "drink_details"
     const val INGREDIENTS = "ingredients"
+    const val ADD_INGREDIENT = "add_ingredient"
 }

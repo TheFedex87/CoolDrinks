@@ -130,5 +130,4 @@ dependencies {
     // Pager
     def pager_version = "0.23.1"
     implementation "com.google.accompanist:accompanist-pager:$pager_version"
-
 }

@@ -28,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientScreen
 import it.thefedex87.cooldrinks.presentation.bar.BarScreen
 import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
 import it.thefedex87.cooldrinks.presentation.components.MultiChoiceActionButton
@@ -98,7 +99,7 @@ fun BottomNavigationScreen(
                     },
                     paddingValues = values,
                     onMiniFabCustomIngredientClicked = {
-
+                        navController.navigate(Route.ADD_INGREDIENT)
                     },
                     onMiniFabIngredientsListClicked = {
                         navController.navigate("${Route.INGREDIENTS}/false")
@@ -251,6 +252,19 @@ fun BottomNavigationScreen(
                     isSelectionEnabled = !ingredientForSearch,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     navController = navController
+                )
+            }
+            composable(
+                route = Route.ADD_INGREDIENT
+            ) {
+                AddIngredientScreen(
+                    onComposed = { state ->
+                        bottomNavigationScreenState = state
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }
         }

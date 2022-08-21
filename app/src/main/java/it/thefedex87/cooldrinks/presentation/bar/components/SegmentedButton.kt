@@ -1,21 +1,19 @@
 package it.thefedex87.cooldrinks.presentation.bar.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 
@@ -24,10 +22,11 @@ fun SegmentedButton(
     options: List<String>,
     selectedOption: Int = 0,
     onOptionClicked: (Int) -> Unit,
+    textStyle: TextStyle = MaterialTheme.typography.labelSmall,
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = modifier.horizontalScroll(rememberScrollState()),
+        modifier = modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         options.forEachIndexed { index, option ->
@@ -81,7 +80,7 @@ fun SegmentedButton(
                     Text(
                         text = option,
                         color = if (selectedOption == index) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.labelSmall,
+                        style = textStyle,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
