@@ -9,9 +9,8 @@ data class DrinkDetailDomainModel(
     val name: String,
     val drinkThumb: String,
     val glass: String,
-    val ingredients: List<String?>,
+    val ingredients: List<DrinkIngredientModel>,
     val instructions: String,
-    val measures: List<String?>,
     val addedDate: LocalDate? = null,
     val dominantColor: Int? = null
 )

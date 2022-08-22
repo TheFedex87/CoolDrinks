@@ -162,8 +162,8 @@ fun DrinkDetailScreenAdvanced(
                                     ) {
                                         viewModel.state.drinkIngredients?.map {
                                             IngredientItem(
-                                                ingredientName = it.first,
-                                                ingredientMeasure = it.second
+                                                ingredientName = it.name ?: "",
+                                                ingredientMeasure = it.measure ?: ""
                                             )
                                         }
                                     }

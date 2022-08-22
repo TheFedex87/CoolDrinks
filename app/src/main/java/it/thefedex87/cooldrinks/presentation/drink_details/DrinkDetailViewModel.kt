@@ -52,13 +52,10 @@ class DrinkDetailViewModel @Inject constructor(
                 val drink = repository.getFavoriteDrink(drinkId).first()
                 if (drink != null) {
                     drinkDetails = drink
-                    val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
-                        Pair(s!!, drinkDetails.measures[index] ?: "")
-                    }
                     state = state.copy(
                         drinkImagePath = drink.drinkThumb,
                         drinkName = drink.name,
-                        drinkIngredients = ingredients,
+                        drinkIngredients = drink.ingredients,
                         drinkCategory = drink.category,
                         drinkGlass = drink.glass,
                         drinkInstructions = drink.instructions,
@@ -83,11 +80,6 @@ class DrinkDetailViewModel @Inject constructor(
             .getDrinkDetails(drinkId)
             .onSuccess {
                 drinkDetails = it.first().copy(dominantColor = dominantColor)
-                val ingredients = drinkDetails.ingredients.mapIndexedNotNull { index, s ->
-                    s?.let { i ->
-                        Pair(i, drinkDetails.measures[index] ?: "")
-                    }
-                }
 
                 val isFavorite = if (drinkId == null) {
                     val favorite = repository.getFavoriteDrink(drinkDetails.idDrink).first()
@@ -98,7 +90,7 @@ class DrinkDetailViewModel @Inject constructor(
                     isLoading = false,
                     drinkImagePath = drinkDetails.drinkThumb,
                     drinkName = drinkDetails.name,
-                    drinkIngredients = ingredients,
+                    drinkIngredients = drinkDetails.ingredients,
                     drinkInstructions = drinkDetails.instructions,
                     drinkCategory = drinkDetails.category,
                     drinkGlass = drinkDetails.glass,

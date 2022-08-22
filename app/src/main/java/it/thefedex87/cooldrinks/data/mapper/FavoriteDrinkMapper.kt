@@ -3,10 +3,25 @@ package it.thefedex87.cooldrinks.data.mapper
 import android.annotation.SuppressLint
 import it.thefedex87.cooldrinks.data.local.entity.FavoriteDrinkEntity
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
+import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
+import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
+import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import java.time.LocalDate
 
 @SuppressLint("NewApi")
-fun FavoriteDrinkEntity.toDrinkDetailDomainModel(): DrinkDetailDomainModel {
+fun FavoriteDrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<IngredientDomainModel>): DrinkDetailDomainModel {
+    val measures = measures.split(",").map { it.trim() }
+    val drinkIngredients =
+        ingredients.split(",").mapIndexed { index, i ->
+            DrinkIngredientModel(
+                i.trim(),
+                measures[index],
+                availableIngredients.any {
+                    it.name.lowercase() == i.trim().lowercase()
+                }
+            )
+        }
+
     return DrinkDetailDomainModel(
         idDrink = idDrink,
         isAlcoholic = isAlcoholic,
@@ -14,9 +29,8 @@ fun FavoriteDrinkEntity.toDrinkDetailDomainModel(): DrinkDetailDomainModel {
         name = name,
         drinkThumb = drinkThumb,
         glass = glass,
-        ingredients = ingredients.split(",").map { it.trim() },
+        ingredients = drinkIngredients,
         instructions = instructions,
-        measures = measures.split(",").map { it.trim() },
         addedDate = LocalDate.of(addedYear, addedMonth, addedDayOfMonth),
         dominantColor = dominantColor
     )
@@ -32,9 +46,9 @@ fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): FavoriteDrinkEntity {
         name = name,
         drinkThumb = drinkThumb,
         glass = glass,
-        ingredients = ingredients.filterNotNull().joinToString { it },
+        ingredients = ingredients.filterNotNull().joinToString { it.name ?: "" },
         instructions = instructions,
-        measures = measures.joinToString { it ?: "" },
+        measures = ingredients.joinToString { it?.measure ?: "" },
         addedDayOfMonth = now.dayOfMonth,
         addedMonth = now.monthValue,
         addedYear = now.year,

@@ -98,8 +98,8 @@ fun DrinkDetailScreenSimplified(
                             Spacer(modifier = androidx.compose.ui.Modifier.height(spacing.spaceSmall))
                             viewModel.state.drinkIngredients?.map {
                                 IngredientItem(
-                                    ingredientName = it.first,
-                                    ingredientMeasure = it.second
+                                    ingredientName = it.name ?: "",
+                                    ingredientMeasure = it.measure ?: ""
                                 )
                             }
                         }

@@ -7,6 +7,7 @@ import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.domain.model.*
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -28,11 +29,19 @@ class CocktailRepositoryImpl constructor(
 
     override val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
         get() = drinkDao.getFavoriteDrinks().mapLatest { favoriteDrink ->
-            favoriteDrink.map { it.toDrinkDetailDomainModel() }
+            favoriteDrink.map {
+                it.toDrinkDetailDomainModel(
+                    ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
+                        .map { it.toIngredientDomainModel() }
+                )
+            }
         }
 
     override suspend fun getFavoriteDrink(id: Int): Flow<DrinkDetailDomainModel?> = flow {
-        emit(drinkDao.getFavoriteDrink(id)?.toDrinkDetailDomainModel())
+        emit(drinkDao.getFavoriteDrink(id)?.toDrinkDetailDomainModel(
+            ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
+                .map { it.toIngredientDomainModel() }
+        ))
     }
 
     override suspend fun searchCocktails(
@@ -89,7 +98,10 @@ class CocktailRepositoryImpl constructor(
                 else
                     cocktailDbApi.randomDrink()
 
-            Result.success(drinksDetailsDto.drinks.mapNotNull { it.toDrinkDetailDomainModel() })
+            Result.success(drinksDetailsDto.drinks.mapNotNull { it.toDrinkDetailDomainModel(
+                ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
+                    .map { it.toIngredientDomainModel() }
+            ) })
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

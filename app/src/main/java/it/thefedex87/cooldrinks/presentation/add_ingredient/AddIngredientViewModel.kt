@@ -24,7 +24,14 @@ class AddIngredientViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val repository: CocktailRepository
 ) : ViewModel() {
-    var state by mutableStateOf(AddIngredientState())
+    var state by mutableStateOf(
+        AddIngredientState(
+            ingredientName = savedStateHandle.get<String>("name") ?: "",
+            ingredientDescription = savedStateHandle.get<String>("description") ?: "",
+            ingredientIsAlcoholic = savedStateHandle.get<Boolean>("is_alcoholic") ?: false,
+            ingredientAvailable = savedStateHandle.get<Boolean>("is_available") ?: true
+        )
+    )
         private set
 
     private val _addIngredientUiEvent = Channel<AddIngredientUiEvent>()
@@ -32,13 +39,6 @@ class AddIngredientViewModel @Inject constructor(
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
-
-    init {
-        state = state.copy(
-            ingredientName = savedStateHandle.get<String>("name") ?: "",
-            ingredientDescription = savedStateHandle.get<String>("description") ?: ""
-        )
-    }
 
     fun onEvent(event: AddIngredientEvent) {
         viewModelScope.launch {
@@ -56,9 +56,11 @@ class AddIngredientViewModel @Inject constructor(
                 }
                 is AddIngredientEvent.OnIngredientAlcoholicChanged -> {
                     state = state.copy(ingredientIsAlcoholic = event.isAlcoholic)
+                    savedStateHandle.set("is_alcoholic", event.isAlcoholic)
                 }
                 is AddIngredientEvent.OnIngredientAvailableChanged -> {
                     state = state.copy(ingredientAvailable = event.isAvailable)
+                    savedStateHandle.set("is_available", event.isAvailable)
                 }
                 is AddIngredientEvent.OnSaveClicked -> {
                     if (state.ingredientName.isBlank()) {
