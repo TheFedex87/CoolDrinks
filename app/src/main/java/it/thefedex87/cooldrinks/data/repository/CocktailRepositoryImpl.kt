@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.data.repository
 
+import com.squareup.moshi.JsonDataException
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.local.IngredientsDao
 import it.thefedex87.cooldrinks.data.mapper.*
@@ -56,6 +57,8 @@ class CocktailRepositoryImpl constructor(
                 it.toDrinkDomainModel(favoritesDrinks.first().map { it.idDrink })
             })
         } catch (e: EOFException) {
+            Result.success(emptyList())
+        } catch (e: JsonDataException) {
             Result.success(emptyList())
         } catch (e: Exception) {
             e.printStackTrace()

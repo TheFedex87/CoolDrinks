@@ -102,16 +102,21 @@ fun SearchDrinkScreen(
             }
         }
     }
-    
+
     var selectedDrinkDrawable by remember {
         mutableStateOf<Drawable?>(null)
     }
 
-    if(viewModel.state.visualizationType == VisualizationType.Card && viewModel.state.foundDrinks.isNotEmpty()) {
+    if (
+        viewModel.state.visualizationType == VisualizationType.Card &&
+        viewModel.state.foundDrinks.isNotEmpty() &&
+        !viewModel.state.isLoading
+    ) {
         if (selectedDrinkDrawable != null) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(selectedDrinkDrawable!!)
+                    .crossfade(true)
                     .build(),
                 contentDescription = null,
                 modifier = Modifier
@@ -139,7 +144,7 @@ fun SearchDrinkScreen(
         color = animatedDominantColor.value,
         bottomPadding = paddingValues.calculateBottomPadding()
     )*/
-    
+
 
     val pagerState = rememberPagerState()
     LaunchedEffect(key1 = pagerState) {
@@ -178,126 +183,133 @@ fun SearchDrinkScreen(
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val constraints = this
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-        ) {
-            SearchTextField(
-                text = viewModel.state.searchQuery,
-                showHint = viewModel.state.showSearchHint,
-                onSearch = {
-                    keyboardController?.hide()
-                    viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
-                },
-                onValueChanged = {
-                    viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
-                },
-                onFocusChanged = {
-                    viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
-                },
-                trailingIcon = Icons.Default.List,
-                trailingIconOnClick = onIngredientListClicked,
-                modifier = Modifier.padding(
-                    horizontal = spacing.spaceExtraSmall,
-                    vertical = spacing.spaceSmall
-                )
-            )
+        if (!viewModel.state.isLoading) {
 
-            if (viewModel.state.foundDrinks.isNotEmpty()) {
-                if (constraints.maxHeight > 500.dp &&
-                    viewModel.state.visualizationType == VisualizationType.Card
-                ) {
-                    HorizontalPager(
-                        modifier = Modifier.weight(1f),
-                        count = viewModel.state.foundDrinks.size,
-                        contentPadding = PaddingValues(
-                            if (constraints.maxWidth > 600.dp) {
-                                128.dp
-                            } else {
-                                64.dp
-                            }
-                        ),
-                        state = pagerState
-                    ) { page ->
-                        if (page <= viewModel.state.foundDrinks.lastIndex) {
-                            val drink = viewModel.state.foundDrinks[page]
-                            PagerDrinkItem(
-                                drink = drink.value,
-                                onItemClick = { id, color, name ->
-                                    onDrinkClicked(id, color, name)
-                                },
-                                page = page,
-                                onFavoriteClick = {
-                                    viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                                },
-                                calcDominantColor = { drawable, onFinish ->
-                                    calcDominantColor(drawable, drink, onFinish)
-                                },
-                                onImageLoaded = {
-                                    drink.value = drink.value.copy(imageDrawable = it)
-                                    if(page == pagerState.currentPage) {
-                                        selectedDrinkDrawable = it
-                                    }
-                                }
-                            )
-                        }
-                    }
-                } else if (constraints.maxHeight <= 500.dp ||
-                    viewModel.state.visualizationType == VisualizationType.List
-                ) {
-                    LazyColumn(
-                        modifier = Modifier.weight(1f),
-                        state = columnState
-                    ) {
-                        items(viewModel.state.foundDrinks) { drink ->
-                            DrinkItem(
-                                drink = drink.value,
-                                onItemClick = { id, color, name ->
-                                    onDrinkClicked(id, color, name)
-                                },
-                                onFavoriteClick = {
-                                    viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                                },
-                                calcDominantColor = { drawable, onFinish ->
-                                    calcDominantColor(drawable, drink, onFinish)
-                                }
-                            )
-                        }
-                    }
-                }
-
-                if (constraints.maxHeight > 500.dp) {
-                    VisualizationTypeSelector(
-                        selectedVisualizationType = viewModel.state.visualizationType,
-                        onClick = {
-                            viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
-                        }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                SearchTextField(
+                    text = viewModel.state.searchQuery,
+                    showHint = viewModel.state.showSearchHint,
+                    onSearch = {
+                        keyboardController?.hide()
+                        viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+                    },
+                    onValueChanged = {
+                        viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
+                    },
+                    onFocusChanged = {
+                        viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
+                    },
+                    trailingIcon = Icons.Default.List,
+                    trailingIconOnClick = onIngredientListClicked,
+                    modifier = Modifier.padding(
+                        horizontal = spacing.spaceExtraSmall,
+                        vertical = spacing.spaceSmall
                     )
-                }
+                )
 
-            } else {
-                Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(spacing.spaceMedium)
+                if (viewModel.state.foundDrinks.isNotEmpty()) {
+                    if (constraints.maxHeight > 500.dp &&
+                        viewModel.state.visualizationType == VisualizationType.Card
                     ) {
-                        Column(
+                        HorizontalPager(
+                            modifier = Modifier.weight(1f),
+                            count = viewModel.state.foundDrinks.size,
+                            contentPadding = PaddingValues(
+                                if (constraints.maxWidth > 600.dp) {
+                                    128.dp
+                                } else {
+                                    64.dp
+                                }
+                            ),
+                            state = pagerState
+                        ) { page ->
+                            if (page <= viewModel.state.foundDrinks.lastIndex) {
+                                val drink = viewModel.state.foundDrinks[page]
+                                PagerDrinkItem(
+                                    drink = drink.value,
+                                    onItemClick = { id, color, name ->
+                                        onDrinkClicked(id, color, name)
+                                    },
+                                    page = page,
+                                    onFavoriteClick = {
+                                        viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                                    },
+                                    calcDominantColor = { drawable, onFinish ->
+                                        calcDominantColor(drawable, drink, onFinish)
+                                    },
+                                    onImageLoaded = {
+                                        drink.value = drink.value.copy(imageDrawable = it)
+                                        if (page == pagerState.currentPage) {
+                                            selectedDrinkDrawable = it
+                                        }
+                                    }
+                                )
+                            }
+                        }
+                    } else if (constraints.maxHeight <= 500.dp ||
+                        viewModel.state.visualizationType == VisualizationType.List
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.weight(1f),
+                            state = columnState
+                        ) {
+                            items(viewModel.state.foundDrinks) { drink ->
+                                DrinkItem(
+                                    drink = drink.value,
+                                    onItemClick = { id, color, name ->
+                                        onDrinkClicked(id, color, name)
+                                    },
+                                    onFavoriteClick = {
+                                        viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                                    },
+                                    calcDominantColor = { drawable, onFinish ->
+                                        calcDominantColor(drawable, drink, onFinish)
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    if (constraints.maxHeight > 500.dp) {
+                        VisualizationTypeSelector(
+                            selectedVisualizationType = viewModel.state.visualizationType,
+                            onClick = {
+                                viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
+                            }
+                        )
+                    }
+
+                } else {
+                    Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(spacing.spaceMedium),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .padding(spacing.spaceMedium)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier.size(56.dp)
-                            )
-                            Text(text = stringResource(id = R.string.search_for_drink))
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(spacing.spaceMedium),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Search,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(56.dp)
+                                )
+                                Text(text = stringResource(id = R.string.search_for_drink))
+                            }
                         }
                     }
                 }
             }
+        } else {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }
