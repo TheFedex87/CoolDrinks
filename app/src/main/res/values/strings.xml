@@ -48,4 +48,5 @@
     <string name="save">Save</string>
     <string name="error_coping_ingredient_picture">Error during the saving of ingredient picture, please retry</string>
     <string name="error_storing_new_ingredient">Error storing new ingredient, please retry.</string>
+    <string name="missing_ingredients">missing ingredients</string>
 </resources>

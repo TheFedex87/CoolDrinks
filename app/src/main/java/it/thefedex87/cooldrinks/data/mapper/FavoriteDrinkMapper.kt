@@ -12,7 +12,7 @@ import java.time.LocalDate
 fun FavoriteDrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<IngredientDomainModel>): DrinkDetailDomainModel {
     val measures = measures.split(",").map { it.trim() }
     val drinkIngredients =
-        ingredients.split(",").mapIndexed { index, i ->
+        ingredients.split(",").filter { it.isNotBlank() }.mapIndexed { index, i ->
             DrinkIngredientModel(
                 i.trim(),
                 measures[index],
@@ -46,9 +46,9 @@ fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): FavoriteDrinkEntity {
         name = name,
         drinkThumb = drinkThumb,
         glass = glass,
-        ingredients = ingredients.filterNotNull().joinToString { it.name ?: "" },
+        ingredients = ingredients.joinToString { it.name ?: "" },
         instructions = instructions,
-        measures = ingredients.joinToString { it?.measure ?: "" },
+        measures = ingredients.joinToString { it.measure ?: "" },
         addedDayOfMonth = now.dayOfMonth,
         addedMonth = now.monthValue,
         addedYear = now.year,

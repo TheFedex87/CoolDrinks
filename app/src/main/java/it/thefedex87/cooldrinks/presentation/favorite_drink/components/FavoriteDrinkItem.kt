@@ -49,7 +49,7 @@ fun FavoriteDrinkItem(
             modifier = modifier
                 .fillMaxWidth()
                 .let {
-                    if(constraints.maxWidth > 600.dp) {
+                    if (constraints.maxWidth > 600.dp) {
                         it.height(600.dp)
                     } else {
                         it.height(390.dp)
@@ -71,7 +71,7 @@ fun FavoriteDrinkItem(
                     modifier = Modifier
                         .fillMaxWidth()
                         .let {
-                            if(constraints.maxWidth > 600.dp) {
+                            if (constraints.maxWidth > 600.dp) {
                                 it.weight(4f)
                             } else {
                                 it.weight(1.2f)
@@ -150,6 +150,11 @@ fun FavoriteDrinkItem(
                         }
                     }
                 }
+                Text(
+                    modifier = Modifier.padding(horizontal = spacing.spaceMedium),
+                    text = "${drink.ingredients.count { it.isAvailable == false }} ${stringResource(id = R.string.missing_ingredients)}",
+                    color = if(drink.ingredients.count { it.isAvailable == false } == 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                )
                 Button(
                     modifier = Modifier
                         .padding(spacing.spaceSmall)

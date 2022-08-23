@@ -10,7 +10,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.drink_details.components.CharacteristicSection
 import it.thefedex87.cooldrinks.presentation.drink_details.components.DrinkImage
 import it.thefedex87.cooldrinks.presentation.drink_details.components.IngredientItem
@@ -95,18 +101,32 @@ fun DrinkDetailScreenSimplified(
                                 text = "Ingredients",
                                 style = MaterialTheme.typography.headlineSmall
                             )
-                            Spacer(modifier = androidx.compose.ui.Modifier.height(spacing.spaceSmall))
-                            viewModel.state.drinkIngredients?.map {
+                            Spacer(modifier = Modifier.height(spacing.spaceMedium))
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append("${viewModel.state.drinkIngredients?.filter { it.name != null }?.count { it.isAvailable == false }}")
+                                    }
+                                    append(
+                                        " ${
+                                            stringResource(
+                                                id = R.string.missing_ingredients
+                                            )
+                                        }"
+                                    )
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(spacing.spaceMedium))
+                            viewModel.state.drinkIngredients?.filter { it.name != null }?.sortedBy { it.isAvailable == true }?.map {
                                 IngredientItem(
-                                    ingredientName = it.name ?: "",
-                                    ingredientMeasure = it.measure ?: ""
+                                    ingredient = it
                                 )
                             }
                         }
                     }
                     viewModel.state.drinkInstructions?.let { instructions ->
                         Text(
-                            modifier = androidx.compose.ui.Modifier
+                            modifier = Modifier
                                 .padding(spacing.spaceMedium),
                             text = instructions
                         )

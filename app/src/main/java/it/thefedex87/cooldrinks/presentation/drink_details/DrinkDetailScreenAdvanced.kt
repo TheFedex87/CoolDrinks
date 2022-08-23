@@ -12,10 +12,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.drink_details.components.CharacteristicSection
 import it.thefedex87.cooldrinks.presentation.drink_details.components.DrinkImage
 import it.thefedex87.cooldrinks.presentation.drink_details.components.IngredientItem
+import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 
@@ -29,6 +37,7 @@ fun DrinkDetailScreenAdvanced(
     viewModel: DrinkDetailViewModel,
     imageSize: Double
 ) {
+    val spacing = LocalSpacing.current
     val closeCardHeight = 62.dp
     Box(
         modifier = Modifier
@@ -160,12 +169,32 @@ fun DrinkDetailScreenAdvanced(
                                             }
 
                                     ) {
-                                        viewModel.state.drinkIngredients?.map {
-                                            IngredientItem(
-                                                ingredientName = it.name ?: "",
-                                                ingredientMeasure = it.measure ?: ""
-                                            )
-                                        }
+                                        Text(
+                                            text = buildAnnotatedString {
+                                                withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                                    append(
+                                                        "${
+                                                            viewModel.state.drinkIngredients?.filter { it.name != null }
+                                                                ?.count { it.isAvailable == false }
+                                                        }"
+                                                    )
+                                                }
+                                                append(
+                                                    " ${
+                                                        stringResource(
+                                                            id = R.string.missing_ingredients
+                                                        )
+                                                    }"
+                                                )
+                                            }
+                                        )
+                                        Spacer(modifier = Modifier.height(spacing.spaceMedium))
+                                        viewModel.state.drinkIngredients?.filter { it.name != null }
+                                            ?.sortedBy { it.isAvailable == false }?.map {
+                                                IngredientItem(
+                                                    ingredient = it
+                                                )
+                                            }
                                     }
                                 }
 

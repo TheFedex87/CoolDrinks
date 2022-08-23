@@ -10,11 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 
 @Composable
 fun IngredientItem(
-    ingredientName: String,
-    ingredientMeasure: String,
+    ingredient: DrinkIngredientModel,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -26,14 +26,16 @@ fun IngredientItem(
     ) {
         Text(
             modifier = Modifier.weight(2f),
-            text = ingredientName,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light)
+            text = ingredient.name!!,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light),
+            color = if(ingredient.isAvailable == true) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
         )
         Spacer(modifier = Modifier.width(1.dp).fillMaxHeight().background(MaterialTheme.colorScheme.onSurfaceVariant))
         Text(
             modifier = Modifier.weight(1f).padding(start = 8.dp),
-            text = ingredientMeasure,
-            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light)
+            text = ingredient.measure ?: "",
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light),
+            color = if(ingredient.isAvailable == true) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.error
         )
     }
 }
