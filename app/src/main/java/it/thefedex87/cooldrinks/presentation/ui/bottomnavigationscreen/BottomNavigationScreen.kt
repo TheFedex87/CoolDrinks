@@ -30,6 +30,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientScreen
 import it.thefedex87.cooldrinks.presentation.bar.BarScreen
+import it.thefedex87.cooldrinks.presentation.cocktail.CocktailTabScreen
 import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
 import it.thefedex87.cooldrinks.presentation.components.MultiChoiceActionButton
 import it.thefedex87.cooldrinks.presentation.components.MultiFabState
@@ -109,12 +110,32 @@ fun BottomNavigationScreen(
                         navController.currentBackStackEntry
                             ?.savedStateHandle
                             ?.set("ingredient", it)
-                        navController.navigate(BottomNavScreen.Search.route)
+                        Log.d(TAG, "Ingredient sent: $it")
+                        navController.navigate(BottomNavScreen.Cocktail.route)
                     }
                 )
             }
             composable(
-                route = BottomNavScreen.Search.route,
+                route = BottomNavScreen.Cocktail.route
+            ) {
+                // Ingredient which is got when click search from bar screen
+                val ingredientForSearch = navController.previousBackStackEntry
+                    ?.savedStateHandle
+                    ?.get<String>("ingredient")
+
+                Log.d(TAG, "Ingredient received: $ingredientForSearch")
+                CocktailTabScreen(
+                    navController = navController,
+                    snackbarHostState = snackbarHostState,
+                    ingredientForSearch = ingredientForSearch,
+                    onComposed = {
+                        bottomNavigationScreenState = it
+                    },
+                    currentBottomNavigationScreenState = bottomNavigationScreenState
+                )
+            }
+            /*composable(
+                route = Route.SEARCH_ONLINE_DRINK,
                 arguments = listOf(
                     navArgument("ingredientForSearch") {
                         type = NavType.StringType
@@ -122,7 +143,6 @@ fun BottomNavigationScreen(
                         defaultValue = null
                     }
                 )
-
             ) {
                 // Ingredient which is got when ingredient is selected from the whole list of ingredients
                 val ingredient = navController.currentBackStackEntry
@@ -130,10 +150,7 @@ fun BottomNavigationScreen(
                     ?.get<String>("ingredient")
 
                 // Ingredient which is got when click search from bar screen
-                val ingredientForSearch = navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.get<String>("ingredient")
-
+                val ingredientForSearch = it.arguments?.getString("ingredientForSearch")
                 Log.d(TAG, "Passed ingredient is: $ingredientForSearch")
 
                 SearchDrinkScreen(
@@ -141,7 +158,7 @@ fun BottomNavigationScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
-                    paddingValues = values,
+                    //paddingValues = values,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onIngredientListClicked = {
                         navController.navigate("${Route.INGREDIENTS}/true")
@@ -155,7 +172,7 @@ fun BottomNavigationScreen(
                 navController.previousBackStackEntry
                     ?.savedStateHandle
                     ?.remove<String>("ingredient")
-            }
+            }*/
             composable(BottomNavScreen.Favorite.route) {
                 FavoriteDrinkScreen(
                     snackbarHostState = snackbarHostState,
@@ -240,7 +257,7 @@ fun BottomNavigationScreen(
                         bottomNavigationScreenState = state
                     },
                     onItemClick = {
-                        if(ingredientForSearch) {
+                        if (ingredientForSearch) {
                             navController.previousBackStackEntry
                                 ?.savedStateHandle
                                 ?.set("ingredient", it)
@@ -320,7 +337,7 @@ fun BottomBar(
 ) {
     val screens = listOf(
         BottomNavScreen.Bar,
-        BottomNavScreen.Search,
+        BottomNavScreen.Cocktail,
         BottomNavScreen.Favorite,
         BottomNavScreen.RandomDrink
     )
@@ -384,7 +401,7 @@ fun MyFloatingActionButton(
         enter = scaleIn(initialScale = 0f),
         exit = scaleOut(targetScale = 0f),
     ) {
-        if (if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoice?.isEmpty() != false else prevFabState.floatingActionButtonMultiChoice?.isEmpty() != false) {
+        if (if (fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoice?.isEmpty() != false else prevFabState.floatingActionButtonMultiChoice?.isEmpty() != false) {
             ExtendedFloatingActionButton(
                 onClick = fabState.floatingActionButtonClicked ?: {}
             ) {
@@ -392,11 +409,15 @@ fun MyFloatingActionButton(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = (if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonIcon else prevFabState.floatingActionButtonIcon) ?: Icons.Default.Add,
+                        imageVector = (if (fabState.floatingActionButtonVisible) fabState.floatingActionButtonIcon else prevFabState.floatingActionButtonIcon)
+                            ?: Icons.Default.Add,
                         contentDescription = stringResource(id = R.string.get_random_cocktail)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(text = (if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonLabel else prevFabState.floatingActionButtonLabel) ?: "")
+                    Text(
+                        text = (if (fabState.floatingActionButtonVisible) fabState.floatingActionButtonLabel else prevFabState.floatingActionButtonLabel)
+                            ?: ""
+                    )
                 }
             }
         } else {
@@ -408,9 +429,9 @@ fun MyFloatingActionButton(
                     multiFabState = it
                 },
                 state = multiFabState,
-                miniFabs = if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoice!! else prevFabState.floatingActionButtonMultiChoice!!,
-                isExtendedFab = if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoiceExtended else prevFabState.floatingActionButtonMultiChoiceExtended,
-                extendedLabel = if(fabState.floatingActionButtonVisible) fabState.floatingActionButtonLabel else prevFabState.floatingActionButtonLabel
+                miniFabs = if (fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoice!! else prevFabState.floatingActionButtonMultiChoice!!,
+                isExtendedFab = if (fabState.floatingActionButtonVisible) fabState.floatingActionButtonMultiChoiceExtended else prevFabState.floatingActionButtonMultiChoiceExtended,
+                extendedLabel = if (fabState.floatingActionButtonVisible) fabState.floatingActionButtonLabel else prevFabState.floatingActionButtonLabel
             )
         }
     }

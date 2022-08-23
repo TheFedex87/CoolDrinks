@@ -2,6 +2,7 @@ package it.thefedex87.cooldrinks.presentation.search_drink
 
 import android.graphics.drawable.Drawable
 import androidx.compose.animation.Animatable
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -46,7 +47,7 @@ fun SearchDrinkScreen(
     onDrinkClicked: (Int, Int, String) -> Unit,
     onIngredientListClicked: () -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
-    paddingValues: PaddingValues,
+    //paddingValues: PaddingValues,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     ingredient: String? = null,
     viewModel: SearchDrinkViewModel = hiltViewModel()
@@ -113,6 +114,7 @@ fun SearchDrinkScreen(
         !viewModel.state.isLoading
     ) {
         if (selectedDrinkDrawable != null) {
+            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(selectedDrinkDrawable!!)
@@ -128,7 +130,7 @@ fun SearchDrinkScreen(
                 alpha = 0.4f,
             )
         }
-    } else {
+    } /*else {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.bar_bg_5_b_small)
@@ -137,7 +139,7 @@ fun SearchDrinkScreen(
             contentScale = ContentScale.FillBounds,
             alpha = 0.6f
         )
-    }
+    }*/
 
 
     /*BubblesBackGround(

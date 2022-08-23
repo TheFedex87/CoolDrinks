@@ -117,9 +117,12 @@ fun DrinkDetailScreenSimplified(
                                 }
                             )
                             Spacer(modifier = Modifier.height(spacing.spaceMedium))
-                            viewModel.state.drinkIngredients?.filter { it.name != null }?.sortedBy { it.isAvailable == true }?.map {
+                            val ingredients = viewModel.state.drinkIngredients?.filter { it.name != null }
+                                ?.sortedBy { it.isAvailable == false }
+                            ingredients?.map {
                                 IngredientItem(
-                                    ingredient = it
+                                    ingredient = it,
+                                    showHorizontalDivider = ingredients.indexOf(it) < ingredients.lastIndex
                                 )
                             }
                         }
