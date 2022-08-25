@@ -12,7 +12,8 @@ fun IngredientDetailsDto.toIngredientDetailsDomainModel(): IngredientDetailsDoma
         type = strType,
         alcoholic = strAlcohol.lowercase() == "yes",
         imagePath = "https://www.thecocktaildb.com/images/ingredients/$strIngredient.png",
-        availableLocal = false
+        availableLocal = false,
+        isPersonalIngredient = false
     )
 }
 
@@ -24,7 +25,8 @@ fun IngredientEntity.toIngredientDetailsDomainModel(): IngredientDetailsDomainMo
         type = type,
         alcoholic = alcoholic,
         imagePath = imagePath,
-        availableLocal = availableLocal
+        availableLocal = availableLocal,
+        isPersonalIngredient = isPersonalIngredient
     )
 }
 
@@ -36,6 +38,7 @@ fun IngredientDetailsDomainModel.toIngredientEntity(): IngredientEntity {
         type = type ?: "",
         alcoholic = alcoholic,
         imagePath = imagePath,
-        availableLocal = availableLocal
+        availableLocal = availableLocal,
+        isPersonalIngredient = isPersonalIngredient
     )
 }

@@ -10,7 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
-import it.thefedex87.cooldrinks.presentation.components.saveToLocalStorage
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import kotlinx.coroutines.channels.Channel
@@ -114,7 +113,8 @@ class AddIngredientViewModel @Inject constructor(
                         type = null,
                         alcoholic = state.ingredientIsAlcoholic,
                         imagePath = imagePath,
-                        availableLocal = state.ingredientAvailable
+                        availableLocal = state.ingredientAvailable,
+                        isPersonalIngredient = true
                     )
                 )
             )

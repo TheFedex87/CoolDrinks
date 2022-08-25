@@ -7,5 +7,6 @@ data class IngredientDetailsDomainModel(
     val type: String?,
     val alcoholic: Boolean,
     val imagePath: String?,
-    val availableLocal: Boolean
+    val availableLocal: Boolean,
+    val isPersonalIngredient: Boolean
 )

@@ -12,10 +12,11 @@ import it.thefedex87.cooldrinks.data.local.entity.LastSearchEntity
         FavoriteDrinkEntity::class,
         IngredientEntity::class
     ],
-    version = 3,
+    version = 4,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = 3)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = 4),
     ]
 )
 abstract class CoolDrinkDatabase : RoomDatabase() {
