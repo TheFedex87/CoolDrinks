@@ -11,6 +11,7 @@ data class DrinkDetailDomainModel(
     val glass: String,
     val ingredients: List<DrinkIngredientModel>,
     val instructions: String,
+    val isCustomCocktail: Boolean,
     val addedDate: LocalDate? = null,
     val dominantColor: Int? = null
 )

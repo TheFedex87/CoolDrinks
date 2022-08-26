@@ -1,10 +1,11 @@
 package it.thefedex87.cooldrinks.data.local.entity
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity
-data class FavoriteDrinkEntity(
+data class DrinkEntity(
     @PrimaryKey
     val idDrink: Int,
     val isAlcoholic: Boolean,
@@ -18,5 +19,7 @@ data class FavoriteDrinkEntity(
     val addedDayOfMonth: Int,
     val addedMonth: Int,
     val addedYear: Int,
-    val dominantColor: Int
+    val dominantColor: Int,
+    @ColumnInfo(defaultValue = "false") val isCustomCocktail: Boolean,
+    @ColumnInfo(defaultValue = "true") val isFavorite: Boolean
 )

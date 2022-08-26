@@ -8,7 +8,7 @@ interface CocktailRepository {
     suspend fun searchCocktails(ingredient: String): Result<List<DrinkDomainModel>>
     suspend fun getDrinkDetails(id: Int?) : Result<List<DrinkDetailDomainModel>>
     suspend fun getIngredients(): Result<List<IngredientDomainModel>>
-    suspend fun getIngredientDetails(ingredient: String): Result<IngredientDetailsDomainModel>
+    suspend fun getIngredientDetails(ingredientName: String): Result<IngredientDetailsDomainModel>
 
     val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
     suspend fun getFavoriteDrink(id: Int) : Flow<DrinkDetailDomainModel?>

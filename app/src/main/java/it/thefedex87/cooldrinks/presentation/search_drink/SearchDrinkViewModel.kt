@@ -14,6 +14,7 @@ import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.launchIn
@@ -114,6 +115,9 @@ class SearchDrinkViewModel @Inject constructor(
                 }
             }
             .onFailure {
+                if(it is CancellationException) {
+                    throw it
+                }
                 state = state.copy(
                     isLoading = false,
                     searchQuery = "",

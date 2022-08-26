@@ -8,7 +8,6 @@ import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.domain.model.*
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -79,10 +78,10 @@ class CocktailRepositoryImpl constructor(
         }
     }
 
-    override suspend fun getIngredientDetails(ingredient: String): Result<IngredientDetailsDomainModel> {
+    override suspend fun getIngredientDetails(ingredientName: String): Result<IngredientDetailsDomainModel> {
         return try {
             val ingredient = cocktailDbApi
-                .ingredientDetail(ingredient = ingredient)
+                .ingredientDetail(ingredient = ingredientName)
                 .ingredients
                 .first()
 

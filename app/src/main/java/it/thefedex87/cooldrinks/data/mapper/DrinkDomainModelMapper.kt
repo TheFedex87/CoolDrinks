@@ -101,6 +101,7 @@ fun DrinkDetailDto.toDrinkDetailDomainModel(availableIngredients: List<Ingredien
                 isAvailable = availableIngredients.any { it.name == strIngredient15 }
             )
         ),
-        instructions = strInstructions
+        instructions = strInstructions,
+        isCustomCocktail = false
     )
 }

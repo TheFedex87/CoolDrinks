@@ -1,15 +1,14 @@
 package it.thefedex87.cooldrinks.data.mapper
 
 import android.annotation.SuppressLint
-import it.thefedex87.cooldrinks.data.local.entity.FavoriteDrinkEntity
+import it.thefedex87.cooldrinks.data.local.entity.DrinkEntity
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
-import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import java.time.LocalDate
 
 @SuppressLint("NewApi")
-fun FavoriteDrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<IngredientDomainModel>): DrinkDetailDomainModel {
+fun DrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<IngredientDomainModel>): DrinkDetailDomainModel {
     val measures = measures.split(",").map { it.trim() }
     val drinkIngredients =
         ingredients.split(",").filter { it.isNotBlank() }.mapIndexed { index, i ->
@@ -32,14 +31,15 @@ fun FavoriteDrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<Ingr
         ingredients = drinkIngredients,
         instructions = instructions,
         addedDate = LocalDate.of(addedYear, addedMonth, addedDayOfMonth),
-        dominantColor = dominantColor
+        dominantColor = dominantColor,
+        isCustomCocktail = isCustomCocktail
     )
 }
 
 @SuppressLint("NewApi")
-fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): FavoriteDrinkEntity {
+fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): DrinkEntity {
     var now = LocalDate.now()
-    return FavoriteDrinkEntity(
+    return DrinkEntity(
         idDrink = idDrink,
         isAlcoholic = isAlcoholic,
         category = category,
@@ -52,6 +52,8 @@ fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): FavoriteDrinkEntity {
         addedDayOfMonth = now.dayOfMonth,
         addedMonth = now.monthValue,
         addedYear = now.year,
-        dominantColor = dominantColor ?: 0
+        dominantColor = dominantColor ?: 0,
+        isCustomCocktail = isCustomCocktail,
+        isFavorite = true
     )
 }
