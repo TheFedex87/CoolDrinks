@@ -44,6 +44,16 @@ class CocktailRepositoryImpl constructor(
         ))
     }
 
+    override val myDrinks: Flow<List<DrinkDetailDomainModel>>
+        get() = drinkDao.getMyDrinks().mapLatest { myDrink ->
+            myDrink.map {
+                it.toDrinkDetailDomainModel(
+                    ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
+                        .map { it.toIngredientDomainModel() }
+                )
+            }
+        }
+
     override suspend fun searchCocktails(
         ingredient: String
     ): Result<List<DrinkDomainModel>> {
@@ -100,10 +110,12 @@ class CocktailRepositoryImpl constructor(
                 else
                     cocktailDbApi.randomDrink()
 
-            Result.success(drinksDetailsDto.drinks.mapNotNull { it.toDrinkDetailDomainModel(
-                ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
-                    .map { it.toIngredientDomainModel() }
-            ) })
+            Result.success(drinksDetailsDto.drinks.mapNotNull {
+                it.toDrinkDetailDomainModel(
+                    ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
+                        .map { it.toIngredientDomainModel() }
+                )
+            })
         } catch (e: Exception) {
             e.printStackTrace()
             Result.failure(e)

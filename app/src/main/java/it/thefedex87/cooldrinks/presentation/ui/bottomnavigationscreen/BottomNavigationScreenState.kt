@@ -23,7 +23,6 @@ data class BottomNavigationScreenFabState(
     val floatingActionButtonVisible: Boolean = false,
     val floatingActionButtonIcon: ImageVector? = null,
     val floatingActionButtonLabel: String? = null,
-    val floatingActionButtonPrevLabel: String? = null,
     val floatingActionButtonClicked: (() -> Unit)? = null,
     val floatingActionButtonMultiChoice: List<MiniFabSpec>? = emptyList(),
     val floatingActionButtonMultiChoiceExtended: Boolean = false

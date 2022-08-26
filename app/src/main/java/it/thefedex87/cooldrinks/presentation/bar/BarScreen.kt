@@ -4,8 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +25,7 @@ import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.presentation.bar.components.BarIngredientItem
 import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
+import it.thefedex87.cooldrinks.presentation.components.EmptyList
 import it.thefedex87.cooldrinks.presentation.components.IngredientDetails
 import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
@@ -84,11 +84,10 @@ fun BarScreen(
         )*/
 
         if (viewModel.state.ingredients.isEmpty()) {
-            Text(
-                text = "Your bar seems to be empty...add your first liquor",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.align(Alignment.Center),
-                textAlign = TextAlign.Center
+            EmptyList(
+                icon = Icons.Default.Liquor,
+                text = stringResource(id = R.string.empty_bar),
+                modifier = Modifier.align(Alignment.Center)
             )
         } else {
             /*LazyColumn(modifier = Modifier.fillMaxSize()) {

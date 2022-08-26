@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import it.thefedex87.cooldrinks.R
-import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.util.Consts.TAG
 

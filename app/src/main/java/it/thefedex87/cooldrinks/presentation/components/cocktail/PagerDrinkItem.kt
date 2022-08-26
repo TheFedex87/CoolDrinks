@@ -27,7 +27,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerScope
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import it.thefedex87.cooldrinks.R
-import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 import it.thefedex87.cooldrinks.util.Consts
 import kotlin.math.absoluteValue
 

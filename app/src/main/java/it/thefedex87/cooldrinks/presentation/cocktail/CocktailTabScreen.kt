@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.LocalDrink
 import androidx.compose.material.icons.filled.PersonPin
 import androidx.compose.material.icons.filled.Search
@@ -26,6 +27,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.presentation.my_drink.MyDrinkScreen
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkScreen
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
@@ -43,10 +45,51 @@ fun CocktailTabScreen(
     ingredientForSearch: String? = null,
     viewModel: CocktailTabViewModel = hiltViewModel()
 ) {
+    val addText = stringResource(id = R.string.add)
+    var localCurrentBottomNavigationScreenState = currentBottomNavigationScreenState
+
     val pagerState = rememberPagerState()
     LaunchedEffect(key1 = pagerState) {
         snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
             viewModel.onEvent(CocktailTabEvent.OnPagerScrolled(it))
+            when(it) {
+                0 -> {
+                    localCurrentBottomNavigationScreenState = localCurrentBottomNavigationScreenState.copy(
+                        topBarVisible = false,
+                        bottomBarVisible = true,
+                        topAppBarScrollBehavior = null,
+                        topBarColor = null,
+                        prevFabState = localCurrentBottomNavigationScreenState.fabState.copy(),
+                        fabState = localCurrentBottomNavigationScreenState.fabState.copy(
+                            floatingActionButtonVisible = false
+                        )
+                    )
+                    onComposed(
+                        localCurrentBottomNavigationScreenState
+                    )
+                }
+                1 -> {
+                    localCurrentBottomNavigationScreenState = localCurrentBottomNavigationScreenState.copy(
+                        topBarVisible = false,
+                        bottomBarVisible = true,
+                        topAppBarScrollBehavior = null,
+                        topBarColor = null,
+                        prevFabState = localCurrentBottomNavigationScreenState.fabState.copy(),
+                        fabState = localCurrentBottomNavigationScreenState.fabState.copy(
+                            floatingActionButtonVisible = true,
+                            floatingActionButtonClicked = {
+
+                            },
+                            floatingActionButtonIcon = Icons.Default.Add,
+                            floatingActionButtonLabel = addText,
+                            floatingActionButtonMultiChoice = null
+                        )
+                    )
+                    onComposed(
+                        localCurrentBottomNavigationScreenState
+                    )
+                }
+            }
         }
     }
     LaunchedEffect(key1 = viewModel.state.selectedTab) {
@@ -114,7 +157,7 @@ fun CocktailTabScreen(
                         SearchDrinkScreen(
                             snackbarHostState = snackbarHostState,
                             onComposed = { state ->
-                                onComposed(state)
+
                             },
                             //paddingValues = values,
                             currentBottomNavigationScreenState = currentBottomNavigationScreenState,
@@ -128,7 +171,9 @@ fun CocktailTabScreen(
                         )
                     }
                     1 -> {
-                        Text(text = "1")
+                        MyDrinkScreen(onComposed = { state ->
+
+                        })
                     }
                 }
             }

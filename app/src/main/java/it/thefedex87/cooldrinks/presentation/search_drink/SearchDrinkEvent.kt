@@ -2,7 +2,7 @@ package it.thefedex87.cooldrinks.presentation.search_drink
 
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
-import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 
 sealed class SearchDrinkEvent {
     data class OnSearchQueryChange(val query: String) : SearchDrinkEvent()

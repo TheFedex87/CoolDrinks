@@ -28,7 +28,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
+import it.thefedex87.cooldrinks.presentation.components.EmptyList
 import it.thefedex87.cooldrinks.presentation.components.SearchTextField
+import it.thefedex87.cooldrinks.presentation.components.cocktail.CocktailView
 import it.thefedex87.cooldrinks.presentation.search_drink.components.DrinkItem
 import it.thefedex87.cooldrinks.presentation.search_drink.components.PagerDrinkItem
 import it.thefedex87.cooldrinks.presentation.search_drink.components.VisualizationTypeSelector
@@ -56,16 +58,36 @@ fun SearchDrinkScreen(
     val spacing = LocalSpacing.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val defaultDominantColor = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f)
-    var dominantColor by remember {
-        mutableStateOf(defaultDominantColor)
-    }
-    val animatedDominantColor = remember {
-        Animatable(defaultDominantColor)
+    var selectedDrinkDrawable by remember {
+        mutableStateOf<Drawable?>(null)
     }
 
-    LaunchedEffect(key1 = dominantColor) {
-        animatedDominantColor.animateTo(dominantColor)
+    if (
+        viewModel.state.visualizationType == VisualizationType.Card &&
+        viewModel.state.foundDrinks.isNotEmpty() &&
+        !viewModel.state.isLoading
+    ) {
+        if (selectedDrinkDrawable != null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.background)
+            )
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(selectedDrinkDrawable!!)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .blur(
+                        radius = 2.dp
+                    ),
+                contentScale = ContentScale.FillHeight,
+                alpha = 0.4f,
+            )
+        }
     }
 
     LaunchedEffect(key1 = true) {
@@ -104,62 +126,6 @@ fun SearchDrinkScreen(
         }
     }
 
-    var selectedDrinkDrawable by remember {
-        mutableStateOf<Drawable?>(null)
-    }
-
-    if (
-        viewModel.state.visualizationType == VisualizationType.Card &&
-        viewModel.state.foundDrinks.isNotEmpty() &&
-        !viewModel.state.isLoading
-    ) {
-        if (selectedDrinkDrawable != null) {
-            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(selectedDrinkDrawable!!)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .blur(
-                        radius = 6.dp
-                    ),
-                contentScale = ContentScale.FillHeight,
-                alpha = 0.4f,
-            )
-        }
-    } /*else {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(R.drawable.bar_bg_5_b_small)
-                .build(),
-            contentDescription = null,
-            contentScale = ContentScale.FillBounds,
-            alpha = 0.6f
-        )
-    }*/
-
-
-    /*BubblesBackGround(
-        color = animatedDominantColor.value,
-        bottomPadding = paddingValues.calculateBottomPadding()
-    )*/
-
-
-    val pagerState = rememberPagerState()
-    LaunchedEffect(key1 = pagerState) {
-        snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
-            if (viewModel.state.foundDrinks.isNotEmpty()) {
-                dominantColor =
-                    Color(viewModel.state.foundDrinks[it].value.dominantColor).copy(alpha = 0.8f)
-                selectedDrinkDrawable = viewModel.state.foundDrinks[it].value.imageDrawable
-            }
-        }
-    }
-
-    val columnState = rememberLazyListState()
 
     /*Box(
         modifier = Modifier.fillMaxSize()
@@ -213,98 +179,29 @@ fun SearchDrinkScreen(
                 )
 
                 if (viewModel.state.foundDrinks.isNotEmpty()) {
-                    if (constraints.maxHeight > 500.dp &&
-                        viewModel.state.visualizationType == VisualizationType.Card
-                    ) {
-                        HorizontalPager(
-                            modifier = Modifier.weight(1f),
-                            count = viewModel.state.foundDrinks.size,
-                            contentPadding = PaddingValues(
-                                if (constraints.maxWidth > 600.dp) {
-                                    128.dp
-                                } else {
-                                    64.dp
-                                }
-                            ),
-                            state = pagerState
-                        ) { page ->
-                            if (page <= viewModel.state.foundDrinks.lastIndex) {
-                                val drink = viewModel.state.foundDrinks[page]
-                                PagerDrinkItem(
-                                    drink = drink.value,
-                                    onItemClick = { id, color, name ->
-                                        onDrinkClicked(id, color, name)
-                                    },
-                                    page = page,
-                                    onFavoriteClick = {
-                                        viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                                    },
-                                    calcDominantColor = { drawable, onFinish ->
-                                        calcDominantColor(drawable, drink, onFinish)
-                                    },
-                                    onImageLoaded = {
-                                        drink.value = drink.value.copy(imageDrawable = it)
-                                        if (page == pagerState.currentPage) {
-                                            selectedDrinkDrawable = it
-                                        }
-                                    }
-                                )
-                            }
+                    CocktailView(
+                        maxHeight = constraints.maxHeight,
+                        maxWidth = constraints.maxWidth,
+                        isLoading = viewModel.state.isLoading,
+                        drinks = viewModel.state.foundDrinks,
+                        visualizationType = viewModel.state.visualizationType,
+                        onDrinkClicked = onDrinkClicked,
+                        onFavoriteClicked = {
+                            viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                        },
+                        onVisualizationTypeChanged = {
+                            viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
+                        },
+                        onSelectDrinkDrawableChanged = {
+                            selectedDrinkDrawable = it
                         }
-                    } else if (constraints.maxHeight <= 500.dp ||
-                        viewModel.state.visualizationType == VisualizationType.List
-                    ) {
-                        LazyColumn(
-                            modifier = Modifier.weight(1f),
-                            state = columnState
-                        ) {
-                            items(viewModel.state.foundDrinks) { drink ->
-                                DrinkItem(
-                                    drink = drink.value,
-                                    onItemClick = { id, color, name ->
-                                        onDrinkClicked(id, color, name)
-                                    },
-                                    onFavoriteClick = {
-                                        viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                                    },
-                                    calcDominantColor = { drawable, onFinish ->
-                                        calcDominantColor(drawable, drink, onFinish)
-                                    }
-                                )
-                            }
-                        }
-                    }
-
-                    if (constraints.maxHeight > 500.dp) {
-                        VisualizationTypeSelector(
-                            selectedVisualizationType = viewModel.state.visualizationType,
-                            onClick = {
-                                viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
-                            }
-                        )
-                    }
-
+                    )
                 } else {
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(spacing.spaceMedium)
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(spacing.spaceMedium),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Search,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(56.dp)
-                                )
-                                Text(text = stringResource(id = R.string.search_for_drink))
-                            }
-                        }
+                        EmptyList(
+                            icon = Icons.Default.Search,
+                            text = stringResource(id = R.string.search_for_drink)
+                        )
                     }
                 }
             }

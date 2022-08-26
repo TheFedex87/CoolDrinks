@@ -6,8 +6,11 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FavoriteDrinkDao {
-    @Query("SELECT * FROM DrinkEntity")
+    @Query("SELECT * FROM DrinkEntity WHERE isFavorite = 1")
     fun getFavoriteDrinks() : Flow<List<DrinkEntity>>
+
+    @Query("SELECT * FROM DrinkEntity WHERE isCustomCocktail = 1")
+    fun getMyDrinks() : Flow<List<DrinkEntity>>
 
     @Query("SELECT * FROM DrinkEntity WHERE idDrink = :id")
     suspend fun getFavoriteDrink(id: Int) : DrinkEntity?

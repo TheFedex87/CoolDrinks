@@ -27,6 +27,7 @@ import coil.request.ImageRequest
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.components.DropDownChip
 import it.thefedex87.cooldrinks.presentation.components.DropDownItem
+import it.thefedex87.cooldrinks.presentation.components.EmptyList
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailEvent
 import it.thefedex87.cooldrinks.presentation.favorite_drink.components.FavoriteDrinkItem
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
@@ -314,26 +315,11 @@ fun FavoriteDrinkScreen(
                 )
                 Text(text = stringResource(id = R.string.add_some_favorites))
             }*/
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(alignment = Alignment.Center)
-                    .padding(spacing.spaceMedium)
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(spacing.spaceMedium),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.FavoriteBorder,
-                        contentDescription = null,
-                        modifier = Modifier.size(56.dp)
-                    )
-                    Text(text = stringResource(id = R.string.add_some_favorites))
-                }
-            }
+            EmptyList(
+                icon = Icons.Default.FavoriteBorder,
+                text = stringResource(id = R.string.add_some_favorites),
+                modifier = Modifier.align(Alignment.Center)
+            )
         }
     }
 }

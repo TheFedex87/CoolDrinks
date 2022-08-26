@@ -1,9 +1,8 @@
 package it.thefedex87.cooldrinks.presentation.search_drink
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.graphics.painter.Painter
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
-import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 
 data class SearchDrinkState(
     val searchQuery: String = "",

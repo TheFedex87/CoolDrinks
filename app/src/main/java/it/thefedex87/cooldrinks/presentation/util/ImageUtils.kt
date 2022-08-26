@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
 import androidx.palette.graphics.Palette
-import it.thefedex87.cooldrinks.presentation.search_drink.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 
 fun calcDominantColor(
     drawable: Drawable,
