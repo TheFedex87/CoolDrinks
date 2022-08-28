@@ -20,12 +20,12 @@ android {
             keyPassword 'pLAdRKZ7CV!zc'
         }
     }
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "it.thefedex87.cooldrinks"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 4
         versionName "1.1.2"
 
@@ -86,7 +86,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
     // Material 3
-    def materialVersion = "1.0.0-alpha13"
+    def materialVersion = "1.0.0-alpha16"
     implementation "androidx.compose.material3:material3:$materialVersion"
     implementation "androidx.compose.material3:material3-window-size-class:$materialVersion"
     implementation "androidx.compose.material:material-icons-extended:$compose_version"

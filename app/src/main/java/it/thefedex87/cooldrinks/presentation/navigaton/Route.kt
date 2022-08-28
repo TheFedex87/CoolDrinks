@@ -9,4 +9,5 @@ object Route {
     const val DRINK_DETAILS = "drink_details"
     const val INGREDIENTS = "ingredients"
     const val ADD_INGREDIENT = "add_ingredient"
+    const val ADD_MY_DRINK = "add_my_drink"
 }

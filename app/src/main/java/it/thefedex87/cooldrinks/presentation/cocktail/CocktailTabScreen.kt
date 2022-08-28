@@ -35,7 +35,9 @@ import it.thefedex87.cooldrinks.util.Consts
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class
+)
 @Composable
 fun CocktailTabScreen(
     navController: NavHostController,
@@ -78,7 +80,7 @@ fun CocktailTabScreen(
                         fabState = localCurrentBottomNavigationScreenState.fabState.copy(
                             floatingActionButtonVisible = true,
                             floatingActionButtonClicked = {
-
+                                navController.navigate(Route.ADD_MY_DRINK)
                             },
                             floatingActionButtonIcon = Icons.Default.Add,
                             floatingActionButtonLabel = addText,

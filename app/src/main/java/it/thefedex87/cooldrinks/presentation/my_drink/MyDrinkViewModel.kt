@@ -19,9 +19,11 @@ class MyDrinkViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            state = state.copy(isLoading = true)
             repository.myDrinks.collect {
                 state = state.copy(
-                    drinks = it
+                    drinks = it,
+                    isLoading = false
                 )
             }
         }

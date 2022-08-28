@@ -1,19 +1,21 @@
 package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
 
-data class BottomNavigationScreenState(
+data class BottomNavigationScreenState @OptIn(ExperimentalMaterial3Api::class) constructor(
     val topBarColor: Color? = null,
     val topBarVisible: Boolean = false,
     val bottomBarVisible: Boolean = true,
     val topBarTitle: String = "",
     val topBarActions: (@Composable RowScope.() -> Unit)? = null,
     val topBarShowBack: Boolean = true,
+    val topBarBackPressed: (() -> Unit)? = null,
     val topAppBarScrollBehavior: (@Composable () -> TopAppBarScrollBehavior)? = null,
     val fabState: BottomNavigationScreenFabState = BottomNavigationScreenFabState(),
     val prevFabState: BottomNavigationScreenFabState = BottomNavigationScreenFabState()

@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.ImeAction
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchTextField(
     text: String,

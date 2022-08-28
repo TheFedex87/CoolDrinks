@@ -39,7 +39,7 @@ fun DrinkDetailScreen(
     }*/
 
     val appBarScrollBehavior =
-        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
     if (viewModel.state.showConfirmRemoveFavoriteDialog) {
         AlertDialog(

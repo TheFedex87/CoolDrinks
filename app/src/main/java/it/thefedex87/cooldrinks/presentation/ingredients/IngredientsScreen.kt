@@ -36,6 +36,7 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun IngredientsScreen(
     snackbarHostState: SnackbarHostState,

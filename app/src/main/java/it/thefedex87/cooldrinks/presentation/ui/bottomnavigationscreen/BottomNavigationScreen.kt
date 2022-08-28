@@ -1,21 +1,16 @@
 package it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen
 
-import android.os.Bundle
 import android.util.Log
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -29,16 +24,15 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientScreen
+import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkScreen
 import it.thefedex87.cooldrinks.presentation.bar.BarScreen
 import it.thefedex87.cooldrinks.presentation.cocktail.CocktailTabScreen
-import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
 import it.thefedex87.cooldrinks.presentation.components.MultiChoiceActionButton
 import it.thefedex87.cooldrinks.presentation.components.MultiFabState
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
-import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkScreen
 import it.thefedex87.cooldrinks.util.Consts.TAG
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -69,6 +63,7 @@ fun BottomNavigationScreen(
             TopAppBar(
                 title = bottomNavigationScreenState.topBarTitle,
                 topBarVisible = bottomNavigationScreenState.topBarVisible,
+                onBackPressed = bottomNavigationScreenState.topBarBackPressed,
                 showBack = bottomNavigationScreenState.topBarShowBack,
                 scrollBehavior = bottomNavigationScreenState.topAppBarScrollBehavior?.invoke(),
                 navController = navController,
@@ -284,10 +279,24 @@ fun BottomNavigationScreen(
                     currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }
+            composable(
+                route = Route.ADD_MY_DRINK
+            ) {
+                AddMyDrinkScreen(
+                    onComposed = { state ->
+                        bottomNavigationScreenState = state
+                    },
+                    currentBottomNavigationScreenState = bottomNavigationScreenState,
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopAppBar(
     title: String,
@@ -296,6 +305,7 @@ fun TopAppBar(
     scrollBehavior: TopAppBarScrollBehavior?,
     navController: NavHostController,
     actions: @Composable RowScope.() -> Unit = { },
+    onBackPressed: (() -> Unit)? = { navController.popBackStack() },
     color: Color
 ) {
     if (topBarVisible)
@@ -314,7 +324,7 @@ fun TopAppBar(
                 if (showBack) {
                     IconButton(
                         onClick = {
-                            navController.popBackStack()
+                            if(onBackPressed != null) onBackPressed.invoke() else navController.popBackStack()
                         }
                     ) {
                         Icon(
@@ -443,7 +453,7 @@ fun TestScreen(
     onComposed: (BottomNavigationScreenState) -> Unit
 ) {
     val appBarScrollBehavior =
-        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarScrollState())
+        TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
     val topBarColor = MaterialTheme.colorScheme.surface
 
     onComposed(

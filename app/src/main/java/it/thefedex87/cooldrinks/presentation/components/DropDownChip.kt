@@ -11,9 +11,8 @@ fun DropDownChip(
     isChipSelected: Boolean,
     onChipClick: () -> Unit,
     label: String,
-    leadingIcon: (@Composable () -> Unit)? = null,
-    trailingIcon: (@Composable () -> Unit)? = null,
     selectedIcon: (@Composable () -> Unit)? = null,
+    trailingIcon: (@Composable () -> Unit)? = null,
     isMenuExpanded: Boolean,
     onDismissRequest: () -> Unit,
     dropDownItems: List<DropDownItem>,
@@ -26,9 +25,13 @@ fun DropDownChip(
             label = {
                 Text(text = label)
             },
-            leadingIcon = leadingIcon,
+            leadingIcon = {
+                if (isChipSelected && selectedIcon != null) {
+                    selectedIcon.invoke()
+                }
+            },
             trailingIcon = trailingIcon,
-            selectedIcon = selectedIcon,
+            //selectedIcon = selectedIcon,
             colors = FilterChipDefaults.filterChipColors(
                 containerColor = MaterialTheme.colorScheme.surface
             )

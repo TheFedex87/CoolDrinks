@@ -5,6 +5,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Save
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,6 +26,7 @@ import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddIngredientScreen(
     onComposed: (BottomNavigationScreenState) -> Unit,
@@ -55,11 +57,14 @@ fun AddIngredientScreen(
         )
 
         viewModel.addIngredientUiEvent.onEach { event ->
-            when(event) {
+            when (event) {
                 is AddIngredientUiEvent.SaveBitmapLocal -> {
                     context.filesDir.path
                     viewModel.onEvent(AddIngredientEvent.PictureSaveResult(
-                        viewModel.state.selectedPicture!!.saveToLocalStorage(context, "${event.path}.jpg"),
+                        viewModel.state.selectedPicture!!.saveToLocalStorage(
+                            context,
+                            "${event.path}.jpg"
+                        ),
                         pathCallback = {
                             "${context.filesDir.path}/${event.path}.jpg"
                         }
@@ -69,7 +74,7 @@ fun AddIngredientScreen(
         }.launchIn(this)
 
         viewModel.uiEvent.onEach { event ->
-            when(event) {
+            when (event) {
                 is UiEvent.PopBackStack -> {
                     onNavigateBack()
                 }
