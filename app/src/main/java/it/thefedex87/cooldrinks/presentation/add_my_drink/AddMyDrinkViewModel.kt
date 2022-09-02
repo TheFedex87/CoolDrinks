@@ -13,7 +13,8 @@ class AddMyDrinkViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     var state by mutableStateOf(AddMyDrinkState(
-        cocktailName = savedStateHandle.get<String>("name") ?: ""
+        cocktailName = savedStateHandle.get<String>("name") ?: "",
+        cocktailInstructions = savedStateHandle.get<String>("instructions") ?: ""
     ))
         private set
 
@@ -24,6 +25,14 @@ class AddMyDrinkViewModel @Inject constructor(
                     state = state.copy(cocktailName = event.name)
 
                     savedStateHandle.set("name", event.name)
+                }
+                is AddMyDrinkEvent.OnMyDrinkInstructionsChanged -> {
+                    state = state.copy(cocktailInstructions = event.instructions)
+
+                    savedStateHandle.set("instructions", event.instructions)
+                }
+                is AddMyDrinkEvent.OnSaveClicked -> {
+
                 }
             }
         }

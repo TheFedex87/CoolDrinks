@@ -11,5 +11,7 @@ data class AddMyDrinkState(
     val cocktailCategory: String = "",
     val cocktailIsAlcoholic: Boolean = true,
     val cocktailIngredients: List<DrinkIngredientModel> = emptyList(),
-    val cocktailInstructions: String = ""
+
+    val cocktailInstructions: String = "",
+    val cocktailInstructionsError: UiText? = null
 )

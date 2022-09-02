@@ -1,9 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.util.Log
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,6 +12,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientEvent
@@ -70,6 +69,18 @@ fun AddMyDrinkScreen(
             errorMessage = viewModel.state.cocktailNameError,
             label = stringResource(id = R.string.name),
             imeAction = ImeAction.Next
+        )
+        Spacer(modifier = Modifier.height(spacing.spaceSmall))
+        OutlinedTextFieldWithErrorMessage(
+            value = viewModel.state.cocktailInstructions,
+            onValueChanged = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkInstructionsChanged(it))
+            },
+            errorMessage = viewModel.state.cocktailInstructionsError,
+            label = stringResource(id = R.string.instructions),
+            imeAction = ImeAction.Next,
+            modifier = Modifier.height(300.dp),
+            singleLine = false
         )
     }
 }

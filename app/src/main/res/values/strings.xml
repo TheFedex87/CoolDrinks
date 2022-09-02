@@ -54,4 +54,5 @@
     <string name="empty_bar">Your bar seems to be empty…add your firs liquor</string>
     <string name="add_your_cocktail">You didn\'t insert any of your cocktail…add one now</string>
     <string name="add_new_cocktail">Add new cocktail</string>
+    <string name="instructions">Instructions</string>
 </resources>
