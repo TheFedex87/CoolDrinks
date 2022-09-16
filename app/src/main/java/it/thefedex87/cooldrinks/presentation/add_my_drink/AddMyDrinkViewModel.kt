@@ -1,29 +1,60 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class AddMyDrinkViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
-    var state by mutableStateOf(AddMyDrinkState(
-        cocktailName = savedStateHandle.get<String>("name") ?: ""
-    ))
-        private set
+    private val _state = MutableStateFlow(
+        AddMyDrinkState(
+            cocktailName = savedStateHandle.get<String>("name") ?: "",
+            cocktailGlass = savedStateHandle.get<String>("glass") ?: "",
+            cocktailCategory = savedStateHandle.get<String>("category") ?: "",
+            cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
+            addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
+            addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure")
+        )
+    )
+    val state = _state.asStateFlow()
 
     fun onEvent(event: AddMyDrinkEvent) {
         viewModelScope.launch {
-            when(event) {
+            when (event) {
                 is AddMyDrinkEvent.OnMyDrinkNameChanged -> {
-                    state = state.copy(cocktailName = event.name)
-
+                    _state.update { it.copy(cocktailName = event.name) }
                     savedStateHandle.set("name", event.name)
+                }
+                is AddMyDrinkEvent.OnMyDrinkGlassChanged -> {
+                    _state.update { it.copy(cocktailGlass = event.glass) }
+                    savedStateHandle.set("glass", event.glass)
+                }
+                is AddMyDrinkEvent.OnMyDrinkCategoryChanged -> {
+                    _state.update { it.copy(cocktailCategory = event.category) }
+                    savedStateHandle.set("category", event.category)
+                }
+                is AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged -> {
+                    _state.update { it.copy(cocktailIsAlcoholic = event.isAlcoholic) }
+                    savedStateHandle.set("isAlcoholic", event.isAlcoholic)
+                }
+                is AddMyDrinkEvent.AddDrinkIngredientRequested -> {
+                    _state.update {
+                        it.copy(
+                            addingIngredientName = "",
+                            addingIngredientMeasure = ""
+                        )
+                    }
+                    savedStateHandle.set("addingIngredientName", "")
+                    savedStateHandle.set("addingIngredientMeasure", "")
+                }
+                is AddMyDrinkEvent.OnSaveClicked -> {
+
                 }
             }
         }
