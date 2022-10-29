@@ -309,7 +309,7 @@ fun TopAppBar(
     color: Color
 ) {
     if (topBarVisible)
-        SmallTopAppBar(
+        TopAppBar(
             colors = TopAppBarDefaults.smallTopAppBarColors(
                 containerColor = color
             ),

@@ -50,8 +50,8 @@ fun AddMyDrinkScreen(
                 topBarVisible = true,
                 topBarTitle = title,
                 topBarBackPressed = {
-                    Log.d(Consts.TAG, "Back pressed")
-                },
+                    onNavigateBack()
+                }
             )
         )
     }
