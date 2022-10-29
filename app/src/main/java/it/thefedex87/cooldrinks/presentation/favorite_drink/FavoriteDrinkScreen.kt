@@ -69,6 +69,9 @@ fun FavoriteDrinkScreen(
                         duration = SnackbarDuration.Long
                     )
                 }
+                is UiEvent.PopBackStack -> {
+
+                }
             }
         }
     }

@@ -37,13 +37,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @Composable
 fun BarScreen(
     paddingValues: PaddingValues,
+    modifier: Modifier = Modifier,
     onComposed: (BottomNavigationScreenState) -> Unit,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     onMiniFabIngredientsListClicked: () -> Unit,
     onMiniFabCustomIngredientClicked: () -> Unit,
     onSearchDrinkClicked: (String) -> Unit,
-    viewModel: BarViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    viewModel: BarViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = true) {
         onComposed(

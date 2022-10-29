@@ -52,6 +52,7 @@ fun AddIngredientScreen(
                 prevFabState = currentBottomNavigationScreenState.fabState.copy(),
                 topBarVisible = true,
                 topBarTitle = title,
+                topBarActions = null,
                 bottomBarVisible = false
             )
         )
