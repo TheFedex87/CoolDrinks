@@ -16,6 +16,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
@@ -74,6 +75,18 @@ fun AddMyDrinkScreen(
             errorMessage = state.cocktailNameError,
             label = stringResource(id = R.string.name),
             imeAction = ImeAction.Next
+        )
+        Spacer(modifier = Modifier.height(spacing.spaceSmall))
+        OutlinedTextFieldWithErrorMessage(
+            value = state.cocktailInstructions,
+            onValueChanged = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkInstructionsChanged(it))
+            },
+            errorMessage = state.cocktailInstructionsError,
+            label = stringResource(id = R.string.instructions),
+            imeAction = ImeAction.Next,
+            modifier = Modifier.height(300.dp),
+            singleLine = false
         )
         OutlinedTextFieldWithErrorMessage(
             value = state.cocktailGlass,

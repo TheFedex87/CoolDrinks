@@ -15,6 +15,7 @@ class AddMyDrinkViewModel @Inject constructor(
     private val _state = MutableStateFlow(
         AddMyDrinkState(
             cocktailName = savedStateHandle.get<String>("name") ?: "",
+			cocktailInstructions = savedStateHandle.get<String>("instructions") ?: "",
             cocktailGlass = savedStateHandle.get<String>("glass") ?: "",
             cocktailCategory = savedStateHandle.get<String>("category") ?: "",
             cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
@@ -31,6 +32,11 @@ class AddMyDrinkViewModel @Inject constructor(
                     _state.update { it.copy(cocktailName = event.name) }
                     savedStateHandle.set("name", event.name)
                 }
+                is AddMyDrinkEvent.OnMyDrinkInstructionsChanged -> {
+                    _state.update { it.copy(cocktailInstructions = event.instructions) }
+
+                    savedStateHandle.set("instructions", event.instructions)
+				}
                 is AddMyDrinkEvent.OnMyDrinkGlassChanged -> {
                     _state.update { it.copy(cocktailGlass = event.glass) }
                     savedStateHandle.set("glass", event.glass)

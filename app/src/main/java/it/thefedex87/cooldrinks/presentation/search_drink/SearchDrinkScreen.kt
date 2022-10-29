@@ -49,6 +49,7 @@ fun SearchDrinkScreen(
     onDrinkClicked: (Int, Int, String) -> Unit,
     onIngredientListClicked: () -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    onSelectedDrinkDrawableLoaded: (Drawable?) -> Unit,
     //paddingValues: PaddingValues,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     ingredient: String? = null,
@@ -58,7 +59,7 @@ fun SearchDrinkScreen(
     val spacing = LocalSpacing.current
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    var selectedDrinkDrawable by remember {
+    /*var selectedDrinkDrawable by remember {
         mutableStateOf<Drawable?>(null)
     }
 
@@ -88,6 +89,12 @@ fun SearchDrinkScreen(
                 alpha = 0.4f,
             )
         }
+    }*/
+    if (
+        viewModel.state.visualizationType == VisualizationType.List ||
+        viewModel.state.foundDrinks.isEmpty()
+    ) {
+        onSelectedDrinkDrawableLoaded(null)
     }
 
     LaunchedEffect(key1 = true) {
@@ -193,7 +200,14 @@ fun SearchDrinkScreen(
                             viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
                         },
                         onSelectDrinkDrawableChanged = {
-                            selectedDrinkDrawable = it
+                            //selectedDrinkDrawable = it
+                            if (
+                                viewModel.state.visualizationType == VisualizationType.Card &&
+                                viewModel.state.foundDrinks.isNotEmpty() &&
+                                !viewModel.state.isLoading
+                            ) {
+                                onSelectedDrinkDrawableLoaded(it)
+                            }
                         }
                     )
                 } else {
