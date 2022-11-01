@@ -9,11 +9,16 @@ import android.provider.MediaStore
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Camera
+import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -21,18 +26,28 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import java.io.IOException
 
 @Composable
 fun GalleryPictureSelector(
     onPicturePicked: (Bitmap) -> Unit,
-    selectedPicture: Bitmap?
+    selectedPicture: Bitmap?,
+    modifier: Modifier = Modifier,
+    placeHolder: Painter? = null,
+    isCircular: Boolean = false
 ) {
     val context = LocalContext.current
     val spacing = LocalSpacing.current
@@ -60,8 +75,62 @@ fun GalleryPictureSelector(
         }
     }
 
+    Box(modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            if (selectedPicture != null) {
+                AsyncImage(
+                    model = ImageRequest.Builder(context)
+                        .data(
+                            selectedPicture
+                        )
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(CircleShape)
+                )
+            } else if (placeHolder != null) {
+                Image(painter = placeHolder, contentDescription = null)
+            } else {
+                Image(
+                    painter = painterResource(id = R.drawable.search_background_gray),
+                    contentDescription = null
+                )
+            }
+        }
+        Box(
+            modifier = Modifier
+                .size(45.dp)
+                .clip(CircleShape)
+                .background(Color.LightGray)
+                .align(Alignment.BottomEnd),
+            contentAlignment = Alignment.Center
+        ) {
+            IconButton(
+                onClick = {
+                    launcher.launch(
+                        "image/*"
+                    )
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(spacing.spaceSmall)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.PhotoCamera,
+                    contentDescription = stringResource(id = R.string.select_picture),
+                    modifier = Modifier.size(40.dp)
+                )
+            }
+        }
+    }
 
-    Row(
+    /*Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -94,7 +163,7 @@ fun GalleryPictureSelector(
                     .padding(spacing.spaceMedium)
             )
         }
-    }
+    }*/*/
 }
 
 fun Bitmap.saveToLocalStorage(context: Context, filename: String): Boolean {
