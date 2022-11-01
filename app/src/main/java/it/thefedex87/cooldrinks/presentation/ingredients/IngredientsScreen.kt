@@ -91,6 +91,7 @@ fun IngredientsScreen(
                 is UiEvent.PopBackStack -> {
                     navController.popBackStack()
                 }
+                else -> {}
             }
         }
     }

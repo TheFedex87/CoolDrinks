@@ -57,9 +57,12 @@ fun AddIngredientScreen(
             )
         )
 
-        viewModel.addIngredientUiEvent.onEach { event ->
+        viewModel.uiEvent.onEach { event ->
             when (event) {
-                is AddIngredientUiEvent.SaveBitmapLocal -> {
+                is UiEvent.PopBackStack -> {
+                    onNavigateBack()
+                }
+                is UiEvent.SaveBitmapLocal -> {
                     context.filesDir.path
                     viewModel.onEvent(AddIngredientEvent.PictureSaveResult(
                         viewModel.state.selectedPicture!!.saveToLocalStorage(
@@ -70,14 +73,6 @@ fun AddIngredientScreen(
                             "${context.filesDir.path}/${event.path}.jpg"
                         }
                     ))
-                }
-            }
-        }.launchIn(this)
-
-        viewModel.uiEvent.onEach { event ->
-            when (event) {
-                is UiEvent.PopBackStack -> {
-                    onNavigateBack()
                 }
                 else -> {}
             }

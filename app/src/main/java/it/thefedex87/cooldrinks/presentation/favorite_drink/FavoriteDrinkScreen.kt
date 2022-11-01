@@ -72,6 +72,7 @@ fun FavoriteDrinkScreen(
                 is UiEvent.PopBackStack -> {
 
                 }
+                else -> {}
             }
         }
     }

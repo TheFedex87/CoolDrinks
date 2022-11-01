@@ -33,9 +33,6 @@ class AddIngredientViewModel @Inject constructor(
     )
         private set
 
-    private val _addIngredientUiEvent = Channel<AddIngredientUiEvent>()
-    val addIngredientUiEvent = _addIngredientUiEvent.receiveAsFlow()
-
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
@@ -67,8 +64,8 @@ class AddIngredientViewModel @Inject constructor(
                             state.copy(ingredientNameError = UiText.StringResource(R.string.required))
                     } else {
                         if (state.selectedPicture != null) {
-                            _addIngredientUiEvent.send(
-                                AddIngredientUiEvent.SaveBitmapLocal(
+                            _uiEvent.send(
+                                UiEvent.SaveBitmapLocal(
                                     "${state.ingredientName}_${UUID.randomUUID()}"
                                 )
                             )
