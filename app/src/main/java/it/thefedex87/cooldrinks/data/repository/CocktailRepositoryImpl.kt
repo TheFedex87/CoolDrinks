@@ -8,10 +8,7 @@ import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.domain.model.*
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.*
 import java.io.EOFException
 
 class CocktailRepositoryImpl constructor(
@@ -81,6 +78,19 @@ class CocktailRepositoryImpl constructor(
 
             Result.success(ingredients.map {
                 it.toIngredientDomainModel()
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun queryLocalIngredients(ingredientName: String): Result<List<DrinkIngredientModel>> {
+        return try {
+            val ingredients = ingredientDao.getStoredIngredient(ingredientName).first()
+
+            Result.success(ingredients.map {
+                it.toDrinkIngredientDomainModel()
             })
         } catch (e: Exception) {
             e.printStackTrace()

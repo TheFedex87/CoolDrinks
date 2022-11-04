@@ -6,8 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface IngredientsDao {
-    @Query("SELECT * FROM IngredientEntity")
-    fun getStoredIngredient(): Flow<List<IngredientEntity>>
+    @Query("SELECT * FROM IngredientEntity WHERE name LIKE  '%' || :name || '%'")
+    fun getStoredIngredient(name: String = ""): Flow<List<IngredientEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertIngredient(ingredients: List<IngredientEntity>)

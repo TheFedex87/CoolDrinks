@@ -289,7 +289,8 @@ fun BottomNavigationScreen(
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onNavigateBack = {
                         navController.popBackStack()
-                    }
+                    },
+                    snackbarHostState = snackbarHostState
                 )
             }
         }
