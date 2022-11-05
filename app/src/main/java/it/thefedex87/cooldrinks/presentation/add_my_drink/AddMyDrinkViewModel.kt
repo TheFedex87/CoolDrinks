@@ -1,10 +1,12 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
+import android.annotation.SuppressLint
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -12,11 +14,9 @@ import it.thefedex87.cooldrinks.presentation.util.UiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
 
@@ -200,7 +200,7 @@ class AddMyDrinkViewModel @Inject constructor(
                                     UiText.StringResource(R.string.required) else null,
                                 cocktailInstructionsError = if (_state.value.cocktailName.isEmpty())
                                     UiText.StringResource(R.string.required) else null,
-                                cocktailIngredientsError = if(_state.value.cocktailIngredients.isEmpty())
+                                cocktailIngredientsError = if (_state.value.cocktailIngredients.isEmpty())
                                     UiText.StringResource(R.string.required) else null,
                             )
                         }
@@ -221,6 +221,7 @@ class AddMyDrinkViewModel @Inject constructor(
                 }
                 is AddMyDrinkEvent.PictureSaveResult -> {
                     if (event.success) {
+                        storeMyDrink(event.pathCallback.invoke())
                         //storeIngredient(event.pathCallback.invoke())
                         _uiEvent.send(UiEvent.PopBackStack)
                     } else {
@@ -229,5 +230,41 @@ class AddMyDrinkViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    @SuppressLint("NewApi")
+    private suspend fun storeMyDrink(filePath: String?) {
+        val firstFreeId = getFirstFreeId(1)
+        val detailDomainModel = DrinkDetailDomainModel(
+            idDrink = firstFreeId,
+            isAlcoholic = _state.value.cocktailIsAlcoholic,
+            category = _state.value.cocktailCategory,
+            name = _state.value.cocktailName,
+            drinkThumb = filePath ?: "",
+            glass = _state.value.cocktailGlass,
+            ingredients = _state.value.cocktailIngredients,
+            instructions = _state.value.cocktailInstructions,
+            isCustomCocktail = true,
+            addedDate = LocalDate.now(),
+            dominantColor = 0,
+            isFavorite = false
+        )
+
+        repository.insertMyDrink(detailDomainModel)
+    }
+
+    private suspend fun getFirstFreeId(firstValidId: Int): Int {
+        // Method to find first free Id after Id 10000 (start range for the id of MyDrink)
+        val myDrinkIds = repository.myDrinks.first().map { it.idDrink }.sorted()
+        var id = firstValidId
+        if (myDrinkIds.isNotEmpty() && myDrinkIds[0] == id) {
+            for (i in myDrinkIds.indices) {
+                id++
+                if (i == myDrinkIds.indices.last || myDrinkIds[i + 1] - myDrinkIds[i] != 1) {
+                    break
+                }
+            }
+        }
+        return id
     }
 }

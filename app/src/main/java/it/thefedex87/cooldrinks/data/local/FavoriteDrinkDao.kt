@@ -13,11 +13,14 @@ interface FavoriteDrinkDao {
     fun getMyDrinks() : Flow<List<DrinkEntity>>
 
     @Query("SELECT * FROM DrinkEntity WHERE idDrink = :id")
-    suspend fun getFavoriteDrink(id: Int) : DrinkEntity?
+    suspend fun getDrink(id: Int) : DrinkEntity?
+
+    @Query("UPDATE DrinkEntity SET isFavorite = :favorite WHERE idDrink = :id")
+    suspend fun setAsFavoriteUnfavorite(id: Int, favorite: Boolean)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertFavoriteDrink(drink: DrinkEntity): Long
+    suspend fun insertDrink(drink: DrinkEntity): Long
 
     @Delete
-    fun deleteFavoriteDrink(drink: DrinkEntity)
+    suspend fun deleteFavoriteDrink(drink: DrinkEntity)
 }

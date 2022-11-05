@@ -133,12 +133,25 @@ class CocktailRepositoryImpl constructor(
     }
 
     override suspend fun insertIntoFavorite(drink: DrinkDetailDomainModel): Long {
-        return drinkDao.insertFavoriteDrink(drink.toFavoriteDrinkEntity())
+        return if (!drink.isCustomCocktail)
+            drinkDao.insertDrink(drink.toDrinkEntity(true))
+        else {
+            drinkDao.setAsFavoriteUnfavorite(drink.idDrink, true)
+            drink.idDrink.toLong()
+        }
     }
 
-    override suspend fun removeFromFavorite(drinkId: Int) {
+    override suspend fun insertMyDrink(drink: DrinkDetailDomainModel): Long {
+        return drinkDao.insertDrink(drink.toDrinkEntity(false))
+    }
+
+    override suspend fun deleteOrRemoveFromFavorite(drinkId: Int) {
         val drink = drinkDao.getFavoriteDrinks().first().first { it.idDrink == drinkId }
-        drinkDao.deleteFavoriteDrink(drink)
+        if(!drink.isCustomCocktail) {
+            drinkDao.deleteFavoriteDrink(drink)
+        } else {
+            drinkDao.setAsFavoriteUnfavorite(drink.idDrink, false)
+        }
     }
 
     override val storedLiquors: Flow<List<IngredientDetailsDomainModel>>

@@ -223,9 +223,14 @@ fun CocktailTabScreen(
                         )
                     }
                     1 -> {
-                        MyDrinkScreen(onComposed = { state ->
+                        MyDrinkScreen(
+                            onDrinkClicked = {_, _, _ ->
 
-                        })
+                            },
+                            onSelectedDrinkDrawableLoaded = {
+
+                            },
+                        )
                     }
                 }
             }

@@ -67,7 +67,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                 is FavoriteDrinkEvent.RemoveFromFavoriteConfirmed -> {
                     try {
                         withContext(Dispatchers.IO) {
-                            repository.removeFromFavorite(event.drink.idDrink)
+                            repository.deleteOrRemoveFromFavorite(event.drink.idDrink)
                         }
                         state = state.copy(
                             showConfirmRemoveFavoriteDialog = false,
