@@ -47,8 +47,8 @@ fun CocktailTabScreen(
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
     onComposed: (BottomNavigationScreenState) -> Unit,
+    ingredient: String?,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
-    ingredientForSearch: String? = null,
     viewModel: CocktailTabViewModel = hiltViewModel()
 ) {
     val addText = stringResource(id = R.string.add)
@@ -198,11 +198,6 @@ fun CocktailTabScreen(
             ) { page ->
                 when (page) {
                     0 -> {
-                        // Ingredient which is got when ingredient is selected from the whole list of ingredients
-                        val ingredient = navController.currentBackStackEntry
-                            ?.savedStateHandle
-                            ?.get<String>("ingredient")
-
                         SearchDrinkScreen(
                             snackbarHostState = snackbarHostState,
                             onComposed = { state ->
@@ -213,7 +208,7 @@ fun CocktailTabScreen(
                             onIngredientListClicked = {
                                 navController.navigate("${Route.INGREDIENTS}/true")
                             },
-                            ingredient = ingredient ?: ingredientForSearch,
+                            ingredient = ingredient,
                             onDrinkClicked = { id, color, name ->
                                 navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                             },

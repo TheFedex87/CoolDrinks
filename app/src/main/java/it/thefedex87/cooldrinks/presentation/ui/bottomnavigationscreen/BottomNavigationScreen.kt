@@ -102,30 +102,56 @@ fun BottomNavigationScreen(
                     },
                     onSearchDrinkClicked = {
                         //navController.navigate("${BottomNavScreen.Search.route}?ingredient=$it")
-                        navController.currentBackStackEntry
+                        /*navController.currentBackStackEntry
                             ?.savedStateHandle
                             ?.set("ingredient", it)
                         Log.d(TAG, "Ingredient sent: $it")
-                        navController.navigate(BottomNavScreen.Cocktail.route)
+                        navController.navigate(BottomNavScreen.Cocktail.route)*/
+
+                        navController.navigate(
+                            "${BottomNavScreen.Cocktail.route}?i=$it"
+                        )
                     }
                 )
             }
             composable(
-                route = BottomNavScreen.Cocktail.route
+                route = "${BottomNavScreen.Cocktail.route}?i={ingredient}",
+                arguments = listOf(
+                    navArgument(
+                        name = "ingredient"
+                    ) {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
             ) {
-                // Ingredient which is got when click search from bar screen
-                val ingredientForSearch = navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.get<String>("ingredient")
+                // When from bar screen is clicked the button to look for
+                // drinks, the following optional parameter is populated
+                val ingredientFromBarScreen = it.arguments?.getString("ingredient")
+                it.arguments?.remove("ingredient")
 
-                Log.d(TAG, "Ingredient received: $ingredientForSearch")
+                // When directly from SearchScreen, the button to get the whole ingredients
+                // list is clicked, after this is popped if an ingredient has been clicked
+                // it is in the currentBackStackEntry
+                val ingredientFromWholeList = remember {
+                    val i = navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.get<String>("ingredient")
+                    navController.currentBackStackEntry
+                        ?.savedStateHandle
+                        ?.remove<String>("ingredient")
+
+                    i
+                }
+
                 CocktailTabScreen(
                     navController = navController,
                     snackbarHostState = snackbarHostState,
-                    ingredientForSearch = ingredientForSearch,
                     onComposed = {
                         bottomNavigationScreenState = it
                     },
+                    ingredient = ingredientFromBarScreen ?: ingredientFromWholeList,
                     currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }
