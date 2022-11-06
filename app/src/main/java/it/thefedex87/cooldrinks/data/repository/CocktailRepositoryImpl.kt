@@ -34,8 +34,8 @@ class CocktailRepositoryImpl constructor(
             }
         }
 
-    override suspend fun getFavoriteDrink(id: Int): Flow<DrinkDetailDomainModel?> = flow {
-        emit(drinkDao.getFavoriteDrink(id)?.toDrinkDetailDomainModel(
+    override suspend fun getDrinkById(id: Int): Flow<DrinkDetailDomainModel?> = flow {
+        emit(drinkDao.getDrink(id)?.toDrinkDetailDomainModel(
             ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
                 .map { it.toIngredientDomainModel() }
         ))
@@ -123,7 +123,8 @@ class CocktailRepositoryImpl constructor(
             Result.success(drinksDetailsDto.drinks.mapNotNull {
                 it.toDrinkDetailDomainModel(
                     ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
-                        .map { it.toIngredientDomainModel() }
+                        .map { it.toIngredientDomainModel() },
+                    favoritesDrinks.first().map { it.idDrink }
                 )
             })
         } catch (e: Exception) {

@@ -16,7 +16,10 @@ fun DrinkDto.toDrinkDomainModel(favorites: List<Int>? = null): DrinkDomainModel?
     )
 }
 
-fun DrinkDetailDto.toDrinkDetailDomainModel(availableIngredients: List<IngredientDomainModel>): DrinkDetailDomainModel? {
+fun DrinkDetailDto.toDrinkDetailDomainModel(
+    availableIngredients: List<IngredientDomainModel>,
+    favoritesIds: List<Int>
+): DrinkDetailDomainModel? {
     return DrinkDetailDomainModel(
         idDrink = idDrink.toInt(),
         isAlcoholic = strAlcoholic == "Alcoholic",
@@ -102,6 +105,7 @@ fun DrinkDetailDto.toDrinkDetailDomainModel(availableIngredients: List<Ingredien
             )
         ),
         instructions = strInstructions,
-        isCustomCocktail = false
+        isCustomCocktail = false,
+        isFavorite = favoritesIds.contains(idDrink.toInt())
     )
 }

@@ -8,7 +8,9 @@ import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
 import java.time.LocalDate
 
 @SuppressLint("NewApi")
-fun DrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<IngredientDomainModel>): DrinkDetailDomainModel {
+fun DrinkEntity.toDrinkDetailDomainModel(
+    availableIngredients: List<IngredientDomainModel>
+): DrinkDetailDomainModel {
     val measures = measures.split(",").map { it.trim() }
     val drinkIngredients =
         ingredients.split(",").filter { it.isNotBlank() }.mapIndexed { index, i ->
@@ -32,12 +34,13 @@ fun DrinkEntity.toDrinkDetailDomainModel(availableIngredients: List<IngredientDo
         instructions = instructions,
         addedDate = LocalDate.of(addedYear, addedMonth, addedDayOfMonth),
         dominantColor = dominantColor,
-        isCustomCocktail = isCustomCocktail
+        isCustomCocktail = isCustomCocktail,
+        isFavorite = isFavorite
     )
 }
 
 @SuppressLint("NewApi")
-fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): DrinkEntity {
+fun DrinkDetailDomainModel.toDrinkEntity(isFavorite: Boolean): DrinkEntity {
     var now = LocalDate.now()
     return DrinkEntity(
         idDrink = idDrink,
@@ -54,6 +57,6 @@ fun DrinkDetailDomainModel.toFavoriteDrinkEntity(): DrinkEntity {
         addedYear = now.year,
         dominantColor = dominantColor ?: 0,
         isCustomCocktail = isCustomCocktail,
-        isFavorite = true
+        isFavorite = isFavorite
     )
 }
