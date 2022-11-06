@@ -109,13 +109,13 @@ fun BottomNavigationScreen(
                         navController.navigate(BottomNavScreen.Cocktail.route)*/
 
                         navController.navigate(
-                            "${BottomNavScreen.Cocktail.route}?i=$it"
+                            BottomNavScreen.Cocktail.route.replace("{ingredient}", it)
                         )
                     }
                 )
             }
             composable(
-                route = "${BottomNavScreen.Cocktail.route}?i={ingredient}",
+                route = BottomNavScreen.Cocktail.route,
                 arguments = listOf(
                     navArgument(
                         name = "ingredient"

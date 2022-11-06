@@ -21,7 +21,7 @@ sealed class BottomNavScreen(
     )
 
     object Cocktail : BottomNavScreen(
-        route = Route.COCKTAIL,
+        route = "${Route.COCKTAIL}?i={ingredient}",
         icon = Icons.Default.LocalBar,
         title = UiText.StringResource(
             R.string.cocktails
