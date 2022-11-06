@@ -16,8 +16,6 @@ import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,7 +47,7 @@ class DrinkDetailViewModel @Inject constructor(
         //collectFavoriteDrinkJob?.cancel()
         /*collectFavoriteDrinkJob = */viewModelScope.launch {
             if (drinkId != null) {
-                val drink = repository.getFavoriteDrink(drinkId).first()
+                val drink = repository.getDrinkById(drinkId).first()
                 if (drink != null) {
                     drinkDetails = drink
                     state = state.copy(
@@ -61,7 +59,7 @@ class DrinkDetailViewModel @Inject constructor(
                         drinkInstructions = drink.instructions,
                         drinkAlcoholic = if (drink.isAlcoholic) UiText.StringResource(R.string.alcoholic) else UiText.StringResource(R.string.non_alcoholic),
                         showConfirmRemoveFavoriteDialog = false,
-                        isFavorite = true,
+                        isFavorite = drink.isFavorite,
                         drinkDominantColor = drink.dominantColor
                     )
                 } else {
@@ -69,7 +67,7 @@ class DrinkDetailViewModel @Inject constructor(
                 }
 
             } else {
-                getDrinkDetails(drinkId = drinkId, dominantColor)
+                getDrinkDetails(drinkId = null, dominantColor)
             }
         }
     }
@@ -82,7 +80,7 @@ class DrinkDetailViewModel @Inject constructor(
                 drinkDetails = it.first().copy(dominantColor = dominantColor)
 
                 val isFavorite = if (drinkId == null) {
-                    val favorite = repository.getFavoriteDrink(drinkDetails.idDrink).first()
+                    val favorite = repository.getDrinkById(drinkDetails.idDrink).first()
                     favorite != null
                 } else false
 
@@ -118,7 +116,7 @@ class DrinkDetailViewModel @Inject constructor(
                 }
                 is DrinkDetailEvent.RemoveFromFavoriteConfirmed -> {
                     withContext(Dispatchers.IO) {
-                        repository.removeFromFavorite(drinkDetails.idDrink)
+                        repository.deleteOrRemoveFromFavorite(drinkDetails.idDrink)
                     }
                     state = state.copy(
                         isFavorite = false,

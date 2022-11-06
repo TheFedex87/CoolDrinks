@@ -133,7 +133,7 @@ class SearchDrinkViewModel @Inject constructor(
         if (drink.isFavorite) {
             state.foundDrinks[index].value = drink.copy(isFavorite = false)
             withContext(Dispatchers.IO) {
-                drinkRepository.removeFromFavorite(drink.id)
+                drinkRepository.deleteOrRemoveFromFavorite(drink.id)
             }
         } else {
             state.foundDrinks[index].value = drink.copy(isLoadingFavorite = true)

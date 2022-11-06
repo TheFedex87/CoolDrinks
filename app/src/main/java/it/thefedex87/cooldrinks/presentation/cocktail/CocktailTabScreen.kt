@@ -219,12 +219,9 @@ fun CocktailTabScreen(
                     }
                     1 -> {
                         MyDrinkScreen(
-                            onDrinkClicked = {_, _, _ ->
-
-                            },
-                            onSelectedDrinkDrawableLoaded = {
-
-                            },
+                            onDrinkClicked = {id, color, name ->
+                                navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
+                            }
                         )
                     }
                 }

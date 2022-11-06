@@ -1,4 +1,4 @@
-package it.thefedex87.cooldrinks.presentation.favorite_drink.components
+package it.thefedex87.cooldrinks.presentation.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,7 +17,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.flowlayout.FlowRow
 import com.google.accompanist.flowlayout.SizeMode
@@ -27,10 +26,10 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteDrinkItem(
+fun DetailedDrinkItem(
     drink: DrinkDetailDomainModel,
     onDrinkClicked: (Int, Int, String) -> Unit,
-    onUnfavoriteClicked: () -> Unit,
+    onFavoriteChangeClicked: (Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -152,14 +151,20 @@ fun FavoriteDrinkItem(
                 }
                 Text(
                     modifier = Modifier.padding(horizontal = spacing.spaceMedium),
-                    text = "${drink.ingredients.count { it.isAvailable == false }} ${stringResource(id = R.string.missing_ingredients)}",
-                    color = if(drink.ingredients.count { it.isAvailable == false } == 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
+                    text = "${drink.ingredients.count { it.isAvailable == false }} ${
+                        stringResource(
+                            id = R.string.missing_ingredients
+                        )
+                    }",
+                    color = if (drink.ingredients.count { it.isAvailable == false } == 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
                 )
                 Button(
                     modifier = Modifier
                         .padding(spacing.spaceSmall)
                         .align(alignment = Alignment.End),
-                    onClick = onUnfavoriteClicked
+                    onClick = {
+                        onFavoriteChangeClicked(!drink.isFavorite)
+                    }
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceAround,
@@ -167,10 +172,17 @@ fun FavoriteDrinkItem(
                     ) {
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = stringResource(id = R.string.unfavorite)
+                            contentDescription = stringResource(
+                                id = if (drink.isFavorite) R.string.unfavorite else R.string.remove
+                            )
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(text = stringResource(id = R.string.unfavorite))
+                        Text(
+                            text = stringResource(
+                                id = if (drink.isFavorite)
+                                    R.string.unfavorite else R.string.favorite
+                            )
+                        )
                     }
 
                 }
