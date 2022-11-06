@@ -1,6 +1,9 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.annotation.SuppressLint
+import android.graphics.drawable.Drawable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +14,7 @@ import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
+import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -19,6 +23,8 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.util.*
 import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlin.coroutines.suspendCoroutine
 
 @HiltViewModel
 class AddMyDrinkViewModel @Inject constructor(
@@ -234,6 +240,33 @@ class AddMyDrinkViewModel @Inject constructor(
 
     @SuppressLint("NewApi")
     private suspend fun storeMyDrink(filePath: String?) {
+        _state.update {
+            it.copy(
+                isLoading = true
+            )
+        }
+        val dominantColor = try {
+            if (filePath == null)
+                0
+            else
+                suspendCoroutine {
+                    calcDominantColor(
+                        Drawable.createFromPath(filePath)!!,
+                        null
+                    ) { color ->
+                        it.resume(color.toArgb())
+                    }
+                }
+        } catch (_: Exception) {
+            0
+        }
+        _state.update {
+            it.copy(
+                isLoading = false
+            )
+        }
+
+
         val firstFreeId = getFirstFreeId(1)
         val detailDomainModel = DrinkDetailDomainModel(
             idDrink = firstFreeId,
@@ -246,7 +279,7 @@ class AddMyDrinkViewModel @Inject constructor(
             instructions = _state.value.cocktailInstructions,
             isCustomCocktail = true,
             addedDate = LocalDate.now(),
-            dominantColor = 0,
+            dominantColor = dominantColor,
             isFavorite = false
         )
 
