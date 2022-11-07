@@ -4,11 +4,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -16,6 +20,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkEvent
 import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
 import it.thefedex87.cooldrinks.presentation.components.GalleryPictureSelector
 import it.thefedex87.cooldrinks.presentation.components.OutlinedTextFieldWithErrorMessage
@@ -41,7 +46,7 @@ fun AddIngredientScreen(
         onComposed(
             currentBottomNavigationScreenState.copy(
                 fabState = currentBottomNavigationScreenState.fabState.copy(
-                    floatingActionButtonVisible = true,
+                    floatingActionButtonVisible = false,
                     floatingActionButtonIcon = Icons.Default.Save,
                     floatingActionButtonMultiChoice = null,
                     floatingActionButtonLabel = save,
@@ -52,7 +57,17 @@ fun AddIngredientScreen(
                 prevFabState = currentBottomNavigationScreenState.fabState.copy(),
                 topBarVisible = true,
                 topBarTitle = title,
-                topBarActions = null,
+                topBarActions ={
+                    IconButton(onClick = {
+                        viewModel.onEvent(AddIngredientEvent.OnSaveClicked)
+                    }) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = stringResource(id = R.string.save),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                } ,
                 bottomBarVisible = false
             )
         )
@@ -87,6 +102,17 @@ fun AddIngredientScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = spacing.spaceMedium)
     ) {
+        GalleryPictureSelector(
+            onPicturePicked = {
+                viewModel.onEvent(AddIngredientEvent.OnPictureSelected(it))
+            },
+            viewModel.state.selectedPicture,
+            isCircular = true,
+            modifier = Modifier
+                .size(150.dp)
+                .align(Alignment.CenterHorizontally)
+        )
+        Spacer(modifier = Modifier.height(spacing.spaceSmall))
         OutlinedTextFieldWithErrorMessage(
             value = viewModel.state.ingredientName,
             onValueChanged = {
@@ -129,12 +155,6 @@ fun AddIngredientScreen(
             },
             selectedOption = if (viewModel.state.ingredientAvailable) 0 else 1,
             textStyle = MaterialTheme.typography.bodyMedium
-        )
-        GalleryPictureSelector(
-            onPicturePicked = {
-                viewModel.onEvent(AddIngredientEvent.OnPictureSelected(it))
-            },
-            selectedPicture = viewModel.state.selectedPicture
         )
     }
 }
