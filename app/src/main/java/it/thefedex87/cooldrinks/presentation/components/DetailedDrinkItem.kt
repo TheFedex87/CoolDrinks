@@ -114,37 +114,19 @@ fun DetailedDrinkItem(
                                             id = R.string.non_alcoholic
                                         )
                                     )
-                                },
-                                /*icon = {
-                                Icon(
-                                    imageVector = if (drink.isAlcoholic) Icons.Filled.LocalBar else Icons.Filled.NoDrinks,
-                                    contentDescription = null
-                                )
-                            }*/
+                                }
                             )
                             SuggestionChip(
                                 onClick = {},
                                 label = {
                                     Text(text = drink.category)
-                                },
-                                /*icon = {
-                                Icon(
-                                    imageVector = Icons.Filled.Category,
-                                    contentDescription = null
-                                )
-                            }*/
+                                }
                             )
                             SuggestionChip(
                                 onClick = {},
                                 label = {
                                     Text(text = drink.glass)
-                                },
-                                /*icon = {
-                                Icon(
-                                    imageVector = Icons.Filled.WineBar,
-                                    contentDescription = null
-                                )
-                            }*/
+                                }
                             )
                         }
                     }
@@ -158,7 +140,7 @@ fun DetailedDrinkItem(
                     }",
                     color = if (drink.ingredients.count { it.isAvailable == false } == 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
                 )
-                Button(
+                IconButton(
                     modifier = Modifier
                         .padding(spacing.spaceSmall)
                         .align(alignment = Alignment.End),
@@ -166,25 +148,15 @@ fun DetailedDrinkItem(
                         onFavoriteChangeClicked(!drink.isFavorite)
                     }
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceAround,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
-                            contentDescription = stringResource(
-                                id = if (drink.isFavorite) R.string.unfavorite else R.string.remove
-                            )
+                    Icon(
+                        imageVector = if (drink.isFavorite)
+                            Icons.Default.Favorite
+                        else
+                            Icons.Default.FavoriteBorder,
+                        contentDescription = stringResource(
+                            id = if (drink.isFavorite) R.string.unfavorite else R.string.remove
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = stringResource(
-                                id = if (drink.isFavorite)
-                                    R.string.unfavorite else R.string.favorite
-                            )
-                        )
-                    }
-
+                    )
                 }
             }
         }
