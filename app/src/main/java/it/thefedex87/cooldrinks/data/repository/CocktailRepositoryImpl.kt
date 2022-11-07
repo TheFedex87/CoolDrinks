@@ -147,11 +147,13 @@ class CocktailRepositoryImpl constructor(
     }
 
     override suspend fun deleteOrRemoveFromFavorite(drinkId: Int) {
-        val drink = drinkDao.getFavoriteDrinks().first().first { it.idDrink == drinkId }
-        if(!drink.isCustomCocktail) {
-            drinkDao.deleteFavoriteDrink(drink)
-        } else {
-            drinkDao.setAsFavoriteUnfavorite(drink.idDrink, false)
+        val drink = drinkDao.getFavoriteDrinks().first().firstOrNull { it.idDrink == drinkId }
+        drink?.let {
+            if(!drink.isCustomCocktail) {
+                drinkDao.deleteFavoriteDrink(drink)
+            } else {
+                drinkDao.setAsFavoriteUnfavorite(drink.idDrink, false)
+            }
         }
     }
 

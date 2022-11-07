@@ -46,11 +46,13 @@ fun MyDrinkScreen(
                     .padding(spacing.spaceMedium)
             ) {
 
-                items(state.drinks) {
+                items(state.drinks) { drink ->
                     DetailedDrinkItem(
-                        drink = it,
+                        drink = drink,
                         onDrinkClicked = onDrinkClicked,
-                        onFavoriteChangeClicked = { },
+                        onFavoriteChangeClicked = {
+                            viewModel.onEvent(MyDrinkEvent.OnChangeFavoriteStateClicked(drink))
+                        },
                         modifier = Modifier.padding(
                             vertical = spacing.spaceSmall
                         ),

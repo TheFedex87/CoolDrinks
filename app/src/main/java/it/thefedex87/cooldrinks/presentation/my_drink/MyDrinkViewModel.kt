@@ -1,9 +1,11 @@
 package it.thefedex87.cooldrinks.presentation.my_drink
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,14 +20,6 @@ class MyDrinkViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            repository.appPreferencesManager.onEach { appPref ->
-                _state.update {
-                    _state.value.copy(
-                        visualizationType = appPref.visualizationType
-                    )
-                }
-            }.launchIn(this)
-
             _state.update {
                 _state.value.copy(
                     isLoading = true
@@ -33,11 +27,26 @@ class MyDrinkViewModel @Inject constructor(
             }
 
             repository.myDrinks.collect { drinks ->
+                Log.d(TAG, "Received my drinks list: $drinks")
                 _state.update {
                     _state.value.copy(
                         isLoading = false,
                         drinks = drinks
                     )
+                }
+            }
+        }
+    }
+
+    fun onEvent(event: MyDrinkEvent) {
+        viewModelScope.launch {
+            when(event) {
+                is MyDrinkEvent.OnChangeFavoriteStateClicked -> {
+                    if(event.drink.isFavorite) {
+                        repository.deleteOrRemoveFromFavorite(event.drink.idDrink)
+                    } else {
+                        repository.insertIntoFavorite(event.drink)
+                    }
                 }
             }
         }
