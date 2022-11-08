@@ -2,7 +2,6 @@ package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.Drawable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -12,6 +11,7 @@ import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
@@ -35,7 +35,7 @@ class AddMyDrinkViewModel @Inject constructor(
         AddMyDrinkState(
             cocktailName = savedStateHandle.get<String>("name") ?: "",
             cocktailInstructions = savedStateHandle.get<String>("instructions") ?: "",
-            cocktailGlass = savedStateHandle.get<String>("glass") ?: "",
+            selectedCocktailGlass = GlassUiModel.valueOf(savedStateHandle.get<String>("glass") ?: GlassUiModel.NONE.toString()),
             cocktailCategory = savedStateHandle.get<String>("category") ?: "",
             cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
             addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
@@ -72,8 +72,17 @@ class AddMyDrinkViewModel @Inject constructor(
                     savedStateHandle["instructions"] = event.instructions
                 }
                 is AddMyDrinkEvent.OnMyDrinkGlassChanged -> {
-                    _state.update { it.copy(cocktailGlass = event.glass) }
-                    savedStateHandle["glass"] = event.glass
+                    _state.update { it.copy(
+                        selectedCocktailGlass = event.glass,
+                        cocktailGlassesMenuExpanded = false
+                    ) }
+                    savedStateHandle["glass"] = event.glass.toString()
+                }
+                is AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested -> {
+                    _state.update { it.copy(cocktailGlassesMenuExpanded = true) }
+                }
+                is AddMyDrinkEvent.OnMyDrinkGlassesDismissRequested -> {
+                    _state.update { it.copy(cocktailGlassesMenuExpanded = false) }
                 }
                 is AddMyDrinkEvent.OnMyDrinkCategoryChanged -> {
                     _state.update { it.copy(cocktailCategory = event.category) }
@@ -274,7 +283,7 @@ class AddMyDrinkViewModel @Inject constructor(
             category = _state.value.cocktailCategory,
             name = _state.value.cocktailName,
             drinkThumb = filePath ?: "",
-            glass = _state.value.cocktailGlass,
+            glass = _state.value.selectedCocktailGlass.valueStr,
             ingredients = _state.value.cocktailIngredients,
             instructions = _state.value.cocktailInstructions,
             isCustomCocktail = true,

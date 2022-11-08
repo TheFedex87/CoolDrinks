@@ -1,6 +1,5 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
-import android.system.Os.remove
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,18 +12,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
-import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientEvent
 import it.thefedex87.cooldrinks.presentation.add_my_drink.components.AddDrinkIngredientDialog
+import it.thefedex87.cooldrinks.presentation.add_my_drink.components.Material3Spinner
 import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
 import it.thefedex87.cooldrinks.presentation.components.GalleryPictureSelector
 import it.thefedex87.cooldrinks.presentation.components.OutlinedTextFieldWithErrorMessage
 import it.thefedex87.cooldrinks.presentation.components.saveToLocalStorage
+import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -176,13 +175,29 @@ fun AddMyDrinkScreen(
             modifier = Modifier.height(300.dp),
             singleLine = false
         )
-        OutlinedTextFieldWithErrorMessage(
-            value = state.cocktailGlass,
-            onValueChanged = {
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkGlassChanged(it))
+        Spacer(modifier = Modifier.height(spacing.spaceSmall))
+        Material3Spinner(
+            isExpanded = state.cocktailGlassesMenuExpanded,
+            expandRequested = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested)
             },
-            label = stringResource(id = R.string.glass),
-            imeAction = ImeAction.Next
+            dismissRequested = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkGlassesDismissRequested)
+            },
+            values = state.cocktailGlasses,
+            valueMapper = {
+                it.valueStr
+            },
+            value = if (state.selectedCocktailGlass == GlassUiModel.NONE)
+                stringResource(id = R.string.glass)
+            else
+                state.selectedCocktailGlass.valueStr,
+            onSelectionIndexChanged = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkGlassChanged(
+                    state.cocktailGlasses[it]
+                ))
+            },
+            modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextFieldWithErrorMessage(
             value = state.cocktailCategory,
@@ -237,7 +252,7 @@ fun AddMyDrinkScreen(
                     }
                 }
 
-                if(state.cocktailIngredientsError != null) {
+                if (state.cocktailIngredientsError != null) {
                     Text(
                         text = state.cocktailIngredientsError.asString(LocalContext.current),
                         color = MaterialTheme.colorScheme.error,

@@ -25,6 +25,7 @@ import it.thefedex87.cooldrinks.presentation.components.DetailedDrinkItem
 import it.thefedex87.cooldrinks.presentation.components.DropDownChip
 import it.thefedex87.cooldrinks.presentation.components.DropDownItem
 import it.thefedex87.cooldrinks.presentation.components.EmptyList
+import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -64,9 +65,6 @@ fun FavoriteDrinkScreen(
                         duration = SnackbarDuration.Long
                     )
                 }
-                is UiEvent.PopBackStack -> {
-
-                }
                 else -> {}
             }
         }
@@ -104,9 +102,9 @@ fun FavoriteDrinkScreen(
 
     val glasses = viewModel.state.glasses.map {
         DropDownItem(
-            label = it,
+            label = it.valueStr,
             onItemClick = {
-                viewModel.onEvent(FavoriteDrinkEvent.GlassFilterValueChanged(GlassFilter.toEnum(it)))
+                viewModel.onEvent(FavoriteDrinkEvent.GlassFilterValueChanged(it))
             }
         )
     }
@@ -227,11 +225,11 @@ fun FavoriteDrinkScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownChip(
-                            isChipSelected = viewModel.state.glassFilter != GlassFilter.NONE,
+                            isChipSelected = viewModel.state.glassUiModel != GlassUiModel.NONE,
                             onChipClick = {
                                 viewModel.onEvent(FavoriteDrinkEvent.ExpandeGlassMenu)
                             },
-                            label = viewModel.state.glassFilter.toString(),
+                            label = viewModel.state.glassUiModel.valueStr,
                             isMenuExpanded = viewModel.state.glassMenuExpanded,
                             onDismissRequest = {
                                 viewModel.onEvent(FavoriteDrinkEvent.CollapseGlassMenu)

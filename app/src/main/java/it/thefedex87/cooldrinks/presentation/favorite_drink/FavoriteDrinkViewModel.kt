@@ -10,6 +10,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts.TAG
@@ -34,8 +36,8 @@ class FavoriteDrinkViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             repository.favoritesDrinks.collect {
-                val glass = mutableListOf("None")
-                glass.addAll(it.map { g -> g.glass }.distinct())
+                val glass = mutableListOf(GlassUiModel.NONE)
+                glass.addAll(it.mapNotNull { g -> GlassUiModel from g.glass }.distinct())
 
                 val categories = mutableListOf("None")
                 categories.addAll(it.map { g -> g.category }.distinct())
@@ -44,7 +46,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                     drinks = filterDrinks(
                         alcoholFilter = state.alcoholFilter,
                         categoryFilter = state.categoryFilter,
-                        glassFilter = state.glassFilter,
+                        glassUiModel = state.glassUiModel,
                         drinks = it
                     ),
                     showFilterChips = it.isNotEmpty(),
@@ -104,7 +106,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         drinks = filterDrinks(
                             alcoholFilter = event.filter,
                             categoryFilter = state.categoryFilter,
-                            glassFilter = state.glassFilter,
+                            glassUiModel = state.glassUiModel,
                             drinks = repository.favoritesDrinks.first()
                         )
                     )
@@ -119,12 +121,12 @@ class FavoriteDrinkViewModel @Inject constructor(
                 is FavoriteDrinkEvent.GlassFilterValueChanged -> {
                     Log.d(TAG, "Glass filter ${event.filter}")
                     state = state.copy(
-                        glassFilter = event.filter,
+                        glassUiModel = event.filter,
                         glassMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = state.alcoholFilter,
                             categoryFilter = state.categoryFilter,
-                            glassFilter = event.filter,
+                            glassUiModel = event.filter,
                             drinks = repository.favoritesDrinks.first()
                         )
                     )
@@ -144,7 +146,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         drinks = filterDrinks(
                             alcoholFilter = state.alcoholFilter,
                             categoryFilter = event.filter,
-                            glassFilter = state.glassFilter,
+                            glassUiModel = state.glassUiModel,
                             drinks = repository.favoritesDrinks.first()
                         )
                     )
@@ -162,12 +164,12 @@ class FavoriteDrinkViewModel @Inject constructor(
     private fun filterDrinks(
         alcoholFilter: AlcoholFilter,
         categoryFilter: CategoryFilter,
-        glassFilter: GlassFilter,
+        glassUiModel: GlassUiModel,
         drinks: List<DrinkDetailDomainModel>
     ): List<DrinkDetailDomainModel> {
         val filteredDrinks = drinks.filter {
             it.isAlcoholic == (if (alcoholFilter == AlcoholFilter.NONE) it.isAlcoholic else alcoholFilter == AlcoholFilter.ALCOHOLIC) &&
-                    it.glass.lowercase() == (if (glassFilter == GlassFilter.NONE) it.glass.lowercase() else glassFilter.toString()
+                    it.glass.lowercase() == (if (glassUiModel == GlassUiModel.NONE) it.glass.lowercase() else glassUiModel.valueStr
                 .lowercase()) &&
                     it.category.lowercase() == (if (categoryFilter == CategoryFilter.NONE) it.category.lowercase() else categoryFilter.toString()
                 .lowercase())
