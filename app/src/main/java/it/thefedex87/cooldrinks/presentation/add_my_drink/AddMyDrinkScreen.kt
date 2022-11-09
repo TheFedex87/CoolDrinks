@@ -23,6 +23,7 @@ import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
 import it.thefedex87.cooldrinks.presentation.components.GalleryPictureSelector
 import it.thefedex87.cooldrinks.presentation.components.OutlinedTextFieldWithErrorMessage
 import it.thefedex87.cooldrinks.presentation.components.saveToLocalStorage
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
@@ -199,15 +200,30 @@ fun AddMyDrinkScreen(
             },
             modifier = Modifier.fillMaxWidth()
         )
-        OutlinedTextFieldWithErrorMessage(
-            value = state.cocktailCategory,
-            onValueChanged = {
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkCategoryChanged(it))
+        Spacer(modifier = Modifier.height(spacing.spaceSmall))
+        Material3Spinner(
+            isExpanded = state.cocktailCategoriesMenuExpanded,
+            expandRequested = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkCategoriesExpandRequested)
             },
-            label = stringResource(id = R.string.category),
-            imeAction = ImeAction.Next
+            dismissRequested = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkCategoriesDismissRequested)
+            },
+            values = state.cocktailCategories,
+            valueMapper = {
+                it.valueStr
+            },
+            value = if (state.selectedCocktailCategory == CategoryUiModel.NONE)
+                stringResource(id = R.string.category)
+            else
+                state.selectedCocktailCategory.valueStr,
+            onSelectionIndexChanged = {
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkCategoryChanged(
+                    state.cocktailCategories[it]
+                ))
+            },
+            modifier = Modifier.fillMaxWidth()
         )
-
         Spacer(modifier = Modifier.height(spacing.spaceSmall))
         SegmentedButton(
             options = listOf(

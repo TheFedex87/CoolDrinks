@@ -2,6 +2,7 @@ package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.graphics.Bitmap
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiText
 
@@ -13,7 +14,10 @@ data class AddMyDrinkState(
     val cocktailGlassesMenuExpanded: Boolean = false,
     val cocktailGlasses: List<GlassUiModel> = GlassUiModel.values().toList(),
 
-    val cocktailCategory: String = "",
+    val selectedCocktailCategory: CategoryUiModel = CategoryUiModel.NONE,
+    val cocktailCategoriesMenuExpanded: Boolean = false,
+    val cocktailCategories: List<CategoryUiModel> = CategoryUiModel.values().toList(),
+
     val cocktailIsAlcoholic: Boolean = true,
 
     val cocktailIngredients: List<DrinkIngredientModel> = emptyList(),

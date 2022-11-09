@@ -25,6 +25,7 @@ import it.thefedex87.cooldrinks.presentation.components.DetailedDrinkItem
 import it.thefedex87.cooldrinks.presentation.components.DropDownChip
 import it.thefedex87.cooldrinks.presentation.components.DropDownItem
 import it.thefedex87.cooldrinks.presentation.components.EmptyList
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
@@ -111,14 +112,10 @@ fun FavoriteDrinkScreen(
 
     val categories = viewModel.state.categories.map {
         DropDownItem(
-            label = it,
+            label = it.valueStr,
             onItemClick = {
                 viewModel.onEvent(
-                    FavoriteDrinkEvent.CategoryFilterValueChanged(
-                        CategoryFilter.toEnum(
-                            it
-                        )
-                    )
+                    FavoriteDrinkEvent.CategoryFilterValueChanged(it)
                 )
             }
         )
@@ -229,7 +226,10 @@ fun FavoriteDrinkScreen(
                             onChipClick = {
                                 viewModel.onEvent(FavoriteDrinkEvent.ExpandeGlassMenu)
                             },
-                            label = viewModel.state.glassUiModel.valueStr,
+                            label = if (viewModel.state.glassUiModel == GlassUiModel.NONE)
+                                stringResource(id = R.string.glass)
+                            else
+                                viewModel.state.glassUiModel.valueStr,
                             isMenuExpanded = viewModel.state.glassMenuExpanded,
                             onDismissRequest = {
                                 viewModel.onEvent(FavoriteDrinkEvent.CollapseGlassMenu)
@@ -252,11 +252,14 @@ fun FavoriteDrinkScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownChip(
-                            isChipSelected = viewModel.state.categoryFilter != CategoryFilter.NONE,
+                            isChipSelected = viewModel.state.categoryUiModel != CategoryUiModel.NONE,
                             onChipClick = {
                                 viewModel.onEvent(FavoriteDrinkEvent.ExpandeCategoryMenu)
                             },
-                            label = viewModel.state.categoryFilter.toString(),
+                            label = if (viewModel.state.categoryUiModel == CategoryUiModel.NONE)
+                                stringResource(id = R.string.category)
+                            else
+                                viewModel.state.categoryUiModel.valueStr,
                             isMenuExpanded = viewModel.state.categoryMenuExpanded,
                             onDismissRequest = {
                                 viewModel.onEvent(FavoriteDrinkEvent.CollapseCategoryMenu)

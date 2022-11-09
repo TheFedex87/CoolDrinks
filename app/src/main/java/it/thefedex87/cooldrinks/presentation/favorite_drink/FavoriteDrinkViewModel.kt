@@ -10,7 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
-import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
@@ -39,13 +39,13 @@ class FavoriteDrinkViewModel @Inject constructor(
                 val glass = mutableListOf(GlassUiModel.NONE)
                 glass.addAll(it.mapNotNull { g -> GlassUiModel from g.glass }.distinct())
 
-                val categories = mutableListOf("None")
-                categories.addAll(it.map { g -> g.category }.distinct())
+                val categories = mutableListOf(CategoryUiModel.NONE)
+                categories.addAll(it.mapNotNull { g -> CategoryUiModel from g.category }.distinct())
 
                 state = state.copy(
                     drinks = filterDrinks(
                         alcoholFilter = state.alcoholFilter,
-                        categoryFilter = state.categoryFilter,
+                        categoryUiModel = state.categoryUiModel,
                         glassUiModel = state.glassUiModel,
                         drinks = it
                     ),
@@ -105,7 +105,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         alcoholMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = event.filter,
-                            categoryFilter = state.categoryFilter,
+                            categoryUiModel = state.categoryUiModel,
                             glassUiModel = state.glassUiModel,
                             drinks = repository.favoritesDrinks.first()
                         )
@@ -125,7 +125,7 @@ class FavoriteDrinkViewModel @Inject constructor(
                         glassMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = state.alcoholFilter,
-                            categoryFilter = state.categoryFilter,
+                            categoryUiModel = state.categoryUiModel,
                             glassUiModel = event.filter,
                             drinks = repository.favoritesDrinks.first()
                         )
@@ -141,11 +141,11 @@ class FavoriteDrinkViewModel @Inject constructor(
                 is FavoriteDrinkEvent.CategoryFilterValueChanged -> {
                     Log.d(TAG, "Category filter ${event.filter}")
                     state = state.copy(
-                        categoryFilter = event.filter,
+                        categoryUiModel = event.filter,
                         categoryMenuExpanded = false,
                         drinks = filterDrinks(
                             alcoholFilter = state.alcoholFilter,
-                            categoryFilter = event.filter,
+                            categoryUiModel = event.filter,
                             glassUiModel = state.glassUiModel,
                             drinks = repository.favoritesDrinks.first()
                         )
@@ -163,7 +163,7 @@ class FavoriteDrinkViewModel @Inject constructor(
 
     private fun filterDrinks(
         alcoholFilter: AlcoholFilter,
-        categoryFilter: CategoryFilter,
+        categoryUiModel: CategoryUiModel,
         glassUiModel: GlassUiModel,
         drinks: List<DrinkDetailDomainModel>
     ): List<DrinkDetailDomainModel> {
@@ -171,7 +171,7 @@ class FavoriteDrinkViewModel @Inject constructor(
             it.isAlcoholic == (if (alcoholFilter == AlcoholFilter.NONE) it.isAlcoholic else alcoholFilter == AlcoholFilter.ALCOHOLIC) &&
                     it.glass.lowercase() == (if (glassUiModel == GlassUiModel.NONE) it.glass.lowercase() else glassUiModel.valueStr
                 .lowercase()) &&
-                    it.category.lowercase() == (if (categoryFilter == CategoryFilter.NONE) it.category.lowercase() else categoryFilter.toString()
+                    it.category.lowercase() == (if (categoryUiModel == CategoryUiModel.NONE) it.category.lowercase() else categoryUiModel.valueStr
                 .lowercase())
         }
 

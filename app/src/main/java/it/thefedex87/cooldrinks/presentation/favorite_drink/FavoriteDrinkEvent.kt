@@ -1,6 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.favorite_drink
 
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 
 sealed class FavoriteDrinkEvent {
@@ -18,5 +19,5 @@ sealed class FavoriteDrinkEvent {
 
     object ExpandeCategoryMenu : FavoriteDrinkEvent()
     object CollapseCategoryMenu : FavoriteDrinkEvent()
-    data class CategoryFilterValueChanged(val filter: CategoryFilter = CategoryFilter.NONE) : FavoriteDrinkEvent()
+    data class CategoryFilterValueChanged(val filter: CategoryUiModel = CategoryUiModel.NONE) : FavoriteDrinkEvent()
 }

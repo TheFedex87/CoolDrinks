@@ -11,6 +11,7 @@ import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
@@ -36,7 +37,7 @@ class AddMyDrinkViewModel @Inject constructor(
             cocktailName = savedStateHandle.get<String>("name") ?: "",
             cocktailInstructions = savedStateHandle.get<String>("instructions") ?: "",
             selectedCocktailGlass = GlassUiModel.valueOf(savedStateHandle.get<String>("glass") ?: GlassUiModel.NONE.toString()),
-            cocktailCategory = savedStateHandle.get<String>("category") ?: "",
+            selectedCocktailCategory = CategoryUiModel.valueOf(savedStateHandle.get<String>("category") ?: CategoryUiModel.NONE.toString()),
             cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
             addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
             addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure")
@@ -85,12 +86,21 @@ class AddMyDrinkViewModel @Inject constructor(
                     _state.update { it.copy(cocktailGlassesMenuExpanded = false) }
                 }
                 is AddMyDrinkEvent.OnMyDrinkCategoryChanged -> {
-                    _state.update { it.copy(cocktailCategory = event.category) }
-                    savedStateHandle["category"] = event.category
+                    _state.update { it.copy(
+                        selectedCocktailCategory = event.category,
+                        cocktailCategoriesMenuExpanded = false
+                    ) }
+                    savedStateHandle["category"] = event.category.toString()
                 }
                 is AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged -> {
                     _state.update { it.copy(cocktailIsAlcoholic = event.isAlcoholic) }
                     savedStateHandle["isAlcoholic"] = event.isAlcoholic
+                }
+                is AddMyDrinkEvent.OnMyDrinkCategoriesExpandRequested -> {
+                    _state.update { it.copy(cocktailCategoriesMenuExpanded = true) }
+                }
+                is AddMyDrinkEvent.OnMyDrinkCategoriesDismissRequested -> {
+                    _state.update { it.copy(cocktailCategoriesMenuExpanded = false) }
                 }
                 is AddMyDrinkEvent.AddDrinkIngredientRequested -> {
                     _state.update {
@@ -280,7 +290,7 @@ class AddMyDrinkViewModel @Inject constructor(
         val detailDomainModel = DrinkDetailDomainModel(
             idDrink = firstFreeId,
             isAlcoholic = _state.value.cocktailIsAlcoholic,
-            category = _state.value.cocktailCategory,
+            category = _state.value.selectedCocktailCategory.valueStr,
             name = _state.value.cocktailName,
             drinkThumb = filePath ?: "",
             glass = _state.value.selectedCocktailGlass.valueStr,

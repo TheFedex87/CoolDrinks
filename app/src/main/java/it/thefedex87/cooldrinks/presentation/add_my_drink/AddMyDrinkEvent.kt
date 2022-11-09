@@ -2,6 +2,7 @@ package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.graphics.Bitmap
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
+import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 
 sealed class AddMyDrinkEvent {
@@ -12,7 +13,10 @@ sealed class AddMyDrinkEvent {
     object OnMyDrinkGlassesExpandRequested : AddMyDrinkEvent()
     object OnMyDrinkGlassesDismissRequested : AddMyDrinkEvent()
 
-    data class OnMyDrinkCategoryChanged(val category: String) : AddMyDrinkEvent()
+    data class OnMyDrinkCategoryChanged(val category: CategoryUiModel) : AddMyDrinkEvent()
+    object OnMyDrinkCategoriesExpandRequested : AddMyDrinkEvent()
+    object OnMyDrinkCategoriesDismissRequested : AddMyDrinkEvent()
+
     data class OnMyDrinkIsAlcoholicChanged(val isAlcoholic: Boolean) : AddMyDrinkEvent()
 
     object AddDrinkIngredientRequested : AddMyDrinkEvent()
