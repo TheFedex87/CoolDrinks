@@ -22,7 +22,7 @@ fun IngredientDetails(
     getIngredientInfoError: String?,
     ingredientInfo: IngredientDetailsDomainModel?,
     showSearchIcon: Boolean = false,
-    onSearchIconClicked: () -> Unit = {},
+    onSearchIconClicked: (String) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -42,7 +42,9 @@ fun IngredientDetails(
                 overflow = TextOverflow.Ellipsis
             )
             if(showSearchIcon) {
-                IconButton(onClick = onSearchIconClicked) {
+                IconButton(onClick = {
+                    onSearchIconClicked(ingredient)
+                }) {
                     Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(id = R.string.search_drink))
                 }
             }

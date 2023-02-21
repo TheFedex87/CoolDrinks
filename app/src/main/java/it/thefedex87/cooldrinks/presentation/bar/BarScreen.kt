@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.presentation.bar
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -17,9 +18,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import com.google.accompanist.pager.rememberPagerState
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
@@ -32,6 +35,7 @@ import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNav
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +74,7 @@ fun BarScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        AsyncImage(
+        SubcomposeAsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.bar_bg_5_b_small)
                 .build(),
@@ -78,10 +82,6 @@ fun BarScreen(
             contentScale = ContentScale.FillBounds,
             alpha = 0.6f
         )
-        /*BubblesBackGround(
-            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.2f),
-            bottomPadding = paddingValues.calculateBottomPadding()
-        )*/
 
         if (viewModel.state.ingredients.isEmpty()) {
             EmptyList(
@@ -90,31 +90,21 @@ fun BarScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
-            /*LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(viewModel.state.ingredients) {
-                    BarIngredientItem(ingredientDetails = it)
-                }
-            }*/
 
             val pagerState = rememberPagerState()
             val spacing = LocalSpacing.current
 
-            /*var selectedIngredient by remember {
-                mutableStateOf<IngredientDetailsDomainModel?>(null)
-            }*/
-            LaunchedEffect(key1 = pagerState) {
+            LaunchedEffect(key1 = true) {
                 snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
                     if (it >= 0)
-                    //selectedIngredient = viewModel.state.ingredients[it]
                         viewModel.onEvent(BarEvent.SelectedIngredientChanged(viewModel.state.ingredients[it]))
                 }
             }
 
-            BoxWithConstraints(
+            Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                val constraints = this
                 Column(modifier = Modifier.fillMaxHeight()) {
                     Card(
                         modifier = Modifier
@@ -135,9 +125,7 @@ fun BarScreen(
                                         .padding(spacing.spaceMedium)
                                         .weight(1f),
                                     showSearchIcon = true,
-                                    onSearchIconClicked = {
-                                        onSearchDrinkClicked(it.name)
-                                    }
+                                    onSearchIconClicked = onSearchDrinkClicked
                                 )
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -195,8 +183,10 @@ fun BarScreen(
                         state = pagerState
                     ) { page ->
                         BarIngredientItem(
-                            ingredientDetails = viewModel.state.ingredients[page],
+                            ingredientImagePath = viewModel.state.ingredients[page].imagePath,
+                            ingredientName = viewModel.state.ingredients[page].name,
                             page = page,
+                            pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
                         )
                     }
                 }
