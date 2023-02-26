@@ -18,15 +18,14 @@ import coil.request.ImageRequest
 import com.google.accompanist.pager.PagerScope
 import com.google.accompanist.pager.calculateCurrentOffsetForPage
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
 @Composable
 fun PagerScope.BarIngredientItem(
-    ingredientImagePath: String?,
-    ingredientName: String,
-    page: Int,
+    ingredient: IngredientDetailsDomainModel,
     pageOffset: Float,
     modifier: Modifier = Modifier
 ) {
@@ -61,7 +60,7 @@ fun PagerScope.BarIngredientItem(
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
-                .data(ingredientImagePath)
+                .data(ingredient.imagePath)
                 .crossfade(true)
                 .build(),
             onLoading = {
@@ -73,7 +72,7 @@ fun PagerScope.BarIngredientItem(
             onError = {
                 R.drawable.search_background
             },
-            contentDescription = ingredientName
+            contentDescription = ingredient.name
         )
     }
 }

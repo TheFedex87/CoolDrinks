@@ -74,7 +74,7 @@ fun BarScreen(
     Box(
         modifier = modifier.fillMaxSize()
     ) {
-        SubcomposeAsyncImage(
+        AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(R.drawable.bar_bg_5_b_small)
                 .build(),
@@ -183,9 +183,7 @@ fun BarScreen(
                         state = pagerState
                     ) { page ->
                         BarIngredientItem(
-                            ingredientImagePath = viewModel.state.ingredients[page].imagePath,
-                            ingredientName = viewModel.state.ingredients[page].name,
-                            page = page,
+                            ingredient = viewModel.state.ingredients[page],
                             pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
                         )
                     }
