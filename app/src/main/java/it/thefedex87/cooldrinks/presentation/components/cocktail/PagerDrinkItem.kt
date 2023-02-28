@@ -37,7 +37,7 @@ fun PagerScope.PagerDrinkItem(
     drink: DrinkUiModel,
     modifier: Modifier = Modifier,
     onItemClick: (Int, Int, String) -> Unit,
-    page: Int,
+    pageOffset: Float,
     onFavoriteClick: (DrinkUiModel) -> Unit,
     onImageLoaded: (Drawable) -> Unit,
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
@@ -56,7 +56,6 @@ fun PagerScope.PagerDrinkItem(
             // Calculate the absolute offset for the current page from the
             // scroll position. We use the absolute value which allows us to mirror
             // any effects for both directions
-            val pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
 
             // We animate the scaleX + scaleY, between 85% and 100%
             lerp(

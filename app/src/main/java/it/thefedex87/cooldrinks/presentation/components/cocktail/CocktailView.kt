@@ -21,10 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.google.accompanist.pager.ExperimentalPagerApi
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.PagerState
-import com.google.accompanist.pager.rememberPagerState
+import com.google.accompanist.pager.*
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
 import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkEvent
@@ -33,6 +30,7 @@ import it.thefedex87.cooldrinks.presentation.search_drink.components.PagerDrinkI
 import it.thefedex87.cooldrinks.presentation.search_drink.components.VisualizationTypeSelector
 import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -101,7 +99,7 @@ fun ColumnScope.CocktailView(
                     onItemClick = { id, color, name ->
                         onDrinkClicked(id, color, name)
                     },
-                    page = page,
+                    pageOffset = calculateCurrentOffsetForPage(page).absoluteValue,
                     onFavoriteClick = {
                         onFavoriteClicked(it)
                     },

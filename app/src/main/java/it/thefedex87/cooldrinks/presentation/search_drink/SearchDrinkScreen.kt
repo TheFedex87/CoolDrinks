@@ -186,6 +186,13 @@ fun SearchDrinkScreen(
                 )
 
                 if (viewModel.state.foundDrinks.isNotEmpty()) {
+
+                    val onVisualizationTypeChangedLambda = remember<(VisualizationType) -> Unit> {
+                        {
+                            viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
+                        }
+                    }
+
                     CocktailView(
                         maxHeight = constraints.maxHeight,
                         maxWidth = constraints.maxWidth,
@@ -196,9 +203,7 @@ fun SearchDrinkScreen(
                         onFavoriteClicked = {
                             viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
                         },
-                        onVisualizationTypeChanged = {
-                            viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
-                        },
+                        onVisualizationTypeChanged = onVisualizationTypeChangedLambda,
                         onSelectDrinkDrawableChanged = {
                             //selectedDrinkDrawable = it
                             if (
