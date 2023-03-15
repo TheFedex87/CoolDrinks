@@ -182,6 +182,18 @@ fun SearchDrinkScreen(
                         }
                     }
 
+                    val onSelectDrinkDrawableChangedLambda = remember<(Drawable?) -> Unit> {
+                        {
+                            if (
+                                viewModel.state.visualizationType == VisualizationType.Card &&
+                                viewModel.state.foundDrinks.isNotEmpty() &&
+                                !viewModel.state.isLoading
+                            ) {
+                                onSelectedDrinkDrawableLoaded(it)
+                            }
+                        }
+                    }
+
                     CocktailView(
                         maxHeight = constraints.maxHeight,
                         maxWidth = constraints.maxWidth,
@@ -191,16 +203,7 @@ fun SearchDrinkScreen(
                         onDrinkClicked = onDrinkClicked,
                         onFavoriteClicked = onFavoriteClickedLambda,
                         onVisualizationTypeChanged = onVisualizationTypeChangedLambda,
-                        onSelectDrinkDrawableChanged = {
-                            //selectedDrinkDrawable = it
-                            if (
-                                viewModel.state.visualizationType == VisualizationType.Card &&
-                                viewModel.state.foundDrinks.isNotEmpty() &&
-                                !viewModel.state.isLoading
-                            ) {
-                                onSelectedDrinkDrawableLoaded(it)
-                            }
-                        }
+                        onSelectDrinkDrawableChanged = onSelectDrinkDrawableChangedLambda
                     )
                 } else {
                     Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {

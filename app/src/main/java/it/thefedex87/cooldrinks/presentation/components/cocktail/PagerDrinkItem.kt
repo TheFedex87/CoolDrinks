@@ -33,10 +33,16 @@ import it.thefedex87.cooldrinks.util.Consts
 @Composable
 fun PagerScope.PagerDrinkItem(
     drink: DrinkUiModel,
+    id: Int,
+    dominantColor: Int,
+    name: String,
+    image: String,
+    isLoadingFavorite: Boolean,
+    isFavorite: Boolean,
     modifier: Modifier = Modifier,
     onItemClick: (Int, Int, String) -> Unit,
     pageOffset: Float,
-    onFavoriteClick: (DrinkUiModel) -> Unit,
+    onFavoriteClick: () -> Unit,
     onImageLoaded: (Drawable) -> Unit,
     calcDominantColor: (drawable: Drawable, onFinish: (Color) -> Unit) -> Unit
 ) {
@@ -44,9 +50,9 @@ fun PagerScope.PagerDrinkItem(
         .fillMaxSize()
         .clickable {
             onItemClick(
-                drink.id,
-                drink.dominantColor,
-                drink.name
+                id,
+                dominantColor,
+                name
             )
         }
         .padding(8.dp)
@@ -92,7 +98,7 @@ fun PagerScope.PagerDrinkItem(
                         },
                     onSuccess = {
                         onImageLoaded(it.result.drawable)
-                        if (drink.dominantColor == 0) {
+                        if (dominantColor == 0) {
                             Log.d(Consts.TAG, "Calculate dominant color")
                             calcDominantColor(it.result.drawable) { color ->
                                 //dominatorColor = color
@@ -106,10 +112,10 @@ fun PagerScope.PagerDrinkItem(
                         R.drawable.search_background
                     },
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(drink.image)
+                        .data(image)
                         .crossfade(true)
                         .build(),
-                    contentDescription = drink.name,
+                    contentDescription = name,
                     contentScale = ContentScale.FillWidth
                 )
                 Spacer(modifier = Modifier.height(8.dp))
@@ -131,7 +137,7 @@ fun PagerScope.PagerDrinkItem(
                         Text(
                             modifier = Modifier
                                 .padding(horizontal = 4.dp),
-                            text = drink.name,
+                            text = name,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
@@ -142,19 +148,19 @@ fun PagerScope.PagerDrinkItem(
                             modifier = Modifier.weight(1f),
                             contentAlignment = Alignment.Center
                         ) {
-                            if (drink.isLoadingFavorite) {
+                            if (isLoadingFavorite) {
                                 CircularProgressIndicator(
                                     modifier = Modifier
                                         .size(if (this.maxHeight > 30.dp) 30.dp else this.maxHeight)
                                 )
                             } else {
                                 Icon(
-                                    imageVector = if (drink.isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                    imageVector = if (isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
                                     contentDescription = "Favorite",
                                     tint = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier
                                         .clickable {
-                                            onFavoriteClick(drink)
+                                            onFavoriteClick()
                                         }
                                         .size(if (this.maxHeight > 100.dp) 100.dp else this.maxHeight - 10.dp)
                                 )

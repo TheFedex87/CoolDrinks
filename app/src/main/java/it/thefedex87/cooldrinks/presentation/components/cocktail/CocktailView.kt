@@ -84,7 +84,9 @@ fun ColumnScope.CocktailView(
                     drink = drink.value,
                     onItemClick = onDrinkClicked,
                     pageOffset = calculateCurrentOffsetForPage(page).absoluteValue,
-                    onFavoriteClick = onFavoriteClicked,
+                    onFavoriteClick = {
+                        onFavoriteClicked(drink.value)
+                    },
                     calcDominantColor = { drawable, onFinish ->
                         calcDominantColor(drawable, drink, onFinish)
                     },
@@ -93,7 +95,13 @@ fun ColumnScope.CocktailView(
                         if (page == pagerState.currentPage) {
                             onSelectDrinkDrawableChanged(it)
                         }
-                    }
+                    },
+                    id = drink.value.id,
+                    name = drink.value.name,
+                    dominantColor = drink.value.dominantColor,
+                    isFavorite = drink.value.isFavorite,
+                    isLoadingFavorite = drink.value.isLoadingFavorite,
+                    image = drink.value.image
                 )
             }
         }
