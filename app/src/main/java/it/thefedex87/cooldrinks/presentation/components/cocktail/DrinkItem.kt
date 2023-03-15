@@ -1,4 +1,4 @@
-package it.thefedex87.cooldrinks.presentation.search_drink.components
+package it.thefedex87.cooldrinks.presentation.components.cocktail
 
 import android.graphics.drawable.Drawable
 import android.util.Log

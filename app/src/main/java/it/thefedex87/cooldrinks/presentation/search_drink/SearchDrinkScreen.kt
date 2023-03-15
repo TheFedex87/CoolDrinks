@@ -1,12 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.search_drink
 
 import android.graphics.drawable.Drawable
-import androidx.compose.animation.Animatable
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -14,31 +9,19 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
-import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
 import it.thefedex87.cooldrinks.presentation.components.EmptyList
 import it.thefedex87.cooldrinks.presentation.components.SearchTextField
 import it.thefedex87.cooldrinks.presentation.components.cocktail.CocktailView
-import it.thefedex87.cooldrinks.presentation.search_drink.components.DrinkItem
-import it.thefedex87.cooldrinks.presentation.search_drink.components.PagerDrinkItem
-import it.thefedex87.cooldrinks.presentation.search_drink.components.VisualizationTypeSelector
+import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
-import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
@@ -193,6 +176,12 @@ fun SearchDrinkScreen(
                         }
                     }
 
+                    val onFavoriteClickedLambda = remember<(DrinkUiModel) -> Unit> {
+                        {
+                            viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                        }
+                    }
+
                     CocktailView(
                         maxHeight = constraints.maxHeight,
                         maxWidth = constraints.maxWidth,
@@ -200,9 +189,7 @@ fun SearchDrinkScreen(
                         drinks = viewModel.state.foundDrinks,
                         visualizationType = viewModel.state.visualizationType,
                         onDrinkClicked = onDrinkClicked,
-                        onFavoriteClicked = {
-                            viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
-                        },
+                        onFavoriteClicked = onFavoriteClickedLambda,
                         onVisualizationTypeChanged = onVisualizationTypeChangedLambda,
                         onSelectDrinkDrawableChanged = {
                             //selectedDrinkDrawable = it

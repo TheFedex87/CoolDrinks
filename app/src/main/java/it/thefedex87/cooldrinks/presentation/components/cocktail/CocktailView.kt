@@ -1,32 +1,18 @@
 package it.thefedex87.cooldrinks.presentation.components.cocktail
 
 import android.graphics.drawable.Drawable
-import androidx.compose.animation.Animatable
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.request.ImageRequest
 import com.google.accompanist.pager.*
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
 import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiModel
-import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkEvent
-import it.thefedex87.cooldrinks.presentation.search_drink.components.DrinkItem
-import it.thefedex87.cooldrinks.presentation.search_drink.components.PagerDrinkItem
 import it.thefedex87.cooldrinks.presentation.search_drink.components.VisualizationTypeSelector
 import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -96,13 +82,9 @@ fun ColumnScope.CocktailView(
                 val drink = drinks[page]
                 PagerDrinkItem(
                     drink = drink.value,
-                    onItemClick = { id, color, name ->
-                        onDrinkClicked(id, color, name)
-                    },
+                    onItemClick = onDrinkClicked,
                     pageOffset = calculateCurrentOffsetForPage(page).absoluteValue,
-                    onFavoriteClick = {
-                        onFavoriteClicked(it)
-                    },
+                    onFavoriteClick = onFavoriteClicked,
                     calcDominantColor = { drawable, onFinish ->
                         calcDominantColor(drawable, drink, onFinish)
                     },

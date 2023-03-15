@@ -33,9 +33,7 @@ fun OutlinedTextFieldWithErrorMessage(
     Column(modifier = Modifier.fillMaxWidth()) {
         OutlinedTextField(
             value = value,
-            onValueChange = {
-                onValueChanged(it)
-            },
+            onValueChange = onValueChanged,
             singleLine = singleLine,
             keyboardActions = KeyboardActions(
                 onNext = {
