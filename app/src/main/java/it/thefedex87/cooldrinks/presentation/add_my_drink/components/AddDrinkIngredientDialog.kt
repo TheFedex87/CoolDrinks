@@ -72,7 +72,9 @@ fun AddDrinkIngredientDialog(
                             label = stringResource(id = R.string.name),
                             imeAction = ImeAction.Next
                         )
-                        DropdownMenu(expanded = filteredLocalIngredients.isNotEmpty(),
+                        DropdownMenu(
+                            modifier = Modifier.defaultMinSize(200.dp),
+                            expanded = filteredLocalIngredients.isNotEmpty(),
                             properties = PopupProperties(focusable = false),
                             onDismissRequest = { }) {
                             filteredLocalIngredients.forEach { ingredient ->

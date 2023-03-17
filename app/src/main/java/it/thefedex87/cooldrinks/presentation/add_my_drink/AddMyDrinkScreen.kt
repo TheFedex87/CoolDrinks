@@ -172,7 +172,7 @@ fun AddMyDrinkScreen(
             },
             errorMessage = state.cocktailInstructionsError,
             label = stringResource(id = R.string.instructions),
-            imeAction = ImeAction.Next,
+            imeAction = ImeAction.Default,
             modifier = Modifier.height(300.dp),
             singleLine = false
         )
