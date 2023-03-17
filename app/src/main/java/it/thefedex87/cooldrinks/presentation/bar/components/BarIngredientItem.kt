@@ -56,7 +56,7 @@ fun PagerScope.BarIngredientItem(
                     fraction = 1f - pageOffset.coerceIn(0f, 1f)
                 )
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.BottomCenter
     ) {
         AsyncImage(
             model = ImageRequest.Builder(LocalContext.current)

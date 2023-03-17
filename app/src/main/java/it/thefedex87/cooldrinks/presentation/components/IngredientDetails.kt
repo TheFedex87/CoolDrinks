@@ -27,7 +27,7 @@ fun IngredientDetails(
 ) {
     Column(
         modifier = modifier
-            .fillMaxSize(),
+            .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
@@ -58,7 +58,7 @@ fun IngredientDetails(
                 Text(text = getIngredientInfoError!!)
             } else {
                 Column(modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .verticalScroll(rememberScrollState())) {
                     ingredientInfo?.let { ii ->
                         Row(
@@ -74,11 +74,11 @@ fun IngredientDetails(
                                 }
                             )
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
+                        /*Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = if(ii.description.isNullOrBlank()) stringResource(id = R.string.no_info) else ii.description,
                             modifier = Modifier.fillMaxWidth()
-                        )
+                        )*/
                     }
                 }
             }

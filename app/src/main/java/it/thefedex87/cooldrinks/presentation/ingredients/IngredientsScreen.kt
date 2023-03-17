@@ -1,16 +1,9 @@
 package it.thefedex87.cooldrinks.presentation.ingredients
 
-import android.util.Log
-import android.widget.Space
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
@@ -18,12 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import it.thefedex87.cooldrinks.R
@@ -32,8 +21,6 @@ import it.thefedex87.cooldrinks.presentation.ingredients.components.IngredientIt
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
-import it.thefedex87.cooldrinks.util.Consts.TAG
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -139,7 +126,16 @@ fun IngredientsScreen(
                             ingredient.isSelected.value = true
                             viewModel.onEvent(IngredientsEvent.MultiSelectionStateChanged(enabled = true))
                         }
-                    }
+                    },
+                    onCheckedChanged = {
+                       if(isSelectionEnabled) {
+                           ingredient.isSelected.value = it
+                           if(it && !viewModel.state.isMultiSelectionEnabled) {
+                               viewModel.onEvent(IngredientsEvent.MultiSelectionStateChanged(enabled = true))
+                           }
+                       }
+                    },
+                    isSelectionEnabled = isSelectionEnabled
                 )
             }
         }

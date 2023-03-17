@@ -82,6 +82,12 @@ class SearchDrinkViewModel @Inject constructor(
                         showSearchHint = false
                     )
                 }
+                is SearchDrinkEvent.OnIngredientPassed -> {
+                    state = state.copy(
+                        searchByIngredientQuery = event.query,
+                        showSearchHint = false
+                    )
+                }
                 is SearchDrinkEvent.OnSearchFocusChange -> {
                     state =
                         state.copy(showSearchHint = !event.isFocused && state.searchQuery.isEmpty())
@@ -99,12 +105,14 @@ class SearchDrinkViewModel @Inject constructor(
     private suspend fun searchDrink() {
         drinkRepository
             .searchCocktails(
+                if(state.searchByIngredientQuery != "") state.searchByIngredientQuery else null,
                 state.searchQuery
             )
             .onSuccess {
                 state = state.copy(
                     isLoading = false,
                     searchQuery = "",
+                    searchByIngredientQuery = "",
                     showSearchHint = true,
                     foundDrinks = it.map { drink -> mutableStateOf(drink.toDrinkUiModel()) }
                         .toMutableList(),
@@ -121,6 +129,7 @@ class SearchDrinkViewModel @Inject constructor(
                 state = state.copy(
                     isLoading = false,
                     searchQuery = "",
+                    searchByIngredientQuery = "",
                     showSearchHint = true,
                     showNoDrinkFound = false
                 )

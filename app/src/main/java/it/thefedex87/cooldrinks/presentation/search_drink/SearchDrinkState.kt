@@ -6,6 +6,7 @@ import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiMo
 
 data class SearchDrinkState(
     val searchQuery: String = "",
+    val searchByIngredientQuery: String = "",
     val isLoading: Boolean = false,
     val showSearchHint: Boolean = true,
     val showNoDrinkFound: Boolean = false,

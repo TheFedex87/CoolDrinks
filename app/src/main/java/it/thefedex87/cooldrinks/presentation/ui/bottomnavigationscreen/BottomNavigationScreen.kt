@@ -80,7 +80,7 @@ fun BottomNavigationScreen(
     ) { values ->
         NavHost(
             navController = navController,
-            startDestination = BottomNavScreen.Bar.route,
+            startDestination = BottomNavScreen.Cocktail.route,
             modifier = modifier.padding(
                 values
             )
@@ -373,8 +373,8 @@ fun BottomBar(
     navController: NavHostController
 ) {
     val screens = listOf(
-        BottomNavScreen.Bar,
         BottomNavScreen.Cocktail,
+        BottomNavScreen.Bar,
         BottomNavScreen.Favorite,
         BottomNavScreen.RandomDrink
     )

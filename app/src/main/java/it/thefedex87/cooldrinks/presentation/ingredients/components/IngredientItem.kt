@@ -9,10 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +29,8 @@ fun IngredientItem(
     onItemClick: () -> Unit,
     onItemLongClick: () -> Unit,
     onIngredientInfoClick: () -> Unit,
+    onCheckedChanged: (Boolean) -> Unit,
+    isSelectionEnabled: Boolean,
     showSeparator: Boolean = true,
     modifier: Modifier = Modifier
 ) {
@@ -71,15 +70,21 @@ fun IngredientItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                if(isSelectionEnabled) {
+                    Checkbox(
+                        checked = ingredient.isSelected.value,
+                        onCheckedChange = onCheckedChanged
+                    )
+                }
                 Text(
                     text = ingredient.name,
                     style = MaterialTheme.typography.headlineSmall,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.weight(1f))
                 IconButton(onClick = {
                     if (!ingredient.isSelected.value) {
                         onIngredientInfoClick()

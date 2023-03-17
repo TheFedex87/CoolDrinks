@@ -12,14 +12,6 @@ sealed class BottomNavScreen(
     val icon: ImageVector,
     val title: UiText
 ) {
-    object Bar : BottomNavScreen(
-        route = Route.BAR,
-        icon = Icons.Default.Liquor,
-        title = UiText.StringResource(
-            R.string.bar
-        )
-    )
-
     object Cocktail : BottomNavScreen(
         route = "${Route.COCKTAIL}?i={ingredient}",
         icon = Icons.Default.LocalBar,
@@ -28,6 +20,13 @@ sealed class BottomNavScreen(
         )
     )
 
+    object Bar : BottomNavScreen(
+        route = Route.BAR,
+        icon = Icons.Default.Liquor,
+        title = UiText.StringResource(
+            R.string.bar
+        )
+    )
     object Favorite :
         BottomNavScreen(
             route = Route.FAVORITES,

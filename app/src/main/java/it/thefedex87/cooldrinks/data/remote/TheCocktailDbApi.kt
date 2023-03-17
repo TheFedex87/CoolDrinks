@@ -8,8 +8,13 @@ import retrofit2.http.Query
 interface TheCocktailDbApi {
 
     @GET("filter.php?")
-    suspend fun searchCocktail(
+    suspend fun searchCocktailByIngredient(
         @Query("i") ingredient: String
+    ): DrinkListDto
+
+    @GET("search.php?")
+    suspend fun searchCocktailByName(
+        @Query("s") name: String
     ): DrinkListDto
 
     @GET("lookup.php?")

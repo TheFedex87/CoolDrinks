@@ -95,7 +95,7 @@ fun SearchDrinkScreen(
         )
 
         ingredient?.let {
-            viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
+            viewModel.onEvent(SearchDrinkEvent.OnIngredientPassed(it))
             viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
         }
 

@@ -105,16 +105,16 @@ fun BarScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.BottomCenter
             ) {
-                Column(modifier = Modifier.fillMaxHeight()) {
+                Column() {
                     Card(
                         modifier = Modifier
-                            .weight(1.5f)
+                            //.weight(1.5f)
                             .fillMaxWidth()
                             .padding(spacing.spaceMedium)
                     ) {
                         viewModel.state.selectedIngredient?.let {
                             Column(
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier.fillMaxWidth()
                             ) {
                                 IngredientDetails(
                                     ingredient = it.name,
@@ -122,8 +122,7 @@ fun BarScreen(
                                     getIngredientInfoError = null,
                                     ingredientInfo = it,
                                     modifier = Modifier
-                                        .padding(spacing.spaceMedium)
-                                        .weight(1f),
+                                        .padding(spacing.spaceMedium),
                                     showSearchIcon = true,
                                     onSearchIconClicked = onSearchDrinkClicked
                                 )
@@ -152,21 +151,8 @@ fun BarScreen(
                                                 bottom = spacing.spaceMedium
                                             )
                                             .height(30.dp)
-                                            .weight(1f)
+                                            //.weight(1f)
                                     )
-                                    /*IconButton(
-                                        onClick = {
-
-                                        },
-                                        modifier = Modifier
-                                            .padding(
-                                                start = spacing.spaceSmall,
-                                                end = spacing.spaceSmall,
-                                                bottom = spacing.spaceSmall
-                                            )
-                                    ) {
-                                        Icon(imageVector = Icons.Default.Search, contentDescription = "Search for drink")
-                                    }*/
                                 }
                             }
                         }
@@ -175,7 +161,7 @@ fun BarScreen(
                     HorizontalPager(
                         modifier = Modifier
                             .weight(1f)
-                            .padding(bottom = 24.dp),
+                            .padding(bottom = 50.dp),
                         count = viewModel.state.ingredients.size,
                         contentPadding = PaddingValues(
                             horizontal = 32.dp

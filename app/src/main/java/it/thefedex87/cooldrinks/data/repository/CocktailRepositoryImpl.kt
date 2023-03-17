@@ -5,6 +5,7 @@ import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.local.IngredientsDao
 import it.thefedex87.cooldrinks.data.mapper.*
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
+import it.thefedex87.cooldrinks.data.remote.dto.DrinkListDto
 import it.thefedex87.cooldrinks.domain.model.*
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
@@ -52,12 +53,19 @@ class CocktailRepositoryImpl constructor(
         }
 
     override suspend fun searchCocktails(
-        ingredient: String
+        ingredient: String?,
+        name: String?
     ): Result<List<DrinkDomainModel>> {
         return try {
-            val drinkLstDto = cocktailDbApi.searchCocktail(
-                ingredient = ingredient
-            )
+            val drinkLstDto: DrinkListDto = if (ingredient != null) {
+                cocktailDbApi.searchCocktailByIngredient(
+                    ingredient = ingredient
+                )
+            } else {
+                cocktailDbApi.searchCocktailByName(
+                    name = name!!
+                )
+            }
 
             Result.success(drinkLstDto.drinks.mapNotNull {
                 it.toDrinkDomainModel(favoritesDrinks.first().map { it.idDrink })
@@ -149,7 +157,7 @@ class CocktailRepositoryImpl constructor(
     override suspend fun deleteOrRemoveFromFavorite(drinkId: Int) {
         val drink = drinkDao.getFavoriteDrinks().first().firstOrNull { it.idDrink == drinkId }
         drink?.let {
-            if(!drink.isCustomCocktail) {
+            if (!drink.isCustomCocktail) {
                 drinkDao.deleteFavoriteDrink(drink)
             } else {
                 drinkDao.setAsFavoriteUnfavorite(drink.idDrink, false)

@@ -5,7 +5,7 @@ import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import kotlinx.coroutines.flow.Flow
 
 interface CocktailRepository {
-    suspend fun searchCocktails(ingredient: String): Result<List<DrinkDomainModel>>
+    suspend fun searchCocktails(ingredient: String?, name: String?): Result<List<DrinkDomainModel>>
     suspend fun getDrinkDetails(id: Int?) : Result<List<DrinkDetailDomainModel>>
     suspend fun getIngredients(): Result<List<IngredientDomainModel>>
     suspend fun getIngredientDetails(ingredientName: String): Result<IngredientDetailsDomainModel>
