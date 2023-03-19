@@ -2,8 +2,7 @@ package it.thefedex87.cooldrinks.presentation.bar.components
 
 import android.util.Log
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -11,7 +10,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -58,21 +59,26 @@ fun PagerScope.BarIngredientItem(
             },
         contentAlignment = Alignment.BottomCenter
     ) {
-        AsyncImage(
-            model = ImageRequest.Builder(LocalContext.current)
-                .data(ingredient.imagePath)
-                .crossfade(true)
-                .build(),
-            onLoading = {
-                //R.drawable.search_background
-            },
-            onSuccess = {
+        Column(modifier = Modifier.fillMaxSize()) {
+            Spacer(modifier = Modifier.weight(1f))
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(ingredient.imagePath)
+                    .crossfade(true)
+                    .build(),
+                onLoading = {
+                    //R.drawable.search_background
+                },
+                contentScale = ContentScale.FillHeight,
+                onSuccess = {
 
-            },
-            onError = {
-                R.drawable.search_background
-            },
-            contentDescription = ingredient.name
-        )
+                },
+                onError = {
+                    R.drawable.search_background
+                },
+                contentDescription = ingredient.name,
+                modifier = Modifier.weight(5f)
+            )
+        }
     }
 }

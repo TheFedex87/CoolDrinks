@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">CoolDrinks</string>
     <string name="search_hint">Search a cocktail…</string>
+    <string name="search_ingredient_hint">Search an ingredient…</string>
     <string name="search">Search</string>
     <string name="alcoholic">Alcoholic</string>
     <string name="non_alcoholic">Non Alcoholic</string>
@@ -28,6 +29,7 @@
     <string name="expand_category_filter">Expand category filter</string>
     <string name="add_some_favorites">Add some favorites…</string>
     <string name="ingredient_info">Ingredient info</string>
+    <string name="info">Info</string>
     <string name="navigate_back">Navigate back</string>
     <string name="favorites">Favorites</string>
     <string name="feel_lucky">Feel lucky</string>

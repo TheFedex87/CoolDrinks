@@ -11,6 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.ingredients.model.IngredientUiModel
 import it.thefedex87.cooldrinks.presentation.mapper.toIngredientDomainModel
 import it.thefedex87.cooldrinks.presentation.mapper.toIngredientUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -34,6 +35,7 @@ class IngredientsViewModel @Inject constructor(
 
     private var loadingIngredientInfoJob: Job? = null
 
+    private var ingredients : List<IngredientUiModel> = emptyList()
     init {
         fetchIngredients()
     }
@@ -41,6 +43,16 @@ class IngredientsViewModel @Inject constructor(
     fun onEvent(event: IngredientsEvent) {
         viewModelScope.launch {
             when (event) {
+                is IngredientsEvent.OnSearchQueryChange -> {
+                    state = state.copy(
+                        searchQuery = event.query,
+                        ingredients = ingredients.filter { it.name.lowercase().contains(event.query.lowercase()) }
+                    )
+                }
+                is IngredientsEvent.OnSearchFocusChange -> {
+                    state =
+                        state.copy(showSearchHint = !event.isFocused && state.searchQuery.isEmpty())
+                }
                 is IngredientsEvent.HideIngredientsDetails -> {
                     loadingIngredientInfoJob?.cancel()
                     state = state.copy(
@@ -131,9 +143,10 @@ class IngredientsViewModel @Inject constructor(
             repository.getIngredients()
                 .onSuccess {
                     Log.d(TAG, "GetIngredients success")
+                    ingredients = it.map { i -> i.toIngredientUiModel() }.sortedBy { i -> i.name }
                     state = state.copy(
                         isLoading = false,
-                        ingredients = it.map { i -> i.toIngredientUiModel() },
+                        ingredients = ingredients,
                         showRetryButton = false
                     )
                 }

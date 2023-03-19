@@ -5,9 +5,9 @@ import it.thefedex87.cooldrinks.domain.model.IngredientDomainModel
 import it.thefedex87.cooldrinks.presentation.ingredients.model.IngredientUiModel
 
 fun IngredientDomainModel.toIngredientUiModel(): IngredientUiModel {
-    return IngredientUiModel(name = name, isSelected = mutableStateOf(false))
+    return IngredientUiModel(name = name, thumbnail = thumbnail, isSelected = mutableStateOf(false))
 }
 
 fun IngredientUiModel.toIngredientDomainModel(): IngredientDomainModel {
-    return IngredientDomainModel(name = name)
+    return IngredientDomainModel(name = name, thumbnail = thumbnail)
 }

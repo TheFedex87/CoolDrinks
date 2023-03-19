@@ -23,6 +23,7 @@ fun IngredientDetails(
     ingredientInfo: IngredientDetailsDomainModel?,
     showSearchIcon: Boolean = false,
     onSearchIconClicked: (String) -> Unit = {},
+    showDescription: Boolean = false,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -41,11 +42,14 @@ fun IngredientDetails(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-            if(showSearchIcon) {
+            if (showSearchIcon) {
                 IconButton(onClick = {
                     onSearchIconClicked(ingredient)
                 }) {
-                    Icon(imageVector = Icons.Default.Search, contentDescription = stringResource(id = R.string.search_drink))
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search_drink)
+                    )
                 }
             }
         }
@@ -57,9 +61,11 @@ fun IngredientDetails(
             if (getIngredientInfoError != null) {
                 Text(text = getIngredientInfoError!!)
             } else {
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                ) {
                     ingredientInfo?.let { ii ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -74,11 +80,13 @@ fun IngredientDetails(
                                 }
                             )
                         }
-                        /*Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = if(ii.description.isNullOrBlank()) stringResource(id = R.string.no_info) else ii.description,
-                            modifier = Modifier.fillMaxWidth()
-                        )*/
+                        if (showDescription) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = if (ii.description.isNullOrBlank()) stringResource(id = R.string.no_info) else ii.description,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     }
                 }
             }

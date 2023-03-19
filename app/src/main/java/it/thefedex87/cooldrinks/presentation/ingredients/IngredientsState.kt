@@ -12,5 +12,8 @@ data class IngredientsState(
     val isLoadingIngredientInfo: Boolean = false,
     val ingredientInfo: IngredientDetailsDomainModel? = null,
     val getIngredientInfoError: String? = null,
-    val isMultiSelectionEnabled: Boolean = false
+    val isMultiSelectionEnabled: Boolean = false,
+    val searchQuery: String = "",
+    val showSearchHint: Boolean = true,
+
 )

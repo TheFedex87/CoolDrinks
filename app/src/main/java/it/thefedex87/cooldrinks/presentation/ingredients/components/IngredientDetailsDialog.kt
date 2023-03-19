@@ -43,6 +43,7 @@ fun IngredientDetailsDialog(
                 isLoadingIngredientInfo = isLoadingIngredientInfo,
                 getIngredientInfoError = getIngredientInfoError,
                 ingredientInfo = ingredientInfo,
+                showDescription = true,
                 modifier = Modifier.padding(spacing.spaceSmall)
             )
         }

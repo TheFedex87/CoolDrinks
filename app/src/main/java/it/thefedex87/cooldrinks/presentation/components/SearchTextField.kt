@@ -26,7 +26,7 @@ fun SearchTextField(
     onSearch: () -> Unit,
     onValueChanged: (String) -> Unit,
     onFocusChanged: (FocusState) -> Unit,
-    trailingIcon: ImageVector = Icons.Default.Search,
+    trailingIcon: ImageVector? = Icons.Default.Search,
     trailingIconOnClick: () -> Unit = onSearch,
     modifier: Modifier = Modifier
 ) {
@@ -55,14 +55,16 @@ fun SearchTextField(
             modifier = modifier
                 .fillMaxWidth(),
             trailingIcon = {
-                IconButton(
-                    onClick = trailingIconOnClick,
-                    modifier = Modifier.align(Alignment.CenterEnd)
-                ) {
-                    Icon(
-                        imageVector = trailingIcon,
-                        contentDescription = stringResource(id = R.string.search)
-                    )
+                trailingIcon?.let {
+                    IconButton(
+                        onClick = trailingIconOnClick,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    ) {
+                        Icon(
+                            imageVector = it,
+                            contentDescription = stringResource(id = R.string.search)
+                        )
+                    }
                 }
             },
             shape = MaterialTheme.shapes.extraLarge,
