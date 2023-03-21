@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.data.repository
 
+import android.util.Log
 import com.squareup.moshi.JsonDataException
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.local.IngredientsDao
@@ -9,6 +10,7 @@ import it.thefedex87.cooldrinks.data.remote.dto.DrinkListDto
 import it.thefedex87.cooldrinks.domain.model.*
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.util.Consts
 import kotlinx.coroutines.flow.*
 import java.io.EOFException
 
@@ -73,6 +75,7 @@ class CocktailRepositoryImpl constructor(
         } catch (e: EOFException) {
             Result.success(emptyList())
         } catch (e: JsonDataException) {
+            Log.e(Consts.TAG, "JsonDataException exception received: $e")
             Result.success(emptyList())
         } catch (e: Exception) {
             e.printStackTrace()
