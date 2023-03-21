@@ -1,8 +1,11 @@
 package it.thefedex87.cooldrinks.presentation.ingredients
 
+import it.thefedex87.cooldrinks.presentation.ingredients.model.IngredientUiModel
+
 sealed class IngredientsEvent {
     object HideIngredientsDetails: IngredientsEvent()
     object StoreIngredients: IngredientsEvent()
+    data class ItemSelectionChanged(val ingredient: IngredientUiModel): IngredientsEvent()
     data class MultiSelectionStateChanged(val enabled: Boolean): IngredientsEvent()
     data class ShowIngredientsDetails(val ingredient: String): IngredientsEvent()
     object RetryFetchIngredients : IngredientsEvent()

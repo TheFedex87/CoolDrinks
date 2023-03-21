@@ -1,14 +1,20 @@
 package it.thefedex87.cooldrinks.presentation.ingredients.components
 
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,18 +42,32 @@ fun IngredientCardItem(
         modifier = modifier
             .fillMaxWidth()
             .padding(spacing.spaceExtraSmall)
-            .combinedClickable(
-                onClick = {
-                    onItemClick()
-                },
-                onLongClick = {
-                    onItemLongClick()
-                }
-            )
     ) {
+        val scale = animateFloatAsState(
+            targetValue = if (ingredient.isSelected.value) 1.02f else 1f,
+            animationSpec = tween(durationMillis = 400)
+        )
+
+        /*val cardElevation = animateDpAsState(
+            targetValue = if (ingredient.isSelected.value) 6.dp else 0.dp,
+            animationSpec = tween(durationMillis = 200)
+        )*/
         Card(
             modifier = modifier
                 .fillMaxWidth()
+                .scale(scale = scale.value)
+                .combinedClickable(
+                    onClick = {
+                        onItemClick()
+                    },
+                    onLongClick = {
+                        onItemLongClick()
+                    }
+                ),/*.shadow(elevation = cardElevation.value, shape = RoundedCornerShape(12.dp))*/
+            /*elevation = CardDefaults.elevatedCardElevation(
+                defaultElevation = 4.dp,
+                pressedElevation = 56.dp
+            )*/
         ) {
             Column(
                 modifier = Modifier

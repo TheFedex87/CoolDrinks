@@ -99,6 +99,15 @@ class IngredientsViewModel @Inject constructor(
                     }
                     state = state.copy(isMultiSelectionEnabled = event.enabled)
                 }
+                is IngredientsEvent.ItemSelectionChanged -> {
+                    event.ingredient.isSelected.value = !event.ingredient.isSelected.value
+
+                    if (event.ingredient.isSelected.value && !state.isMultiSelectionEnabled) {
+                        state = state.copy(isMultiSelectionEnabled = true)
+                    } else if(state.isMultiSelectionEnabled && !state.ingredients.any { it.isSelected.value }) {
+                        state = state.copy(isMultiSelectionEnabled = false)
+                    }
+                }
                 is IngredientsEvent.StoreIngredients -> {
                     try {
                         val selectedIngredient = state.ingredients.filter { it.isSelected.value }

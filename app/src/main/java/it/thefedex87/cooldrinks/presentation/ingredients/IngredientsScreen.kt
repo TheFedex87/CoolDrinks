@@ -153,7 +153,8 @@ fun IngredientsScreen(
                                 if (!viewModel.state.isMultiSelectionEnabled) {
                                     onItemClick(ingredient.name)
                                 } else {
-                                    ingredient.isSelected.value = !ingredient.isSelected.value
+                                    //ingredient.isSelected.value = !ingredient.isSelected.value
+                                    viewModel.onEvent(IngredientsEvent.ItemSelectionChanged(ingredient))
                                 }
                             },
                             onItemLongClick = {
@@ -168,14 +169,7 @@ fun IngredientsScreen(
                             },
                             onCheckedChanged = {
                                 if (isSelectionEnabled) {
-                                    ingredient.isSelected.value = it
-                                    if (it && !viewModel.state.isMultiSelectionEnabled) {
-                                        viewModel.onEvent(
-                                            IngredientsEvent.MultiSelectionStateChanged(
-                                                enabled = true
-                                            )
-                                        )
-                                    }
+                                    viewModel.onEvent(IngredientsEvent.ItemSelectionChanged(ingredient))
                                 }
                             },
                             isSelectionEnabled = isSelectionEnabled
