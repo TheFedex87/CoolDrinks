@@ -19,7 +19,7 @@ fun DrinkDto.toDrinkDomainModel(favorites: List<Int>? = null): DrinkDomainModel?
 fun DrinkDetailDto.toDrinkDetailDomainModel(
     availableIngredients: List<IngredientDomainModel>,
     favoritesIds: List<Int>
-): DrinkDetailDomainModel? {
+): DrinkDetailDomainModel {
     return DrinkDetailDomainModel(
         idDrink = idDrink.toInt(),
         isAlcoholic = strAlcoholic == "Alcoholic",

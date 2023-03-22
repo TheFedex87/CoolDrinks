@@ -18,6 +18,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
@@ -75,20 +76,15 @@ fun IngredientCardItem(
                     .padding(spacing.spaceSmall),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Row(
+                Box(
                     modifier = modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = if (isSelectionEnabled) Arrangement.Start else Arrangement.Center
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (isSelectionEnabled) {
-                        Checkbox(
-                            checked = ingredient.isSelected.value,
-                            onCheckedChange = onCheckedChanged
-                        )
-                    }
                     Text(
                         text = ingredient.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 Spacer(modifier = Modifier.height(spacing.spaceSmall))
@@ -107,7 +103,10 @@ fun IngredientCardItem(
                         .height(1.dp)
                         .background(MaterialTheme.colorScheme.onBackground)
                 )
-                Box(modifier = Modifier.fillMaxWidth()) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     TextButton(
                         onClick = {
                             onIngredientInfoClick()
@@ -116,6 +115,12 @@ fun IngredientCardItem(
                         Text(
                             text = stringResource(id = R.string.info),
                             style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    if (isSelectionEnabled) {
+                        Checkbox(
+                            checked = ingredient.isSelected.value,
+                            onCheckedChange = onCheckedChanged
                         )
                     }
                 }
