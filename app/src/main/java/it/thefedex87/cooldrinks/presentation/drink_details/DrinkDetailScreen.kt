@@ -21,7 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
-import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.util.Consts.TAG
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -64,7 +63,7 @@ fun DrinkDetailScreen(
                 Text(text = stringResource(id = R.string.confirm_remove_title))
             },
             text = {
-                Text(text = stringResource(id = R.string.confirm_remove_body))
+                Text(text = stringResource(id = R.string.confirm_remove_from_favorite_body))
             }
         )
     }

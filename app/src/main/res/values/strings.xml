@@ -13,7 +13,8 @@
     <string name="confirm">Confirm</string>
     <string name="cancel">Cancel</string>
     <string name="confirm_remove_title">Confirm remove?</string>
-    <string name="confirm_remove_body">Do you really want remove this drink from the favorites?</string>
+    <string name="confirm_remove_from_favorite_body">Do you really want remove this drink from the favorites?</string>
+    <string name="confirm_remove_custom_drink_body">Do you really want remove this drink?</string>
     <string name="get_random_cocktail">Get new random cocktail</string>
     <string name="unfavorite">Unfavorite</string>
     <string name="alcohol_filter_enabled">Alcohol filter enabled</string>
@@ -49,6 +50,8 @@
     <string name="add_new_ingredient">Add new ingredient</string>
     <string name="save">Save</string>
     <string name="error_coping_ingredient_picture">Error during the saving of ingredient picture, please retry</string>
+    <string name="error_coping_drink_picture">Error during the saving of drink picture, please retry</string>
+    <string name="error_removing_drink">Error removing drink, please retry</string>
     <string name="error_storing_new_ingredient">Error storing new ingredient, please retry.</string>
     <string name="missing_ingredients">missing ingredients</string>
     <string name="cocktails">Cocktails</string>

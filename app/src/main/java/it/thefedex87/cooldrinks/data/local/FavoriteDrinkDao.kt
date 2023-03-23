@@ -9,6 +9,9 @@ interface FavoriteDrinkDao {
     @Query("SELECT * FROM DrinkEntity WHERE isFavorite = 1")
     fun getFavoriteDrinks() : Flow<List<DrinkEntity>>
 
+    @Query("SELECT * FROM DrinkEntity")
+    fun getAllStoredDrinks() : Flow<List<DrinkEntity>>
+
     @Query("SELECT * FROM DrinkEntity WHERE isCustomCocktail = 1")
     fun getMyDrinks() : Flow<List<DrinkEntity>>
 
@@ -20,6 +23,9 @@ interface FavoriteDrinkDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertDrink(drink: DrinkEntity): Long
+
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateDrink(drink: DrinkEntity)
 
     @Delete
     suspend fun deleteFavoriteDrink(drink: DrinkEntity)

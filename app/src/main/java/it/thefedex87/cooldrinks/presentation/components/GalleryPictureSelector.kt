@@ -43,8 +43,8 @@ import java.io.IOException
 
 @Composable
 fun GalleryPictureSelector(
-    onPicturePicked: (Bitmap) -> Unit,
-    selectedPicture: Bitmap?,
+    onPicturePicked: (Uri) -> Unit,
+    selectedPicturePath: Uri?,
     modifier: Modifier = Modifier,
     placeHolder: Painter? = null,
     isCircular: Boolean = false
@@ -59,10 +59,10 @@ fun GalleryPictureSelector(
 
     LaunchedEffect(key1 = imageData.value) {
         imageData.let {
-            val bitmap: Bitmap?
+            //val bitmap: Bitmap?
             val uri = it.value
             if (uri != null) {
-                bitmap = if (Build.VERSION.SDK_INT < 28) {
+                /*bitmap = if (Build.VERSION.SDK_INT < 28) {
                     MediaStore.Images
                         .Media.getBitmap(context.contentResolver, uri)
                 } else {
@@ -70,7 +70,8 @@ fun GalleryPictureSelector(
                         .createSource(context.contentResolver, uri)
                     ImageDecoder.decodeBitmap(source)
                 }
-                bitmap?.let(onPicturePicked)
+                bitmap?.let(onPicturePicked)*/
+                onPicturePicked(uri)
             }
         }
     }
@@ -80,11 +81,19 @@ fun GalleryPictureSelector(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            if (selectedPicture != null) {
+            if (selectedPicturePath != null) {
+                /*val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    MediaStore.Images
+                        .Media.getBitmap(context.contentResolver, selectedPicturePath)
+                } else {
+                    val source = ImageDecoder
+                        .createSource(context.contentResolver, selectedPicturePath)
+                    ImageDecoder.decodeBitmap(source)
+                }*/
                 AsyncImage(
                     model = ImageRequest.Builder(context)
                         .data(
-                            selectedPicture
+                            selectedPicturePath
                         )
                         .crossfade(true)
                         .build(),
@@ -198,7 +207,8 @@ fun Bitmap.saveToLocalStorage(context: Context, filename: String): Boolean {
             }
         }*/
         true
-    } catch (ex: IOException) {
+    } catch (ex: Exception) {
+        ex.printStackTrace()
         false
     }
 }

@@ -1,6 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.add_ingredient
 
 import android.graphics.Bitmap
+import android.net.Uri
 import it.thefedex87.cooldrinks.presentation.util.UiText
 
 data class AddIngredientState(
@@ -11,5 +12,5 @@ data class AddIngredientState(
     val ingredientDescription: String = "",
     val ingredientAvailable: Boolean = true,
 
-    val selectedPicture: Bitmap? = null
+    val selectedPicture: Uri? = null
 )

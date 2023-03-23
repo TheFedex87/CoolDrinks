@@ -1,6 +1,6 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
-import android.graphics.Bitmap
+import android.net.Uri
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
@@ -26,7 +26,7 @@ data class AddMyDrinkState(
     val cocktailInstructions: String = "",
     val cocktailInstructionsError: UiText? = null,
 
-    val selectedPicture: Bitmap? = null,
+    val selectedPicturePath: Uri? = null,
 
     val addingIngredientName: String? = null,
     val addingIngredientMeasure: String? = null,

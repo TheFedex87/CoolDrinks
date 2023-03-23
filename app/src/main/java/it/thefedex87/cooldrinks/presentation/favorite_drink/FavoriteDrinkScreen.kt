@@ -21,6 +21,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.presentation.components.DetailedDrinkItem
 import it.thefedex87.cooldrinks.presentation.components.DropDownChip
 import it.thefedex87.cooldrinks.presentation.components.DropDownItem
@@ -37,6 +38,7 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 fun FavoriteDrinkScreen(
     snackbarHostState: SnackbarHostState,
     onDrinkClicked: (Int, Int, String) -> Unit,
+    onEditDrinkClicked: (DrinkDetailDomainModel) -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     viewModel: FavoriteDrinkViewModel = hiltViewModel()
@@ -96,7 +98,7 @@ fun FavoriteDrinkScreen(
                 Text(text = stringResource(id = R.string.confirm_remove_title))
             },
             text = {
-                Text(text = stringResource(id = R.string.confirm_remove_body))
+                Text(text = stringResource(id = R.string.confirm_remove_from_favorite_body))
             }
         )
     }
@@ -293,6 +295,8 @@ fun FavoriteDrinkScreen(
                     onFavoriteChangeClicked = {
                         viewModel.onEvent(FavoriteDrinkEvent.UnfavoriteClicked(drink))
                     },
+                    onEditDrinkClicked = null,
+                    onRemoveClicked = null,
                     modifier = Modifier.padding(
                         vertical = spacing.spaceSmall
                     )

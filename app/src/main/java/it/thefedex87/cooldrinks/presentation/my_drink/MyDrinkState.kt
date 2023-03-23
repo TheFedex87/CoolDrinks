@@ -5,5 +5,8 @@ import it.thefedex87.cooldrinks.domain.model.VisualizationType
 
 data class MyDrinkState(
     val drinks: List<DrinkDetailDomainModel> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+
+    val showConfirmRemoveDrinkDialog: Boolean = false,
+    val drinkToRemove: DrinkDetailDomainModel? = null
 )

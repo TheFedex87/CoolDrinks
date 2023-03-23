@@ -219,6 +219,10 @@ fun CocktailTabScreen(
                     }
                     1 -> {
                         MyDrinkScreen(
+                            snackbarHostState = snackbarHostState,
+                            onEditDrinkClicked = { drink ->
+                                navController.navigate("${Route.ADD_MY_DRINK}?drinkId=${drink.idDrink}")
+                            },
                             onDrinkClicked = {id, color, name ->
                                 navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                             }

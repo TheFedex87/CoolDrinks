@@ -2,6 +2,7 @@ package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.annotation.SuppressLint
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -36,8 +37,12 @@ class AddMyDrinkViewModel @Inject constructor(
         AddMyDrinkState(
             cocktailName = savedStateHandle.get<String>("name") ?: "",
             cocktailInstructions = savedStateHandle.get<String>("instructions") ?: "",
-            selectedCocktailGlass = GlassUiModel.valueOf(savedStateHandle.get<String>("glass") ?: GlassUiModel.NONE.toString()),
-            selectedCocktailCategory = CategoryUiModel.valueOf(savedStateHandle.get<String>("category") ?: CategoryUiModel.NONE.toString()),
+            selectedCocktailGlass = GlassUiModel.valueOf(
+                savedStateHandle.get<String>("glass") ?: GlassUiModel.NONE.toString()
+            ),
+            selectedCocktailCategory = CategoryUiModel.valueOf(
+                savedStateHandle.get<String>("category") ?: CategoryUiModel.NONE.toString()
+            ),
             cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
             addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
             addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure")
@@ -49,6 +54,38 @@ class AddMyDrinkViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private var queryIngredientsJob: Job? = null
+
+    private var imagePath: Uri? = null
+
+    init {
+        val idDrink = savedStateHandle.get<Int>("drinkId")
+        idDrink?.let { id ->
+            if(id == 0) return@let
+            viewModelScope.launch {
+                val drink = repository.storedDrinks.first().first { it.idDrink == id }
+                imagePath = if(drink.drinkThumb.isNotEmpty()) Uri.parse(drink.drinkThumb) else null
+
+                savedStateHandle["name"] = drink.name
+                savedStateHandle["instructions"] = drink.instructions
+                savedStateHandle["glass"] = drink.glass
+                savedStateHandle["category"] = drink.category
+                savedStateHandle["isAlcoholic"] = drink.isAlcoholic
+                _state.update {
+                    AddMyDrinkState(
+                        cocktailName = drink.name,
+                        cocktailInstructions = drink.instructions,
+                        selectedCocktailGlass = GlassUiModel.from(drink.glass) ?: GlassUiModel.NONE,
+                        selectedCocktailCategory = CategoryUiModel.from(drink.category) ?: CategoryUiModel.NONE,
+                        cocktailIsAlcoholic = drink.isAlcoholic,
+                        addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
+                        addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
+                        cocktailIngredients = drink.ingredients,
+                        selectedPicturePath = imagePath
+                    )
+                }
+            }
+        }
+    }
 
     fun onEvent(event: AddMyDrinkEvent) {
         viewModelScope.launch {
@@ -73,10 +110,12 @@ class AddMyDrinkViewModel @Inject constructor(
                     savedStateHandle["instructions"] = event.instructions
                 }
                 is AddMyDrinkEvent.OnMyDrinkGlassChanged -> {
-                    _state.update { it.copy(
-                        selectedCocktailGlass = event.glass,
-                        cocktailGlassesMenuExpanded = false
-                    ) }
+                    _state.update {
+                        it.copy(
+                            selectedCocktailGlass = event.glass,
+                            cocktailGlassesMenuExpanded = false
+                        )
+                    }
                     savedStateHandle["glass"] = event.glass.toString()
                 }
                 is AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested -> {
@@ -86,10 +125,12 @@ class AddMyDrinkViewModel @Inject constructor(
                     _state.update { it.copy(cocktailGlassesMenuExpanded = false) }
                 }
                 is AddMyDrinkEvent.OnMyDrinkCategoryChanged -> {
-                    _state.update { it.copy(
-                        selectedCocktailCategory = event.category,
-                        cocktailCategoriesMenuExpanded = false
-                    ) }
+                    _state.update {
+                        it.copy(
+                            selectedCocktailCategory = event.category,
+                            cocktailCategoriesMenuExpanded = false
+                        )
+                    }
                     savedStateHandle["category"] = event.category.toString()
                 }
                 is AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged -> {
@@ -210,7 +251,7 @@ class AddMyDrinkViewModel @Inject constructor(
                 is AddMyDrinkEvent.OnPictureSelected -> {
                     _state.update {
                         it.copy(
-                            selectedPicture = event.image
+                            selectedPicturePath = event.imagePath
                         )
                     }
                 }
@@ -233,13 +274,25 @@ class AddMyDrinkViewModel @Inject constructor(
                         _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.provide_all_info_message)))
                         return@launch
                     }
-                    if (_state.value.selectedPicture == null) {
+                    if (_state.value.selectedPicturePath == null ||
+                        _state.value.selectedPicturePath?.path == imagePath?.path) {
                         //storeDrink
+                        storeMyDrink(_state.value.selectedPicturePath?.path)
                         _uiEvent.send(UiEvent.PopBackStack)
                     } else {
+                        val filePath = if(imagePath != null)
+                            imagePath!!.path!!.split("/").last().replace(".jpg", "")
+                        else
+                            "${UUID.randomUUID()}"
+
+                        _state.update {
+                            _state.value.copy(
+                                isLoading = true
+                            )
+                        }
                         _uiEvent.send(
                             UiEvent.SaveBitmapLocal(
-                                "${_state.value.cocktailName}_${UUID.randomUUID()}"
+                                filePath
                             )
                         )
                     }
@@ -250,7 +303,12 @@ class AddMyDrinkViewModel @Inject constructor(
                         //storeIngredient(event.pathCallback.invoke())
                         _uiEvent.send(UiEvent.PopBackStack)
                     } else {
-                        _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_ingredient_picture)))
+                        _state.update {
+                            _state.value.copy(
+                                isLoading = false
+                            )
+                        }
+                        _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_drink_picture)))
                     }
                 }
             }
@@ -285,10 +343,14 @@ class AddMyDrinkViewModel @Inject constructor(
             )
         }
 
+        val id: Int = if (savedStateHandle.get<Int>("drinkId") != 0) {
+            savedStateHandle.get<Int>("drinkId")!!
+        } else {
+            getFirstFreeId(1)
+        }
 
-        val firstFreeId = getFirstFreeId(1)
         val detailDomainModel = DrinkDetailDomainModel(
-            idDrink = firstFreeId,
+            idDrink = id,
             isAlcoholic = _state.value.cocktailIsAlcoholic,
             category = _state.value.selectedCocktailCategory.valueStr,
             name = _state.value.cocktailName,
@@ -302,7 +364,11 @@ class AddMyDrinkViewModel @Inject constructor(
             isFavorite = false
         )
 
-        repository.insertMyDrink(detailDomainModel)
+        if (savedStateHandle.get<Int>("drinkId") == 0) {
+            repository.insertMyDrink(detailDomainModel)
+        } else {
+            repository.updateMyDrink(detailDomainModel)
+        }
     }
 
     private suspend fun getFirstFreeId(firstValidId: Int): Int {

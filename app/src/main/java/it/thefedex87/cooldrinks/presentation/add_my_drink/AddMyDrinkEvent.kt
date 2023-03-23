@@ -1,6 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.graphics.Bitmap
+import android.net.Uri
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
@@ -30,7 +31,7 @@ sealed class AddMyDrinkEvent {
 
     data class RemoveAddedIngredient(val ingredient: DrinkIngredientModel) : AddMyDrinkEvent()
 
-    data class OnPictureSelected(val image: Bitmap) : AddMyDrinkEvent()
+    data class OnPictureSelected(val imagePath: Uri) : AddMyDrinkEvent()
     data class PictureSaveResult(val success: Boolean, val pathCallback: () -> String) : AddMyDrinkEvent()
 
     object OnSaveClicked : AddMyDrinkEvent()

@@ -1,5 +1,8 @@
 package it.thefedex87.cooldrinks.presentation.add_ingredient
 
+import android.graphics.ImageDecoder
+import android.os.Build
+import android.provider.MediaStore
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -78,9 +81,17 @@ fun AddIngredientScreen(
                     onNavigateBack()
                 }
                 is UiEvent.SaveBitmapLocal -> {
+                    val bitmap = if (Build.VERSION.SDK_INT < 28) {
+                        MediaStore.Images
+                            .Media.getBitmap(context.contentResolver, viewModel.state.selectedPicture!!)
+                    } else {
+                        val source = ImageDecoder
+                            .createSource(context.contentResolver, viewModel.state.selectedPicture!!)
+                        ImageDecoder.decodeBitmap(source)
+                    }
                     context.filesDir.path
                     viewModel.onEvent(AddIngredientEvent.PictureSaveResult(
-                        viewModel.state.selectedPicture!!.saveToLocalStorage(
+                        bitmap.saveToLocalStorage(
                             context,
                             "${event.path}.jpg"
                         ),

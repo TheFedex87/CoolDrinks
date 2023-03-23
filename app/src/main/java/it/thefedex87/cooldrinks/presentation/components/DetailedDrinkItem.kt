@@ -30,6 +30,8 @@ fun DetailedDrinkItem(
     drink: DrinkDetailDomainModel,
     onDrinkClicked: (Int, Int, String) -> Unit,
     onFavoriteChangeClicked: (Boolean) -> Unit,
+    onRemoveClicked: ((DrinkDetailDomainModel) -> Unit)?,
+    onEditDrinkClicked: ((DrinkDetailDomainModel) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -64,7 +66,7 @@ fun DetailedDrinkItem(
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(LocalContext.current)
-                        .data(drink.drinkThumb)
+                        .data(drink.drinkThumb.ifEmpty { R.drawable.search_background })
                         .crossfade(true)
                         .build(),
                     modifier = Modifier
@@ -140,23 +142,59 @@ fun DetailedDrinkItem(
                     }",
                     color = if (drink.ingredients.count { it.isAvailable == false } == 0) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.error
                 )
-                IconButton(
-                    modifier = Modifier
-                        .padding(spacing.spaceSmall)
-                        .align(alignment = Alignment.End),
-                    onClick = {
-                        onFavoriteChangeClicked(!drink.isFavorite)
-                    }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    Icon(
-                        imageVector = if (drink.isFavorite)
-                            Icons.Default.Favorite
-                        else
-                            Icons.Default.FavoriteBorder,
-                        contentDescription = stringResource(
-                            id = if (drink.isFavorite) R.string.unfavorite else R.string.remove
+                    onEditDrinkClicked?.let {
+                        IconButton(
+                            modifier = Modifier
+                                .padding(spacing.spaceSmall),
+                            onClick = {
+                                it(drink)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = stringResource(
+                                    id = R.string.remove
+                                )
+                            )
+                        }
+                    }
+                    onRemoveClicked?.let {
+                        IconButton(
+                            modifier = Modifier
+                                .padding(spacing.spaceSmall),
+                            onClick = {
+                                it(drink)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = stringResource(
+                                    id = R.string.remove
+                                )
+                            )
+                        }
+                    }
+                    IconButton(
+                        modifier = Modifier
+                            .padding(spacing.spaceSmall),
+                        onClick = {
+                            onFavoriteChangeClicked(!drink.isFavorite)
+                        }
+                    ) {
+                        Icon(
+                            imageVector = if (drink.isFavorite)
+                                Icons.Default.Favorite
+                            else
+                                Icons.Default.FavoriteBorder,
+                            contentDescription = stringResource(
+                                id = if (drink.isFavorite) R.string.unfavorite else R.string.remove
+                            )
                         )
-                    )
+                    }
                 }
             }
         }

@@ -201,6 +201,9 @@ fun BottomNavigationScreen(
                         bottomNavigationScreenState = state
                     },
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
+                    onEditDrinkClicked = { drink ->
+                        navController.navigate("${Route.ADD_MY_DRINK}?drinkId=${drink.idDrink}")
+                    },
                     onDrinkClicked = { id, color, name ->
                         navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                     }
@@ -306,12 +309,21 @@ fun BottomNavigationScreen(
                 )
             }
             composable(
-                route = Route.ADD_MY_DRINK
+                route = "${Route.ADD_MY_DRINK}?drinkId={drinkId}",
+                arguments = listOf(
+                    navArgument("drinkId") {
+                        type = NavType.IntType
+                        defaultValue = 0
+                    }
+                )
             ) {
+                val drinkId = it.arguments?.getInt("drinkId")
+
                 AddMyDrinkScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
+                    drinkId = drinkId,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onNavigateBack = {
                         navController.popBackStack()
@@ -351,7 +363,7 @@ fun TopAppBar(
                 if (showBack) {
                     IconButton(
                         onClick = {
-                            if(onBackPressed != null) onBackPressed.invoke() else navController.popBackStack()
+                            if (onBackPressed != null) onBackPressed.invoke() else navController.popBackStack()
                         }
                     ) {
                         Icon(

@@ -3,7 +3,12 @@ package it.thefedex87.cooldrinks.presentation.bar.components
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocalBar
+import androidx.compose.material.icons.filled.LocalDrink
+import androidx.compose.material.icons.outlined.LocalBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -63,7 +68,7 @@ fun PagerScope.BarIngredientItem(
             Spacer(modifier = Modifier.weight(1f))
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(ingredient.imagePath)
+                    .data(ingredient.imagePath ?: R.drawable.search_background )
                     .crossfade(true)
                     .build(),
                 onLoading = {

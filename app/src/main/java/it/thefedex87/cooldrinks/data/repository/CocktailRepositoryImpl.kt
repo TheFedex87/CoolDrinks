@@ -9,6 +9,7 @@ import it.thefedex87.cooldrinks.data.remote.dto.DrinkListDto
 import it.thefedex87.cooldrinks.domain.model.*
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import java.io.EOFException
 
@@ -28,6 +29,16 @@ class CocktailRepositoryImpl constructor(
     override val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
         get() = drinkDao.getFavoriteDrinks().mapLatest { favoriteDrink ->
             favoriteDrink.map {
+                it.toDrinkDetailDomainModel(
+                    ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
+                        .map { it.toIngredientDomainModel() }
+                )
+            }
+        }
+
+    override val storedDrinks: Flow<List<DrinkDetailDomainModel>>
+        get() = drinkDao.getAllStoredDrinks().mapLatest { drink ->
+            drink.map {
                 it.toDrinkDetailDomainModel(
                     ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
                         .map { it.toIngredientDomainModel() }
@@ -154,6 +165,10 @@ class CocktailRepositoryImpl constructor(
         return drinkDao.insertDrink(drink.toDrinkEntity(false))
     }
 
+    override suspend fun updateMyDrink(drink: DrinkDetailDomainModel) {
+        drinkDao.updateDrink(drink.toDrinkEntity(drink.isFavorite))
+    }
+
     override suspend fun deleteOrRemoveFromFavorite(drinkId: Int) {
         val drink = drinkDao.getFavoriteDrinks().first().firstOrNull { it.idDrink == drinkId }
         drink?.let {
@@ -165,6 +180,16 @@ class CocktailRepositoryImpl constructor(
         }
     }
 
+    override suspend fun removeDrink(drink: DrinkDetailDomainModel) {
+        try {
+            drinkDao.deleteFavoriteDrink(drink.toDrinkEntity(drink.isFavorite))
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw ex
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     override val storedLiquors: Flow<List<IngredientDetailsDomainModel>>
         get() = ingredientDao.getStoredIngredient().mapLatest { ingredients ->
             ingredients.map { i -> i.toIngredientDetailsDomainModel() }
