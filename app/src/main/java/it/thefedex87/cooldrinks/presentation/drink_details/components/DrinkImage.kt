@@ -41,14 +41,15 @@ fun BoxScope.DrinkImage(
                 .size((imageSize - 10).dp)
                 .clip(CircleShape)
                 .background(
-                    (if (viewModel.state.drinkDominantColor != null)
+                    (if (viewModel.state.drinkDominantColor != null && viewModel.state.drinkDominantColor != 0)
                         Color(viewModel.state.drinkDominantColor!!) else
-                        MaterialTheme.colorScheme.onBackground).copy(alpha = 0.6f)
+                        MaterialTheme.colorScheme.surfaceVariant).copy(alpha = 0.6f)
                 ),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(viewModel.state.drinkImagePath)
+                    .data(if(viewModel.state.drinkImagePath != null
+                        && viewModel.state.drinkImagePath!!.isNotEmpty()) viewModel.state.drinkImagePath else R.drawable.search_background)
                     .crossfade(true)
                     .build(),
                 modifier = Modifier

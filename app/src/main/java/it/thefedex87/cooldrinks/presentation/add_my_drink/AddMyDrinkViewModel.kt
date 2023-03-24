@@ -56,6 +56,7 @@ class AddMyDrinkViewModel @Inject constructor(
     private var queryIngredientsJob: Job? = null
 
     private var imagePath: Uri? = null
+    private var isFavorite: Boolean = false
 
     init {
         val idDrink = savedStateHandle.get<Int>("drinkId")
@@ -64,6 +65,7 @@ class AddMyDrinkViewModel @Inject constructor(
             viewModelScope.launch {
                 val drink = repository.storedDrinks.first().first { it.idDrink == id }
                 imagePath = if(drink.drinkThumb.isNotEmpty()) Uri.parse(drink.drinkThumb) else null
+                isFavorite = drink.isFavorite
 
                 savedStateHandle["name"] = drink.name
                 savedStateHandle["instructions"] = drink.instructions
@@ -361,7 +363,7 @@ class AddMyDrinkViewModel @Inject constructor(
             isCustomCocktail = true,
             addedDate = LocalDate.now(),
             dominantColor = dominantColor,
-            isFavorite = false
+            isFavorite = isFavorite
         )
 
         if (savedStateHandle.get<Int>("drinkId") == 0) {
