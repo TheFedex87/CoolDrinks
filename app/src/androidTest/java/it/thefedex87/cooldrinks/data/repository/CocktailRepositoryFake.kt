@@ -14,7 +14,7 @@ class CocktailRepositoryFake : CocktailRepository {
     val preferencesManager: PreferencesManagerFake = PreferencesManagerFake()
 
     var searchDrinkResult = listOf<DrinkDomainModel>()
-    var favoriteDrinks = MutableStateFlow<List<DrinkDetailDomainModel>>(
+    val favoriteDrinks = MutableStateFlow<List<DrinkDetailDomainModel>>(
         listOf()
     )
 
@@ -48,6 +48,8 @@ class CocktailRepositoryFake : CocktailRepository {
 
     override val favoritesDrinks: Flow<List<DrinkDetailDomainModel>>
         get() = favoriteDrinks
+    override val storedDrinks: Flow<List<DrinkDetailDomainModel>>
+        get() = TODO("Not yet implemented")
 
     override suspend fun getDrinkById(id: Int): Flow<DrinkDetailDomainModel?> {
         TODO("Not yet implemented")
@@ -64,7 +66,15 @@ class CocktailRepositoryFake : CocktailRepository {
         TODO("Not yet implemented")
     }
 
+    override suspend fun updateMyDrink(drink: DrinkDetailDomainModel) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun deleteOrRemoveFromFavorite(drinkId: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun removeDrink(drink: DrinkDetailDomainModel) {
         TODO("Not yet implemented")
     }
 
