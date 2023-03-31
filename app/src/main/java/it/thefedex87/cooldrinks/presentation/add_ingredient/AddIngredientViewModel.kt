@@ -71,6 +71,7 @@ class AddIngredientViewModel @Inject constructor(
                             )
                         } else {
                             storeIngredient(null)
+                            _uiEvent.send(UiEvent.PopBackStack)
                         }
                         /*repository.storeIngredients(
                             listOf(
