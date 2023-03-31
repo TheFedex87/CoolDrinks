@@ -3,6 +3,8 @@ package it.thefedex87.cooldrinks.data.repository
 import com.squareup.moshi.JsonDataException
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.local.IngredientsDao
+import it.thefedex87.cooldrinks.data.local.entity.DrinkEntity
+import it.thefedex87.cooldrinks.data.local.entity.IngredientEntity
 import it.thefedex87.cooldrinks.data.mapper.*
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.data.remote.dto.DrinkListDto
@@ -53,15 +55,21 @@ class CocktailRepositoryImpl constructor(
         ))
     }
 
-    override val myDrinks: Flow<List<DrinkDetailDomainModel>>
-        get() = drinkDao.getMyDrinks().mapLatest { myDrink ->
-            myDrink.map {
-                it.toDrinkDetailDomainModel(
-                    ingredientDao.getStoredIngredient().first().filter { it.availableLocal }
-                        .map { it.toIngredientDomainModel() }
-                )
-            }
+    override val myDrinks = combine(
+        drinkDao.getMyDrinks(),
+        ingredientDao.getStoredIngredient()
+    ) { (drinks, liquors) ->
+        drinks as List<DrinkEntity>
+        liquors as List<IngredientEntity>
+        Pair(drinks, liquors)
+    }.mapLatest { (drinks, liquors) ->
+        drinks.map {
+            it.toDrinkDetailDomainModel(
+                liquors.filter { it.availableLocal }
+                    .map { it.toIngredientDomainModel() }
+            )
         }
+    }
 
     override suspend fun searchCocktails(
         ingredient: String?,

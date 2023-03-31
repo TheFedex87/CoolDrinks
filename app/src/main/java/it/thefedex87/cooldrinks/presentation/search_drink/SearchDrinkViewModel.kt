@@ -69,9 +69,6 @@ class SearchDrinkViewModel @Inject constructor(
     fun onEvent(event: SearchDrinkEvent) {
         viewModelScope.launch {
             when (event) {
-                is SearchDrinkEvent.OnDrinkClick -> {
-
-                }
                 is SearchDrinkEvent.OnSearchClick -> {
                     state = state.copy(isLoading = true, foundDrinks = mutableListOf())
                     searchDrink()
@@ -149,15 +146,19 @@ class SearchDrinkViewModel @Inject constructor(
             drinkRepository
                 .getDrinkDetails(drink.id)
                 .onSuccess {
-                    val drinkDetail = it.first()
-                    withContext(Dispatchers.IO) {
-                        drinkRepository.insertIntoFavorite(drinkDetail.copy(dominantColor = drink.dominantColor))
+                    if(it.isNotEmpty()) {
+                        val drinkDetail = it.first()
+                        withContext(Dispatchers.IO) {
+                            drinkRepository.insertIntoFavorite(drinkDetail.copy(dominantColor = drink.dominantColor))
+                        }
+                        state.foundDrinks[index].value =
+                            drink.copy(isLoadingFavorite = false, isFavorite = true)
+                    } else {
+                        _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_getting_drink_details)))
                     }
-                    state.foundDrinks[index].value =
-                        drink.copy(isLoadingFavorite = false, isFavorite = true)
                 }
                 .onFailure {
-                    // TODO
+                    _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_getting_drink_details)))
                 }
         }
     }
