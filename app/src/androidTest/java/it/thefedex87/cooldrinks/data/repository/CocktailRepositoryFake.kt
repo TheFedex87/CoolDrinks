@@ -7,7 +7,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class CocktailRepositoryFake : CocktailRepository {
+open class CocktailRepositoryFake : CocktailRepository {
     var shouldReturnError: Boolean = false
     var delayResponse: Long = 0
 
@@ -17,6 +17,7 @@ class CocktailRepositoryFake : CocktailRepository {
     val favoriteDrinks = MutableStateFlow<List<DrinkDetailDomainModel>>(
         listOf()
     )
+    var drinkDetailsResponse = listOf<DrinkDetailDomainModel>()
 
     override suspend fun searchCocktails(
         ingredient: String?,
@@ -31,7 +32,12 @@ class CocktailRepositoryFake : CocktailRepository {
     }
 
     override suspend fun getDrinkDetails(id: Int?): Result<List<DrinkDetailDomainModel>> {
-        TODO("Not yet implemented")
+        delay(delayResponse)
+        return if(shouldReturnError) {
+            Result.failure(Throwable("Error"))
+        } else {
+            Result.success(drinkDetailsResponse)
+        }
     }
 
     override suspend fun getIngredients(): Result<List<IngredientDomainModel>> {

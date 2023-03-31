@@ -1,10 +1,11 @@
-package it.thefedex87.cooldrinks.presentation.bar
+package it.thefedex87.cooldrinks.presentation.search_drink
 
 import com.google.common.truth.Truth.assertThat
 import it.thefedex87.cooldrinks.data.repository.CocktailRepositoryFake
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkDomainModel
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
+import it.thefedex87.cooldrinks.presentation.mapper.toDrinkUiModel
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkEvent
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -17,10 +18,12 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.mockito.kotlin.spy
+import org.mockito.kotlin.verify
 import java.time.LocalDate
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class BarViewModelTest {
+class SearchViewModelTest {
 
     @get:Rule
     var mainCoroutineRule = AndroidTestMainCoroutineRule()
@@ -52,12 +55,14 @@ class BarViewModelTest {
             )
         )
 
-
+        resetFavoritesList()
     }
 
     @After
     fun cleanup() {
         resetFavoritesList()
+        cocktailRepositoryFake.shouldReturnError = false
+        cocktailRepositoryFake.delayResponse = 0
     }
 
     private fun resetFavoritesList() {
@@ -135,7 +140,7 @@ class BarViewModelTest {
 
         cocktailRepositoryFake.favoriteDrinks.value = listOf()
 
-        advanceTimeBy(100)
+        advanceTimeBy(1000)
         assertThat(searchDrinkViewModel.state.foundDrinks[2].value.isFavorite).isFalse()
     }
 
@@ -147,5 +152,52 @@ class BarViewModelTest {
         cocktailRepositoryFake.preferencesManager.updateVisualizationType(VisualizationType.List)
         advanceTimeBy(10000)
         assertThat(searchDrinkViewModel.state.visualizationType).isEqualTo(VisualizationType.List)
+    }
+
+    @Test
+    fun searchCocktailsOfRepo_isCalledWithCocktailNameQuery_whenSearchEventIsRaisedUsingCocktailName() = runTest {
+        val spyRepoFake = spy(cocktailRepositoryFake)
+
+        searchDrinkViewModel = SearchDrinkViewModel(spyRepoFake)
+
+        searchDrinkViewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange("BLOODY MARY"))
+        advanceTimeBy(1000)
+        searchDrinkViewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+        advanceTimeBy(1000)
+
+        verify(spyRepoFake).searchCocktails(null, "BLOODY MARY")
+    }
+
+    @Test
+    fun searchCocktailsOfRepo_isCalledWithIngredientName_whenAnIngredientIsPassed() = runTest {
+        val spyRepoFake = spy(cocktailRepositoryFake)
+
+        searchDrinkViewModel = SearchDrinkViewModel(spyRepoFake)
+
+        searchDrinkViewModel.onEvent(SearchDrinkEvent.OnIngredientPassed("INGREDIENT"))
+        advanceTimeBy(1000)
+        searchDrinkViewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+        advanceTimeBy(1000)
+
+        verify(spyRepoFake).searchCocktails("INGREDIENT", "")
+    }
+
+    @Test
+    fun getDrinkDetailsOfRepo_isCalled_whenAPreviousUnfavoriteDrinkIsSetAsFavorite() = runTest {
+        val spyRepoFake = spy(cocktailRepositoryFake)
+
+        searchDrinkViewModel = SearchDrinkViewModel(spyRepoFake)
+
+        searchDrinkViewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+        advanceTimeBy(100)
+
+        val drink = cocktailRepositoryFake.searchDrinkResult.first().toDrinkUiModel()
+        searchDrinkViewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(
+            drink
+        ))
+
+        advanceTimeBy(100)
+
+        verify(spyRepoFake).getDrinkDetails(drink.id)
     }
 }
