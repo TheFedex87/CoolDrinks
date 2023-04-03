@@ -31,6 +31,7 @@ import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
+import it.thefedex87.cooldrinks.presentation.util.toBitmap
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -82,20 +83,7 @@ fun AddMyDrinkScreen(
         viewModel.uiEvent.onEach { event ->
             when (event) {
                 is UiEvent.SaveBitmapLocal -> {
-                    val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images
-                            .Media.getBitmap(
-                                context.contentResolver,
-                                viewModel.state.value.selectedPicturePath!!
-                            )
-                    } else {
-                        val source = ImageDecoder
-                            .createSource(
-                                context.contentResolver,
-                                viewModel.state.value.selectedPicturePath!!
-                            )
-                        ImageDecoder.decodeBitmap(source)
-                    }
+                    val bitmap = viewModel.state.value.selectedPicturePath!!.toBitmap(context)
                     viewModel.onEvent(
                         AddMyDrinkEvent.PictureSaveResult(
                             bitmap.saveToLocalStorage(
