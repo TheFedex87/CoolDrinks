@@ -56,7 +56,7 @@
     <string name="missing_ingredients">missing ingredients</string>
     <string name="cocktails">Cocktails</string>
     <string name="my_cocktails">My Cocktails</string>
-    <string name="empty_bar">Your bar seems to be empty…add your firs liquor</string>
+    <string name="empty_bar">Your bar seems to be empty…add your first liquor</string>
     <string name="add_your_cocktail">You didn\'t insert any of your cocktail…add one now</string>
     <string name="add_new_cocktail">Add new cocktail</string>
     <string name="instructions">Instructions</string>
