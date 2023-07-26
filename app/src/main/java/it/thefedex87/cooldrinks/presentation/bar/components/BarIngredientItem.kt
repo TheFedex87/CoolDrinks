@@ -82,7 +82,7 @@ fun PagerScope.BarIngredientItem(
                     R.drawable.search_background
                 },
                 contentDescription = ingredient.name,
-                modifier = Modifier.weight(5f)
+                modifier = Modifier.weight(5f).align(Alignment.CenterHorizontally)
             )
         }
     }

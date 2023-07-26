@@ -31,6 +31,7 @@ import it.thefedex87.cooldrinks.presentation.components.saveToLocalStorage
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
+import it.thefedex87.cooldrinks.presentation.util.toBitmap
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
@@ -81,14 +82,8 @@ fun AddIngredientScreen(
                     onNavigateBack()
                 }
                 is UiEvent.SaveBitmapLocal -> {
-                    val bitmap = if (Build.VERSION.SDK_INT < 28) {
-                        MediaStore.Images
-                            .Media.getBitmap(context.contentResolver, viewModel.state.selectedPicture!!)
-                    } else {
-                        val source = ImageDecoder
-                            .createSource(context.contentResolver, viewModel.state.selectedPicture!!)
-                        ImageDecoder.decodeBitmap(source)
-                    }
+                    val bitmap = viewModel.state.selectedPicture!!.toBitmap(context)
+
                     context.filesDir.path
                     viewModel.onEvent(AddIngredientEvent.PictureSaveResult(
                         bitmap.saveToLocalStorage(
@@ -113,6 +108,7 @@ fun AddIngredientScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = spacing.spaceMedium)
     ) {
+
         GalleryPictureSelector(
             onPicturePicked = {
                 viewModel.onEvent(AddIngredientEvent.OnPictureSelected(it))
