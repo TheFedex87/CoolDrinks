@@ -10,11 +10,11 @@ interface IngredientsDao {
     fun getStoredIngredient(name: String = ""): Flow<List<IngredientEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIngredient(ingredients: List<IngredientEntity>)
+    suspend fun insertIngredient(ingredients: List<IngredientEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIngredients(ingredients: List<IngredientEntity>)
+    suspend fun insertIngredients(ingredients: List<IngredientEntity>)
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateIngredient(ingredient: IngredientEntity)
+    suspend fun updateIngredient(ingredient: IngredientEntity)
 }
