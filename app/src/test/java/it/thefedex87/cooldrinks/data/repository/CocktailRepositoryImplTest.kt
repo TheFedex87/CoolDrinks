@@ -173,6 +173,13 @@ class CocktailRepositoryImplTest {
     @Test
     fun `check if received list of searched drinks is correctly mapped to the DrinkDomainModel list`() =
         runTest {
+            `when`(drinksDao.getFavoriteDrinks()).thenReturn(
+                flow {
+                    emit(
+                        emptyList()
+                    )
+                }
+            )
             mockWebServer.enqueue(
                 MockResponse()
                     .setResponseCode(200)
