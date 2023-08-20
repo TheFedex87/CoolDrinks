@@ -20,6 +20,7 @@ import it.thefedex87.cooldrinks.presentation.util.calcDominantColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -61,10 +62,10 @@ class AddMyDrinkViewModel @Inject constructor(
     init {
         val idDrink = savedStateHandle.get<Int>("drinkId")
         idDrink?.let { id ->
-            if(id == 0) return@let
+            if (id == 0) return@let
             viewModelScope.launch {
                 val drink = repository.storedDrinks.first().first { it.idDrink == id }
-                imagePath = if(drink.drinkThumb.isNotEmpty()) Uri.parse(drink.drinkThumb) else null
+                imagePath = if (drink.drinkThumb.isNotEmpty()) Uri.parse(drink.drinkThumb) else null
                 isFavorite = drink.isFavorite
 
                 savedStateHandle["name"] = drink.name
@@ -77,7 +78,8 @@ class AddMyDrinkViewModel @Inject constructor(
                         cocktailName = drink.name,
                         cocktailInstructions = drink.instructions,
                         selectedCocktailGlass = GlassUiModel.from(drink.glass) ?: GlassUiModel.NONE,
-                        selectedCocktailCategory = CategoryUiModel.from(drink.category) ?: CategoryUiModel.NONE,
+                        selectedCocktailCategory = CategoryUiModel.from(drink.category)
+                            ?: CategoryUiModel.NONE,
                         cocktailIsAlcoholic = drink.isAlcoholic,
                         addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
                         addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
@@ -101,6 +103,7 @@ class AddMyDrinkViewModel @Inject constructor(
                     }
                     savedStateHandle["name"] = event.name
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkInstructionsChanged -> {
                     _state.update {
                         it.copy(
@@ -111,6 +114,7 @@ class AddMyDrinkViewModel @Inject constructor(
 
                     savedStateHandle["instructions"] = event.instructions
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkGlassChanged -> {
                     _state.update {
                         it.copy(
@@ -120,12 +124,15 @@ class AddMyDrinkViewModel @Inject constructor(
                     }
                     savedStateHandle["glass"] = event.glass.toString()
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested -> {
                     _state.update { it.copy(cocktailGlassesMenuExpanded = true) }
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkGlassesDismissRequested -> {
                     _state.update { it.copy(cocktailGlassesMenuExpanded = false) }
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkCategoryChanged -> {
                     _state.update {
                         it.copy(
@@ -135,16 +142,20 @@ class AddMyDrinkViewModel @Inject constructor(
                     }
                     savedStateHandle["category"] = event.category.toString()
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged -> {
                     _state.update { it.copy(cocktailIsAlcoholic = event.isAlcoholic) }
                     savedStateHandle["isAlcoholic"] = event.isAlcoholic
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkCategoriesExpandRequested -> {
                     _state.update { it.copy(cocktailCategoriesMenuExpanded = true) }
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkCategoriesDismissRequested -> {
                     _state.update { it.copy(cocktailCategoriesMenuExpanded = false) }
                 }
+
                 is AddMyDrinkEvent.AddDrinkIngredientRequested -> {
                     _state.update {
                         it.copy(
@@ -155,6 +166,7 @@ class AddMyDrinkViewModel @Inject constructor(
                     savedStateHandle["addingIngredientName"] = ""
                     savedStateHandle["addingIngredientMeasure"] = ""
                 }
+
                 is AddMyDrinkEvent.DismissDrinkIngredientDialogRequested -> {
                     _state.update {
                         it.copy(
@@ -166,44 +178,59 @@ class AddMyDrinkViewModel @Inject constructor(
                     savedStateHandle["addingIngredientName"] = null
                     savedStateHandle["addingIngredientMeasure"] = null
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientNameChanged -> {
                     _state.update {
                         it.copy(
-                            addingIngredientName = event.name
+                            addingIngredientName = event.name,
+                            addingIngredientIsCurrentIngredientNameValid = false,
+                            addingIngredientSaveEnabled = false,
+                            addingIngredientNameError = null
                         )
                     }
                     savedStateHandle["addingIngredientName"] = event.name
 
                     queryIngredientsJob?.cancel()
-                    queryIngredientsJob = launch(Dispatchers.IO) {
-                        repository.queryLocalIngredients(
-                            event.name
-                        ).onSuccess { ingredients ->
-                            _state.update {
-                                it.copy(
-                                    addingIngredientFilteredIngredients = ingredients
-                                )
+                    if(event.name.isNotBlank()) {
+                        queryIngredientsJob = launch(Dispatchers.IO) {
+                            repository.queryLocalIngredients(
+                                event.name
+                            ).onSuccess { ingredients ->
+                                _state.update {
+                                    it.copy(
+                                        addingIngredientFilteredIngredients = ingredients,
+                                        addingIngredientFilteredListExpanded = ingredients.isNotEmpty() ||
+                                                ((event.name != null && event.name.count() > 2)),
+                                    )
+                                }
+                            }.onFailure {
+                                // TODO: something went wrong
                             }
-                        }.onFailure {
-                            // TODO: something went wrong
                         }
                     }
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientMeasureChanged -> {
                     _state.update {
                         it.copy(
-                            addingIngredientMeasure = event.value
+                            addingIngredientMeasure = event.value,
+                            addingIngredientSaveEnabled = (!event.value.isNullOrEmpty() ||
+                                    it.addingIngredientIsDecoration) && it.addingIngredientIsCurrentIngredientNameValid
                         )
                     }
                     savedStateHandle["addingIngredientMeasure"] = event.value
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientIsDecorationChanged -> {
                     _state.update {
                         it.copy(
-                            addingIngredientIsDecoration = event.isDecoration
+                            addingIngredientIsDecoration = event.isDecoration,
+                            addingIngredientSaveEnabled = (!it.addingIngredientMeasure.isNullOrEmpty() ||
+                                    event.isDecoration) && it.addingIngredientIsCurrentIngredientNameValid
                         )
                     }
                 }
+
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientIsAvailableChanged -> {
                     _state.update {
                         it.copy(
@@ -211,6 +238,66 @@ class AddMyDrinkViewModel @Inject constructor(
                         )
                     }
                 }
+
+                is AddMyDrinkEvent.OnSearchIngredientOnlineClicked -> {
+                    _state.update {
+                        it.copy(
+                            isLoading = true,
+                            addingIngredientNameError = null
+                        )
+                    }
+                    repository.getIngredientDetails(event.ingredient)
+                        .onSuccess { remoteIngredint ->
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    addingIngredientName = remoteIngredint.name,
+                                    addingIngredientIsCurrentIngredientNameValid = true,
+                                    addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
+                                            it.addingIngredientIsDecoration,
+                                    addingIngredientFilteredIngredients = emptyList(),
+                                    addingIngredientIsAvailable = false,
+                                    addingIngredientFilteredListExpanded = false,
+                                    addingIngredientNameError = null
+                                )
+                            }
+                        }
+                        .onFailure {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    addingIngredientNameError = UiText.StringResource(R.string.ingredient_not_found)
+                                )
+                            }
+                        }
+                }
+
+                is AddMyDrinkEvent.OnNewLocalIngredientStored -> {
+                    if (!event.ingredient.isNullOrEmpty()) {
+                        repository.queryLocalIngredients(event.ingredient).getOrNull()?.first()
+                            ?.let { ingredient ->
+                                _state.update {
+                                    it.copy(
+                                        addingIngredientName = ingredient.name,
+                                        addingIngredientIsCurrentIngredientNameValid = true,
+                                        addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
+                                                it.addingIngredientIsDecoration,
+                                        addingIngredientFilteredIngredients = emptyList(),
+                                        addingIngredientIsAvailable = ingredient.isAvailable
+                                            ?: true,
+                                        addingIngredientNameError = null
+                                    )
+                                }
+                            }
+                    } else {
+                        _state.update {
+                            it.copy(
+                                addingIngredientNameError = null
+                            )
+                        }
+                    }
+                }
+
                 is AddMyDrinkEvent.AddDrinkIngredientSaveClicked -> {
                     _state.update {
                         it.copy(
@@ -229,15 +316,31 @@ class AddMyDrinkViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is AddMyDrinkEvent.OnFilteredIngredientClicked -> {
                     _state.update {
                         it.copy(
                             addingIngredientName = event.ingredient.name,
-                            addingIngredientFilteredIngredients = emptyList(),
-                            addingIngredientIsAvailable = event.ingredient.isAvailable ?: true
+                            //addingIngredientFilteredIngredients = emptyList(),
+                            addingIngredientIsAvailable = event.ingredient.isAvailable ?: true,
+                            addingIngredientIsCurrentIngredientNameValid = true,
+                            addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
+                                    it.addingIngredientIsDecoration,
+                            addingIngredientFilteredListExpanded = false
                         )
                     }
                 }
+
+                is AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged -> {
+                    _state.update {
+                        it.copy(
+                            addingIngredientFilteredListExpanded = event.isFocused &&
+                                    (it.addingIngredientFilteredIngredients.isNotEmpty() ||
+                                            ((it.addingIngredientName != null && it.addingIngredientName.count() > 2) && !it.addingIngredientIsCurrentIngredientNameValid))
+                        )
+                    }
+                }
+
                 is AddMyDrinkEvent.RemoveAddedIngredient -> {
                     val newIngredientList = listOf(
                         *_state.value.cocktailIngredients.filter {
@@ -250,6 +353,7 @@ class AddMyDrinkViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is AddMyDrinkEvent.OnPictureSelected -> {
                     _state.update {
                         it.copy(
@@ -257,6 +361,7 @@ class AddMyDrinkViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is AddMyDrinkEvent.OnSaveClicked -> {
                     if (_state.value.cocktailName.isEmpty() ||
                         _state.value.cocktailIngredients.isEmpty() ||
@@ -277,12 +382,13 @@ class AddMyDrinkViewModel @Inject constructor(
                         return@launch
                     }
                     if (_state.value.selectedPicturePath == null ||
-                        _state.value.selectedPicturePath?.path == imagePath?.path) {
+                        _state.value.selectedPicturePath?.path == imagePath?.path
+                    ) {
                         //storeDrink
                         storeMyDrink(_state.value.selectedPicturePath?.path)
                         _uiEvent.send(UiEvent.PopBackStack)
                     } else {
-                        val filePath = if(imagePath != null)
+                        val filePath = if (imagePath != null)
                             imagePath!!.path!!.split("/").last().replace(".jpg", "")
                         else
                             "${UUID.randomUUID()}"
@@ -299,6 +405,7 @@ class AddMyDrinkViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is AddMyDrinkEvent.PictureSaveResult -> {
                     if (event.success) {
                         storeMyDrink(event.pathCallback.invoke())

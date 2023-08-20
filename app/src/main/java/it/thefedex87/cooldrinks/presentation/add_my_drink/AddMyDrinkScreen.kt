@@ -41,13 +41,22 @@ fun AddMyDrinkScreen(
     viewModel: AddMyDrinkViewModel = hiltViewModel(),
     onComposed: (BottomNavigationScreenState) -> Unit,
     drinkId: Int?,
+    storedIngredientName: String?,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     onNavigateBack: () -> Unit,
+    onAddNewIngredientClicked: (String) -> Unit,
     snackbarHostState: SnackbarHostState,
 ) {
     val context = LocalContext.current
     val save = stringResource(id = R.string.save)
     val title = stringResource(id = R.string.add_new_cocktail)
+
+    LaunchedEffect(key1 = storedIngredientName) {
+        if(!storedIngredientName.isNullOrEmpty()) {
+            viewModel.onEvent(AddMyDrinkEvent.OnNewLocalIngredientStored(storedIngredientName))
+        }
+    }
+
     LaunchedEffect(key1 = true) {
         onComposed(
             currentBottomNavigationScreenState.copy(
@@ -104,6 +113,7 @@ fun AddMyDrinkScreen(
                         duration = SnackbarDuration.Short
                     )
                 }
+                else -> Unit
             }
         }.launchIn(this)
     }
@@ -115,30 +125,53 @@ fun AddMyDrinkScreen(
     if (state.addingIngredientName != null && state.addingIngredientMeasure != null) {
         AddDrinkIngredientDialog(
             addingIngredientName = state.addingIngredientName,
+            addingIngredientNameError = state.addingIngredientNameError,
             addingIngredientMeasure = state.addingIngredientMeasure,
             addingIngredientIsDecoration = state.addingIngredientIsDecoration,
             addingIngredientIsAvailable = state.addingIngredientIsAvailable,
+            isLoading = state.isLoading,
             onIngredientNameChanged = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientNameChanged(it))
             },
             onIngredientMeasureChanged = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientMeasureChanged(it))
             },
             onIsDecorationChanged = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientIsDecorationChanged(it))
             },
             onIsAvailableChanged = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientIsAvailableChanged((it)))
             },
             onSaveClicked = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.AddDrinkIngredientSaveClicked)
             },
             onDismiss = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.DismissDrinkIngredientDialogRequested)
             },
             filteredLocalIngredients = state.addingIngredientFilteredIngredients,
             onIngredientClicked = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
                 viewModel.onEvent(AddMyDrinkEvent.OnFilteredIngredientClicked(it))
+            },
+            onSearchIngredientOnlineClicked = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
+                viewModel.onEvent(AddMyDrinkEvent.OnSearchIngredientOnlineClicked(it))
+            },
+            onAddNewLocalIngredientClicked = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
+                onAddNewIngredientClicked(it)
+            },
+            showDropDown = state.addingIngredientFilteredListExpanded,
+            canSaveAddingIngredient = state.addingIngredientSaveEnabled,
+            addingIngredientNameFocusChanged = {
+                if(state.isLoading) return@AddDrinkIngredientDialog
+                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged(it))
             }
         )
     }

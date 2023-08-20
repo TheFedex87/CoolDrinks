@@ -29,10 +29,14 @@ data class AddMyDrinkState(
     val selectedPicturePath: Uri? = null,
 
     val addingIngredientName: String? = null,
+    val addingIngredientNameError: UiText? = null,
     val addingIngredientMeasure: String? = null,
     val addingIngredientIsDecoration: Boolean = false,
     val addingIngredientIsAvailable: Boolean = false,
     val addingIngredientFilteredIngredients: List<DrinkIngredientModel> = emptyList(),
+    val addingIngredientSaveEnabled: Boolean = false,
+    val addingIngredientFilteredListExpanded: Boolean = false,
+    val addingIngredientIsCurrentIngredientNameValid: Boolean = false,
 
     val isLoading: Boolean = false
 )

@@ -11,8 +11,10 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -26,10 +28,13 @@ import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.components.DropDownItem
 import it.thefedex87.cooldrinks.presentation.components.OutlinedTextFieldWithErrorMessage
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
+import it.thefedex87.cooldrinks.presentation.util.UiText
 
 @Composable
 fun AddDrinkIngredientDialog(
     addingIngredientName: String,
+    addingIngredientNameError: UiText?,
+    addingIngredientNameFocusChanged: (Boolean) -> Unit,
     addingIngredientMeasure: String,
     addingIngredientIsDecoration: Boolean,
     addingIngredientIsAvailable: Boolean,
@@ -39,10 +44,16 @@ fun AddDrinkIngredientDialog(
     onIsAvailableChanged: (Boolean) -> Unit,
     onSaveClicked: () -> Unit,
     onDismiss: () -> Unit,
+    canSaveAddingIngredient: Boolean,
     filteredLocalIngredients: List<DrinkIngredientModel> = listOf(),
-    onIngredientClicked: (DrinkIngredientModel) -> Unit = {}
+    showDropDown: Boolean = false,
+    isLoading: Boolean = false,
+    onIngredientClicked: (DrinkIngredientModel) -> Unit = {},
+    onSearchIngredientOnlineClicked: (String) -> Unit = {},
+    onAddNewLocalIngredientClicked: (String) -> Unit = {}
 ) {
     val spacing = LocalSpacing.current
+    val context = LocalContext.current
     val sizes = LocalConfiguration.current
 
     Dialog(onDismissRequest = {
@@ -68,13 +79,16 @@ fun AddDrinkIngredientDialog(
                             onValueChanged = {
                                 onIngredientNameChanged(it)
                             },
-                            //errorMessage = state.cocktailNameError,
+                            errorMessage = addingIngredientNameError,
                             label = stringResource(id = R.string.name),
-                            imeAction = ImeAction.Next
+                            imeAction = ImeAction.Next,
+                            modifier = Modifier.onFocusChanged {
+                                addingIngredientNameFocusChanged(it.hasFocus)
+                            }
                         )
                         DropdownMenu(
                             modifier = Modifier.defaultMinSize(200.dp),
-                            expanded = filteredLocalIngredients.isNotEmpty(),
+                            expanded = showDropDown,
                             properties = PopupProperties(focusable = false),
                             onDismissRequest = { }) {
                             filteredLocalIngredients.forEach { ingredient ->
@@ -83,6 +97,20 @@ fun AddDrinkIngredientDialog(
                                         Text(text = ingredient.name!!)
                                     },
                                     onClick = { onIngredientClicked(ingredient) }
+                                )
+                            }
+                            if (addingIngredientName.count() > 2) {
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = "Search online")
+                                    },
+                                    onClick = { onSearchIngredientOnlineClicked(addingIngredientName) }
+                                )
+                                DropdownMenuItem(
+                                    text = {
+                                        Text(text = "Add new local ingredient")
+                                    },
+                                    onClick = { onAddNewLocalIngredientClicked(addingIngredientName) }
                                 )
                             }
                         }
@@ -134,8 +162,7 @@ fun AddDrinkIngredientDialog(
                         onClick = {
                             onSaveClicked()
                         },
-                        enabled = addingIngredientName.isNotBlank() &&
-                                (addingIngredientMeasure.isNotBlank() || addingIngredientIsDecoration)
+                        enabled = canSaveAddingIngredient
                     ) {
                         Text(text = stringResource(id = R.string.add))
                     }
@@ -147,6 +174,13 @@ fun AddDrinkIngredientDialog(
                     ) {
                         Text(text = stringResource(id = R.string.cancel))
                     }
+                }
+            }
+            if (isLoading) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             }
         }

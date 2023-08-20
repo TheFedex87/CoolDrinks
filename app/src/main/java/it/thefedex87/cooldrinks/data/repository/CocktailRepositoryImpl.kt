@@ -1,5 +1,8 @@
 package it.thefedex87.cooldrinks.data.repository
 
+import android.database.sqlite.SQLiteConstraintException
+import androidx.room.R
+import androidx.room.Transaction
 import com.squareup.moshi.JsonDataException
 import it.thefedex87.cooldrinks.data.local.FavoriteDrinkDao
 import it.thefedex87.cooldrinks.data.local.IngredientsDao
@@ -170,10 +173,79 @@ class CocktailRepositoryImpl constructor(
     }
 
     override suspend fun insertMyDrink(drink: DrinkDetailDomainModel): Long {
+        drink.ingredients.forEach { ingredient ->
+            val storedIngredients = ingredientDao
+                .getStoredIngredient(ingredient.name!!)
+                .first()
+
+            val storedIngredient = if (storedIngredients.isEmpty())
+                null
+            else
+                storedIngredients.first().toIngredientDetailsDomainModel()
+
+            if (storedIngredient != null) {
+                updateIngredient(
+                    storedIngredient.copy(
+                        availableLocal = ingredient.isAvailable!!
+                    )
+                )
+            } else {
+                if (ingredient.isAvailable == true) {
+                    getIngredientDetails(ingredientName = ingredient.name)
+                        .onSuccess { remoteIngredient ->
+                            storeIngredients(
+                                listOf(
+                                    remoteIngredient.copy(
+                                        availableLocal = true
+                                    )
+                                )
+                            )
+                        }
+                        .onFailure {
+                            // TODO raise exception
+                        }
+                }
+            }
+        }
         return drinkDao.insertDrink(drink.toDrinkEntity(false))
     }
 
+    @Transaction
     override suspend fun updateMyDrink(drink: DrinkDetailDomainModel) {
+        drink.ingredients.forEach { ingredient ->
+            val storedIngredients = ingredientDao
+                .getStoredIngredient(ingredient.name!!)
+                .first()
+
+            val storedIngredient = if (storedIngredients.isEmpty())
+                null
+            else
+                storedIngredients.first().toIngredientDetailsDomainModel()
+
+            if (storedIngredient != null) {
+                updateIngredient(
+                    storedIngredient.copy(
+                        availableLocal = ingredient.isAvailable!!
+                    )
+                )
+            } else {
+                if (ingredient.isAvailable == true) {
+                    getIngredientDetails(ingredientName = ingredient.name)
+                        .onSuccess { remoteIngredient ->
+                            storeIngredients(
+                                listOf(
+                                    remoteIngredient.copy(
+                                        availableLocal = true
+                                    )
+                                )
+                            )
+                        }
+                        .onFailure {
+                            // TODO raise exception
+                        }
+                }
+            }
+        }
         drinkDao.updateDrink(drink.toDrinkEntity(drink.isFavorite))
     }
 

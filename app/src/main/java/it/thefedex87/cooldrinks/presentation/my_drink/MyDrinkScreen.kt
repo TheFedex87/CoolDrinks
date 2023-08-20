@@ -41,12 +41,7 @@ fun MyDrinkScreen(
                         duration = SnackbarDuration.Short
                     )
                 }
-                is UiEvent.PopBackStack -> {
-                    // Do Nothing
-                }
-                is UiEvent.SaveBitmapLocal -> {
-                    // Do Nothing
-                }
+                else -> Unit
             }
         }
     }

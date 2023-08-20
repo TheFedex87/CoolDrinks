@@ -299,7 +299,13 @@ fun BottomNavigationScreen(
                 )
             }
             composable(
-                route = Route.ADD_INGREDIENT
+                route = "${Route.ADD_INGREDIENT}?name={name}",
+                arguments = listOf(
+                    navArgument("name") {
+                        type = NavType.StringType
+                        defaultValue = ""
+                    }
+                )
             ) {
                 AddIngredientScreen(
                     onComposed = { state ->
@@ -325,15 +331,20 @@ fun BottomNavigationScreen(
                 )
             ) {
                 val drinkId = it.arguments?.getInt("drinkId")
+                val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
 
                 AddMyDrinkScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
                     drinkId = drinkId,
+                    storedIngredientName = storedIngredientName,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onNavigateBack = {
                         navController.popBackStack()
+                    },
+                    onAddNewIngredientClicked = {
+                        navController.navigate("${Route.ADD_INGREDIENT}?name=$it")
                     },
                     snackbarHostState = snackbarHostState
                 )
