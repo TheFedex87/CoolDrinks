@@ -53,6 +53,7 @@
     <string name="error_coping_drink_picture">Error during the saving of drink picture, please retry</string>
     <string name="error_removing_drink">Error removing drink, please retry</string>
     <string name="error_storing_new_ingredient">Error storing new ingredient, please retry.</string>
+    <string name="ingredient_already_exists">The ingredient you are saving already exists, please use another name.</string>
     <string name="missing_ingredients">missing ingredients</string>
     <string name="cocktails">Cocktails</string>
     <string name="my_cocktails">My Cocktails</string>
@@ -71,4 +72,5 @@
     <string name="provide_all_info_message">Provides all information before continue</string>
     <string name="favorite">Favorite</string>
     <string name="error_getting_drink_details">Something went wrong getting the drink details</string>
+    <string name="ingredient_not_found">Requested ingredient not found</string>
 </resources>

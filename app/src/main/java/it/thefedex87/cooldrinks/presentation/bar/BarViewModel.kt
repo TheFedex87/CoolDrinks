@@ -6,11 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.lang.Exception
 import javax.inject.Inject
@@ -21,6 +25,9 @@ class BarViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(BarState())
         private set
+
+    private val _uiEvent = Channel<UiEvent>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         setupObservers()
@@ -43,6 +50,10 @@ class BarViewModel @Inject constructor(
                 }
                 is BarEvent.SelectedIngredientChanged -> {
                     state = state.copy(selectedIngredient = event.ingredient, selectedOption = if(event.ingredient.availableLocal) 0 else 1)
+                }
+                is BarEvent.JumpToStoredIngredient -> {
+                    val page = state.ingredients.indexOfFirst { it.name == event.name }
+                    _uiEvent.send(UiEvent.ScrollPagerToPage(page))
                 }
             }
         }

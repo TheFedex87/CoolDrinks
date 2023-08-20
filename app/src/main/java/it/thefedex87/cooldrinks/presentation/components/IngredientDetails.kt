@@ -71,7 +71,7 @@ fun IngredientDetails(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = "#${ii.id}")
+                            Text(text = "#${ii.id ?: "N/A"}")
                             Text(
                                 text = if (ii.alcoholic) {
                                     stringResource(id = R.string.alcoholic)

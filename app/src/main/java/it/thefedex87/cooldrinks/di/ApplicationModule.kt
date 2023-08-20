@@ -40,7 +40,9 @@ object ApplicationModule {
             app,
             CoolDrinkDatabase::class.java,
             "cool_drink_db"
-        ).build()
+        )
+            .addMigrations(CoolDrinkDatabase.MigrationFrom5To6)
+            .build()
 
     @Singleton
     @Provides

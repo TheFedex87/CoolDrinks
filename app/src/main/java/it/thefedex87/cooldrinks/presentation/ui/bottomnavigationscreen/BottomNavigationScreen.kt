@@ -88,6 +88,8 @@ fun BottomNavigationScreen(
             composable(
                 route = BottomNavScreen.Bar.route
             ) {
+                val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
+
                 BarScreen(
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onComposed = {
@@ -111,7 +113,8 @@ fun BottomNavigationScreen(
                         navController.navigate(
                             BottomNavScreen.Cocktail.route.replace("{ingredient}", it)
                         )
-                    }
+                    },
+                    moveToIngredientName = storedIngredientName
                 )
             }
             composable(
@@ -303,8 +306,12 @@ fun BottomNavigationScreen(
                         bottomNavigationScreenState = state
                     },
                     onNavigateBack = {
+                        navController.previousBackStackEntry
+                            ?.savedStateHandle
+                            ?.set("storedIngredient", it)
                         navController.popBackStack()
                     },
+                    snackbarHostState = snackbarHostState,
                     currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }

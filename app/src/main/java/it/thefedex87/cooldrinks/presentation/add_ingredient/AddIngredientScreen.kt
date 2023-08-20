@@ -3,6 +3,7 @@ package it.thefedex87.cooldrinks.presentation.add_ingredient
 import android.graphics.ImageDecoder
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,6 +14,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -32,16 +35,19 @@ import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNav
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.toBitmap
+import it.thefedex87.cooldrinks.util.Consts
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddIngredientScreen(
+    viewModel: AddIngredientViewModel = hiltViewModel(),
     onComposed: (BottomNavigationScreenState) -> Unit,
-    onNavigateBack: () -> Unit,
-    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
-    viewModel: AddIngredientViewModel = hiltViewModel()
+    onNavigateBack: (String?) -> Unit,
+    snackbarHostState: SnackbarHostState,
+    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState()
 ) {
     val context = LocalContext.current
     val title = stringResource(id = R.string.add_new_ingredient)
@@ -79,7 +85,7 @@ fun AddIngredientScreen(
         viewModel.uiEvent.onEach { event ->
             when (event) {
                 is UiEvent.PopBackStack -> {
-                    onNavigateBack()
+                    onNavigateBack(viewModel.state.ingredientName)
                 }
                 is UiEvent.SaveBitmapLocal -> {
                     val bitmap = viewModel.state.selectedPicture!!.toBitmap(context)
@@ -94,6 +100,12 @@ fun AddIngredientScreen(
                             "${context.filesDir.path}/${event.path}.jpg"
                         }
                     ))
+                }
+                is UiEvent.ShowSnackBar -> {
+                    snackbarHostState.showSnackbar(
+                        message = event.message.asString(context),
+                        duration = SnackbarDuration.Short
+                    )
                 }
                 else -> {}
             }

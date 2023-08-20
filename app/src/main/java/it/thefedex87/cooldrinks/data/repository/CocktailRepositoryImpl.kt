@@ -206,6 +206,9 @@ class CocktailRepositoryImpl constructor(
     override suspend fun storeIngredients(ingredients: List<IngredientDetailsDomainModel>) {
         try {
             ingredientDao.insertIngredient(ingredients = ingredients.map { it.toIngredientEntity() })
+        } catch(ex: SQLiteConstraintException) {
+            ex.printStackTrace()
+            throw ex
         } catch (ex: Exception) {
             ex.printStackTrace()
             throw ex
@@ -215,6 +218,15 @@ class CocktailRepositoryImpl constructor(
     override suspend fun updateIngredient(ingredient: IngredientDetailsDomainModel) {
         try {
             ingredientDao.updateIngredient(ingredient.toIngredientEntity())
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+            throw ex
+        }
+    }
+
+    override suspend fun deleteIngredient(ingredient: IngredientDetailsDomainModel) {
+        try {
+            ingredientDao.removeIngredient(ingredient.toIngredientEntity())
         } catch (ex: Exception) {
             ex.printStackTrace()
             throw ex

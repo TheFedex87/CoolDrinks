@@ -28,6 +28,7 @@ interface CocktailRepository {
     val storedLiquors: Flow<List<IngredientDetailsDomainModel>>
     suspend fun storeIngredients(ingredients: List<IngredientDetailsDomainModel>)
     suspend fun updateIngredient(ingredient: IngredientDetailsDomainModel)
+    suspend fun deleteIngredient(ingredient: IngredientDetailsDomainModel)
 
     suspend fun updateVisualizationType(type: VisualizationType)
     val appPreferencesManager: Flow<AppPreferences>

@@ -1,5 +1,6 @@
 package it.thefedex87.cooldrinks.presentation.add_ingredient
 
+import android.database.sqlite.SQLiteConstraintException
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -46,32 +47,40 @@ class AddIngredientViewModel @Inject constructor(
                     )
                     savedStateHandle.set("name", event.name)
                 }
+
                 is AddIngredientEvent.OnIngredientDescriptionChanged -> {
                     state = state.copy(ingredientDescription = event.description)
                     savedStateHandle.set("description", event.description)
                 }
+
                 is AddIngredientEvent.OnIngredientAlcoholicChanged -> {
                     state = state.copy(ingredientIsAlcoholic = event.isAlcoholic)
                     savedStateHandle.set("is_alcoholic", event.isAlcoholic)
                 }
+
                 is AddIngredientEvent.OnIngredientAvailableChanged -> {
                     state = state.copy(ingredientAvailable = event.isAvailable)
                     savedStateHandle.set("is_available", event.isAvailable)
                 }
+
                 is AddIngredientEvent.OnSaveClicked -> {
                     if (state.ingredientName.isBlank()) {
                         state =
                             state.copy(ingredientNameError = UiText.StringResource(R.string.required))
                     } else {
                         if (state.selectedPicture != null) {
-                            _uiEvent.send(
-                                UiEvent.SaveBitmapLocal(
-                                    "${state.ingredientName}_${UUID.randomUUID()}"
+                            val filePath = "${state.ingredientName}_${UUID.randomUUID()}"
+                            if(storeIngredient(imagePath = null)) {
+                                _uiEvent.send(
+                                    UiEvent.SaveBitmapLocal(
+                                        filePath
+                                    )
                                 )
-                            )
+                            }
                         } else {
-                            storeIngredient(null)
-                            _uiEvent.send(UiEvent.PopBackStack)
+                            if(storeIngredient(imagePath = null)) {
+                                _uiEvent.send(UiEvent.PopBackStack)
+                            }
                         }
                         /*repository.storeIngredients(
                             listOf(
@@ -86,14 +95,37 @@ class AddIngredientViewModel @Inject constructor(
                         )*/
                     }
                 }
+
                 is AddIngredientEvent.OnPictureSelected -> {
                     state = state.copy(selectedPicture = event.bitmap)
                 }
+
                 is AddIngredientEvent.PictureSaveResult -> {
                     if (event.success) {
-                        storeIngredient(event.pathCallback.invoke())
+                        repository.updateIngredient(
+                            IngredientDetailsDomainModel(
+                                name = state.ingredientName,
+                                description = state.ingredientDescription,
+                                type = null,
+                                alcoholic = state.ingredientIsAlcoholic,
+                                imagePath = event.pathCallback.invoke(),
+                                availableLocal = state.ingredientAvailable,
+                                isPersonalIngredient = true
+                            )
+                        )
                         _uiEvent.send(UiEvent.PopBackStack)
                     } else {
+                        repository.deleteIngredient(
+                            IngredientDetailsDomainModel(
+                                name = state.ingredientName,
+                                description = state.ingredientDescription,
+                                type = null,
+                                alcoholic = state.ingredientIsAlcoholic,
+                                imagePath = null,
+                                availableLocal = state.ingredientAvailable,
+                                isPersonalIngredient = true
+                            )
+                        )
                         _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_ingredient_picture)))
                     }
                 }
@@ -101,8 +133,8 @@ class AddIngredientViewModel @Inject constructor(
         }
     }
 
-    private suspend fun storeIngredient(imagePath: String?) {
-        try {
+    private suspend fun storeIngredient(imagePath: String?): Boolean {
+        return try {
             repository.storeIngredients(
                 listOf(
                     IngredientDetailsDomainModel(
@@ -116,8 +148,13 @@ class AddIngredientViewModel @Inject constructor(
                     )
                 )
             )
+            true
+        } catch (ex: SQLiteConstraintException) {
+            _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.ingredient_already_exists)))
+            false
         } catch (ex: Exception) {
             _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_storing_new_ingredient)))
+            false
         }
     }
 }

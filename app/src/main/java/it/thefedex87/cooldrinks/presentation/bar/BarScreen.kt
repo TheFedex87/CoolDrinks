@@ -33,8 +33,11 @@ import it.thefedex87.cooldrinks.presentation.components.IngredientDetails
 import it.thefedex87.cooldrinks.presentation.components.MiniFabSpec
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
+import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
@@ -47,6 +50,7 @@ fun BarScreen(
     onMiniFabIngredientsListClicked: () -> Unit,
     onMiniFabCustomIngredientClicked: () -> Unit,
     onSearchDrinkClicked: (String) -> Unit,
+    moveToIngredientName: String? = null,
     viewModel: BarViewModel = hiltViewModel()
 ) {
     LaunchedEffect(key1 = true) {
@@ -94,11 +98,28 @@ fun BarScreen(
             val pagerState = rememberPagerState()
             val spacing = LocalSpacing.current
 
+            LaunchedEffect(key1 = moveToIngredientName) {
+                moveToIngredientName?.let {
+                    viewModel.onEvent(BarEvent.JumpToStoredIngredient(it))
+                }
+            }
+
             LaunchedEffect(key1 = true) {
                 snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
                     if (it >= 0)
                         viewModel.onEvent(BarEvent.SelectedIngredientChanged(viewModel.state.ingredients[it]))
                 }
+            }
+
+            LaunchedEffect(key1 = true) {
+                viewModel.uiEvent.onEach {
+                    when(it) {
+                        is UiEvent.ScrollPagerToPage -> {
+                            pagerState.animateScrollToPage(it.page)
+                        }
+                        else -> Unit
+                    }
+                }.launchIn(this)
             }
 
             Box(
