@@ -19,8 +19,10 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -40,7 +42,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AddIngredientScreen(
     viewModel: AddIngredientViewModel = hiltViewModel(),
@@ -50,6 +52,7 @@ fun AddIngredientScreen(
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState()
 ) {
     val context = LocalContext.current
+    val keyboardController = LocalSoftwareKeyboardController.current
     val title = stringResource(id = R.string.add_new_ingredient)
     val save = stringResource(id = R.string.save)
     LaunchedEffect(key1 = true) {
@@ -102,6 +105,7 @@ fun AddIngredientScreen(
                     ))
                 }
                 is UiEvent.ShowSnackBar -> {
+                    keyboardController?.hide()
                     snackbarHostState.showSnackbar(
                         message = event.message.asString(context),
                         duration = SnackbarDuration.Short
