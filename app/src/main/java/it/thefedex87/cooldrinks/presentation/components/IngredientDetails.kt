@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -22,7 +24,11 @@ fun IngredientDetails(
     getIngredientInfoError: String?,
     ingredientInfo: IngredientDetailsDomainModel?,
     showSearchIcon: Boolean = false,
+    showEditIcon: Boolean = false,
+    showDeleteIcon: Boolean = false,
     onSearchIconClicked: (String) -> Unit = {},
+    onEditIconClicked: () -> Unit = {},
+    onDeleteIconClicked: () -> Unit = {},
     showDescription: Boolean = false,
     modifier: Modifier = Modifier
 ) {
@@ -33,7 +39,6 @@ fun IngredientDetails(
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
@@ -42,12 +47,29 @@ fun IngredientDetails(
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
+            Spacer(modifier = Modifier.weight(1f))
             if (showSearchIcon) {
                 IconButton(onClick = {
                     onSearchIconClicked(ingredient)
                 }) {
                     Icon(
                         imageVector = Icons.Default.Search,
+                        contentDescription = stringResource(id = R.string.search_drink)
+                    )
+                }
+            }
+            if(showEditIcon) {
+                IconButton(onClick = onEditIconClicked) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = stringResource(id = R.string.search_drink)
+                    )
+                }
+            }
+            if(showDeleteIcon) {
+                IconButton(onClick = onDeleteIconClicked) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
                         contentDescription = stringResource(id = R.string.search_drink)
                     )
                 }

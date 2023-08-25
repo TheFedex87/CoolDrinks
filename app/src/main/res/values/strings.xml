@@ -73,4 +73,6 @@
     <string name="favorite">Favorite</string>
     <string name="error_getting_drink_details">Something went wrong getting the drink details</string>
     <string name="ingredient_not_found">Requested ingredient not found</string>
+    <string name="error_removing_ingredient">Error removing ingredient</string>
+    <string name="confirm_remove_custom_ingredient_body">Do you really want to remove this ingredient?</string>
 </resources>
