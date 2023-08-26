@@ -1,6 +1,7 @@
 package it.thefedex87.cooldrinks.presentation.add_ingredient
 
 import android.database.sqlite.SQLiteConstraintException
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,6 +15,7 @@ import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.*
@@ -26,6 +28,7 @@ class AddIngredientViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(
         AddIngredientState(
+            isEditing = savedStateHandle.get<Boolean>("isEditing") == true,
             ingredientName = savedStateHandle.get<String>("name") ?: "",
             ingredientDescription = savedStateHandle.get<String>("description") ?: "",
             ingredientIsAlcoholic = savedStateHandle.get<Boolean>("is_alcoholic") ?: false,
@@ -36,6 +39,26 @@ class AddIngredientViewModel @Inject constructor(
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
+
+    init {
+        if(savedStateHandle.get<Boolean>("isEditing") == true) {
+            savedStateHandle.get<String>("name")?.let { passedIngredient ->
+                viewModelScope.launch {
+                    repository.storedLiquors.first()
+                        .firstOrNull { it.name == passedIngredient }
+                        ?.let { storedIngredient ->
+                            state = state.copy(
+                                ingredientName = storedIngredient.name,
+                                ingredientDescription = storedIngredient.description!!,
+                                ingredientIsAlcoholic = storedIngredient.alcoholic,
+                                ingredientAvailable = storedIngredient.availableLocal,
+                                selectedPicture = if(!storedIngredient.imagePath.isNullOrBlank()) Uri.parse(storedIngredient.imagePath) else null
+                            )
+                        }
+                }
+            }
+        }
+    }
 
     fun onEvent(event: AddIngredientEvent) {
         viewModelScope.launch {
@@ -70,7 +93,7 @@ class AddIngredientViewModel @Inject constructor(
                     } else {
                         if (state.selectedPicture != null) {
                             val filePath = "${state.ingredientName}_${UUID.randomUUID()}"
-                            if(storeIngredient(imagePath = null)) {
+                            if (storeIngredient(imagePath = null)) {
                                 _uiEvent.send(
                                     UiEvent.SaveBitmapLocal(
                                         filePath
@@ -78,7 +101,7 @@ class AddIngredientViewModel @Inject constructor(
                                 )
                             }
                         } else {
-                            if(storeIngredient(imagePath = null)) {
+                            if (storeIngredient(imagePath = null)) {
                                 _uiEvent.send(UiEvent.PopBackStack)
                             }
                         }
@@ -135,8 +158,8 @@ class AddIngredientViewModel @Inject constructor(
 
     private suspend fun storeIngredient(imagePath: String?): Boolean {
         return try {
-            repository.storeIngredients(
-                listOf(
+            if(savedStateHandle.get<Boolean>("isEditing") == true) {
+                repository.updateIngredient(
                     IngredientDetailsDomainModel(
                         name = state.ingredientName,
                         description = state.ingredientDescription,
@@ -147,7 +170,21 @@ class AddIngredientViewModel @Inject constructor(
                         isPersonalIngredient = true
                     )
                 )
-            )
+            } else {
+                repository.storeIngredients(
+                    listOf(
+                        IngredientDetailsDomainModel(
+                            name = state.ingredientName,
+                            description = state.ingredientDescription,
+                            type = null,
+                            alcoholic = state.ingredientIsAlcoholic,
+                            imagePath = imagePath,
+                            availableLocal = state.ingredientAvailable,
+                            isPersonalIngredient = true
+                        )
+                    )
+                )
+            }
             true
         } catch (ex: SQLiteConstraintException) {
             _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.ingredient_already_exists)))

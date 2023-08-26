@@ -12,5 +12,7 @@ data class AddIngredientState(
     val ingredientDescription: String = "",
     val ingredientAvailable: Boolean = true,
 
-    val selectedPicture: Uri? = null
+    val selectedPicture: Uri? = null,
+
+    val isEditing: Boolean = false
 )

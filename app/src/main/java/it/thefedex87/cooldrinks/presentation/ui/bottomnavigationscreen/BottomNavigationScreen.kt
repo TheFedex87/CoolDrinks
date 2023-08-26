@@ -114,7 +114,12 @@ fun BottomNavigationScreen(
                             BottomNavScreen.Cocktail.route.replace("{ingredient}", it)
                         )
                     },
-                    moveToIngredientName = storedIngredientName
+                    moveToIngredientName = storedIngredientName,
+                    onEditIngredientClicked = {
+                        navController.navigate(
+                            "${Route.ADD_INGREDIENT}?name=${it.name}&isEditing=true"
+                        )
+                    }
                 )
             }
             composable(
@@ -299,11 +304,15 @@ fun BottomNavigationScreen(
                 )
             }
             composable(
-                route = "${Route.ADD_INGREDIENT}?name={name}",
+                route = "${Route.ADD_INGREDIENT}?name={name}&isEditing={isEditing}",
                 arguments = listOf(
                     navArgument("name") {
                         type = NavType.StringType
                         defaultValue = ""
+                    },
+                    navArgument("isEditing") {
+                        type = NavType.BoolType
+                        defaultValue = false
                     }
                 )
             ) {

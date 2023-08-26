@@ -72,6 +72,7 @@ fun DrinkDetailScreen(
         onComposed(
             currentBottomNavigationScreenState.copy(
                 topBarVisible = true,
+                topBarTitle = "",
                 bottomBarVisible = drinkId == null,
                 topAppBarScrollBehavior = {
                     appBarScrollBehavior

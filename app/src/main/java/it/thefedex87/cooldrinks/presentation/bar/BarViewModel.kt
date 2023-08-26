@@ -55,7 +55,9 @@ class BarViewModel @Inject constructor(
                 }
                 is BarEvent.JumpToStoredIngredient -> {
                     val page = state.ingredients.indexOfFirst { it.name == event.name }
-                    _uiEvent.send(UiEvent.ScrollPagerToPage(page))
+                    if(page >= 0 && page <= state.ingredients.lastIndex) {
+                        _uiEvent.send(UiEvent.ScrollPagerToPage(page))
+                    }
                 }
                 is BarEvent.OnDeleteIconClicked -> {
                     state = state.copy(

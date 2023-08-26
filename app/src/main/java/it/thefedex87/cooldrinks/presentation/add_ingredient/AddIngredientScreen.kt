@@ -53,7 +53,10 @@ fun AddIngredientScreen(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val title = stringResource(id = R.string.add_new_ingredient)
+    val title = if(viewModel.state.isEditing)
+        stringResource(R.string.edit_ingredient)
+    else
+        stringResource(id = R.string.add_new_ingredient)
     val save = stringResource(id = R.string.save)
     LaunchedEffect(key1 = true) {
         onComposed(

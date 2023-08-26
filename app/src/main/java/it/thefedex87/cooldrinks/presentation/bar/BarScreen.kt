@@ -52,6 +52,7 @@ fun BarScreen(
     onMiniFabIngredientsListClicked: () -> Unit,
     onMiniFabCustomIngredientClicked: () -> Unit,
     onSearchDrinkClicked: (String) -> Unit,
+    onEditIngredientClicked: (IngredientDetailsDomainModel) -> Unit,
     moveToIngredientName: String? = null,
     viewModel: BarViewModel = hiltViewModel()
 ) {
@@ -109,22 +110,28 @@ fun BarScreen(
             LaunchedEffect(key1 = true) {
                 snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
                     if (it >= 0)
-                        viewModel.onEvent(BarEvent.SelectedIngredientChanged(ingredient = viewModel.state.ingredients[it], page = it))
+                        viewModel.onEvent(
+                            BarEvent.SelectedIngredientChanged(
+                                ingredient = viewModel.state.ingredients[it],
+                                page = it
+                            )
+                        )
                 }
             }
 
             LaunchedEffect(key1 = true) {
                 viewModel.uiEvent.onEach {
-                    when(it) {
+                    when (it) {
                         is UiEvent.ScrollPagerToPage -> {
                             pagerState.animateScrollToPage(it.page)
                         }
+
                         else -> Unit
                     }
                 }.launchIn(this)
             }
 
-            if(viewModel.state.showRemoveElementDialog) {
+            if (viewModel.state.showRemoveElementDialog) {
                 AlertDialog(
                     onDismissRequest = {
                         viewModel.onEvent(BarEvent.OnRemoveCanceled)
@@ -179,10 +186,15 @@ fun BarScreen(
                                     showEditIcon = it.isPersonalIngredient,
                                     onSearchIconClicked = onSearchDrinkClicked,
                                     onEditIconClicked = {
-
+                                        onEditIngredientClicked(it)
                                     },
                                     onDeleteIconClicked = {
-                                        viewModel.onEvent(BarEvent.OnDeleteIconClicked(it, pagerState.currentPage))
+                                        viewModel.onEvent(
+                                            BarEvent.OnDeleteIconClicked(
+                                                it,
+                                                pagerState.currentPage
+                                            )
+                                        )
                                     }
                                 )
                                 Row(
@@ -210,7 +222,7 @@ fun BarScreen(
                                                 bottom = spacing.spaceMedium
                                             )
                                             .height(30.dp)
-                                            //.weight(1f)
+                                        //.weight(1f)
                                     )
                                 }
                             }
@@ -227,7 +239,7 @@ fun BarScreen(
                         ),
                         state = pagerState
                     ) { page ->
-                        if(page <= viewModel.state.ingredients.lastIndex) {
+                        if (page <= viewModel.state.ingredients.lastIndex) {
                             BarIngredientItem(
                                 ingredient = viewModel.state.ingredients[page],
                                 pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
