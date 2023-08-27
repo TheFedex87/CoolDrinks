@@ -6,7 +6,7 @@ import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 
 fun IngredientDetailsDto.toIngredientDetailsDomainModel(): IngredientDetailsDomainModel {
     return IngredientDetailsDomainModel(
-        id = idIngredient.toInt(),
+        id = idIngredient,
         name = strIngredient,
         description = strDescription,
         type = strType,
@@ -32,7 +32,7 @@ fun IngredientEntity.toIngredientDetailsDomainModel(): IngredientDetailsDomainMo
 
 fun IngredientDetailsDomainModel.toIngredientEntity(): IngredientEntity {
     return IngredientEntity(
-        id = id,
+        id = id!!,
         name = name,
         description = description,
         type = type ?: "",

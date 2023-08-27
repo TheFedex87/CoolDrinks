@@ -58,7 +58,7 @@ fun IngredientDetails(
                     )
                 }
             }
-            if(showEditIcon) {
+            if (showEditIcon) {
                 IconButton(onClick = onEditIconClicked) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -66,7 +66,7 @@ fun IngredientDetails(
                     )
                 }
             }
-            if(showDeleteIcon) {
+            if (showDeleteIcon) {
                 IconButton(onClick = onDeleteIconClicked) {
                     Icon(
                         imageVector = Icons.Default.Delete,
@@ -93,7 +93,7 @@ fun IngredientDetails(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Text(text = "#${ii.id ?: "N/A"}")
+                            Text(text = "#${if (ii.id!!.length < 5) ii.id else "N/A"}")
                             Text(
                                 text = if (ii.alcoholic) {
                                     stringResource(id = R.string.alcoholic)

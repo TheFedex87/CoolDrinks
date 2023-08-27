@@ -13,6 +13,7 @@ data class AddIngredientState(
     val ingredientAvailable: Boolean = true,
 
     val selectedPicture: Uri? = null,
+    val prevImagePath: Uri? = null,
 
-    val isEditing: Boolean = false
+    val id: String? = null
 )

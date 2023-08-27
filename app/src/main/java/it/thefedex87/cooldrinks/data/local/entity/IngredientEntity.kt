@@ -2,12 +2,13 @@ package it.thefedex87.cooldrinks.data.local.entity
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(indices = [ Index(value = ["name"], unique = true) ] )
 data class IngredientEntity(
-    val id: Int?,
     @PrimaryKey
+    val id: String,
     val name: String,
     val description: String?,
     val imagePath: String?,

@@ -53,7 +53,7 @@ fun AddIngredientScreen(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val title = if(viewModel.state.isEditing)
+    val title = if(!viewModel.state.id.isNullOrEmpty())
         stringResource(R.string.edit_ingredient)
     else
         stringResource(id = R.string.add_new_ingredient)

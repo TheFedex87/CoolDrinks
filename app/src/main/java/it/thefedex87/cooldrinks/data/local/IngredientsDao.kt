@@ -15,7 +15,7 @@ interface IngredientsDao {
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertIngredients(ingredients: List<IngredientEntity>)
 
-    @Update(onConflict = OnConflictStrategy.REPLACE)
+    @Update(onConflict = OnConflictStrategy.ABORT)
     suspend fun updateIngredient(ingredient: IngredientEntity)
 
     @Delete

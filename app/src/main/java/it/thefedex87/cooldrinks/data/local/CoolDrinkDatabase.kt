@@ -15,12 +15,13 @@ import it.thefedex87.cooldrinks.data.local.entity.IngredientEntity
         DrinkEntity::class,
         IngredientEntity::class
     ],
-    version = 6,
+    version = 7,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
         AutoMigration(from = 2, to = 3),
         AutoMigration(from = 3, to = 4),
-        AutoMigration(from = 4, to = 5, spec = CoolDrinkDatabase.MigrationFrom4To5::class)
+        AutoMigration(from = 4, to = 5, spec = CoolDrinkDatabase.MigrationFrom4To5::class),
+        AutoMigration(from = 6, to = 7)
     ]
 )
 abstract class CoolDrinkDatabase : RoomDatabase() {
@@ -31,10 +32,10 @@ abstract class CoolDrinkDatabase : RoomDatabase() {
         val MigrationFrom5To6 = object : Migration(5, 6) {
             override fun migrate(database: SupportSQLiteDatabase) {
                 // create new temp table
-                database.execSQL("CREATE TABLE IF NOT EXISTS `IngredientEntityTemp` (`id` INTEGER, `name` TEXT NOT NULL, `description` TEXT, `imagePath` TEXT, `type` TEXT NOT NULL, `alcoholic` INTEGER NOT NULL, `availableLocal` INTEGER NOT NULL, `isPersonalIngredient` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`name`))")
+                database.execSQL("CREATE TABLE IF NOT EXISTS `IngredientEntityTemp` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `imagePath` TEXT, `type` TEXT NOT NULL, `alcoholic` INTEGER NOT NULL, `availableLocal` INTEGER NOT NULL, `isPersonalIngredient` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))")
 
                 // copy data from old table to new
-                database.execSQL("INSERT INTO IngredientEntityTemp (id, name, description, imagePath, type, alcoholic, availableLocal, isPersonalIngredient) SELECT id, name, description, imagePath, type, alcoholic, availableLocal, isPersonalIngredient FROM IngredientEntity")
+                database.execSQL("INSERT INTO IngredientEntityTemp (id, name, description, imagePath, type, alcoholic, availableLocal, isPersonalIngredient) SELECT CAST(id AS TEXT), name, description, imagePath, type, alcoholic, availableLocal, isPersonalIngredient FROM IngredientEntity")
 
                 // delete old playlist_entry table
                 database.execSQL("DROP TABLE IngredientEntity")
@@ -45,7 +46,6 @@ abstract class CoolDrinkDatabase : RoomDatabase() {
 
         }
     }
-
 
 
     abstract val favoriteDrinkDao: FavoriteDrinkDao

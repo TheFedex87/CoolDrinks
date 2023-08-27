@@ -89,6 +89,7 @@ fun BottomNavigationScreen(
                 route = BottomNavScreen.Bar.route
             ) {
                 val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
+                it.savedStateHandle?.remove<String>("storedIngredient")
 
                 BarScreen(
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
@@ -117,7 +118,7 @@ fun BottomNavigationScreen(
                     moveToIngredientName = storedIngredientName,
                     onEditIngredientClicked = {
                         navController.navigate(
-                            "${Route.ADD_INGREDIENT}?name=${it.name}&isEditing=true"
+                            "${Route.ADD_INGREDIENT}?name=${it.name}&id=${it.id}"
                         )
                     }
                 )
@@ -304,15 +305,16 @@ fun BottomNavigationScreen(
                 )
             }
             composable(
-                route = "${Route.ADD_INGREDIENT}?name={name}&isEditing={isEditing}",
+                route = "${Route.ADD_INGREDIENT}?name={name}&id={id}",
                 arguments = listOf(
                     navArgument("name") {
                         type = NavType.StringType
                         defaultValue = ""
                     },
-                    navArgument("isEditing") {
-                        type = NavType.BoolType
-                        defaultValue = false
+                    navArgument("id") {
+                        type = NavType.StringType
+                        defaultValue = null
+                        nullable = true
                     }
                 )
             ) {

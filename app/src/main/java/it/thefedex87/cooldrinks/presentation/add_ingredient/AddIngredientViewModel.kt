@@ -18,6 +18,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import java.util.*
 import javax.inject.Inject
 
@@ -28,11 +29,14 @@ class AddIngredientViewModel @Inject constructor(
 ) : ViewModel() {
     var state by mutableStateOf(
         AddIngredientState(
-            isEditing = savedStateHandle.get<Boolean>("isEditing") == true,
+            id = savedStateHandle.get<String>("id"),
             ingredientName = savedStateHandle.get<String>("name") ?: "",
             ingredientDescription = savedStateHandle.get<String>("description") ?: "",
             ingredientIsAlcoholic = savedStateHandle.get<Boolean>("is_alcoholic") ?: false,
-            ingredientAvailable = savedStateHandle.get<Boolean>("is_available") ?: true
+            ingredientAvailable = savedStateHandle.get<Boolean>("is_available") ?: true,
+            selectedPicture = if (savedStateHandle.get<String>("selectedPicture") != null) Uri.parse(
+                savedStateHandle.get<String>("selectedPicture")
+            ) else null
         )
     )
         private set
@@ -41,22 +45,31 @@ class AddIngredientViewModel @Inject constructor(
     val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
-        if(savedStateHandle.get<Boolean>("isEditing") == true) {
+        if (savedStateHandle.get<String>("id") != null) {
+            savedStateHandle["isEditing"] = true
             savedStateHandle.get<String>("name")?.let { passedIngredient ->
                 viewModelScope.launch {
                     repository.storedLiquors.first()
                         .firstOrNull { it.name == passedIngredient }
                         ?.let { storedIngredient ->
                             state = state.copy(
+                                id = storedIngredient.id,
                                 ingredientName = storedIngredient.name,
                                 ingredientDescription = storedIngredient.description!!,
                                 ingredientIsAlcoholic = storedIngredient.alcoholic,
                                 ingredientAvailable = storedIngredient.availableLocal,
-                                selectedPicture = if(!storedIngredient.imagePath.isNullOrBlank()) Uri.parse(storedIngredient.imagePath) else null
+                                selectedPicture = if (!storedIngredient.imagePath.isNullOrBlank()) Uri.parse(
+                                    storedIngredient.imagePath
+                                ) else null,
+                                prevImagePath = if (!storedIngredient.imagePath.isNullOrBlank()) Uri.parse(
+                                    storedIngredient.imagePath
+                                ) else null
                             )
                         }
                 }
             }
+        } else {
+            savedStateHandle["isEditing"] = false
         }
     }
 
@@ -91,17 +104,32 @@ class AddIngredientViewModel @Inject constructor(
                         state =
                             state.copy(ingredientNameError = UiText.StringResource(R.string.required))
                     } else {
-                        if (state.selectedPicture != null) {
-                            val filePath = "${state.ingredientName}_${UUID.randomUUID()}"
-                            if (storeIngredient(imagePath = null)) {
+                        if (state.selectedPicture != null && state.prevImagePath != state.selectedPicture) {
+                            val filePath = state.prevImagePath?.toString()?.split("/")?.last()
+                                ?.replace(".jpg", "") ?: "ING_${UUID.randomUUID()}"
+                            /*if (storeIngredient(imagePath = null)) {
                                 _uiEvent.send(
                                     UiEvent.SaveBitmapLocal(
                                         filePath
                                     )
                                 )
+                            }*/
+
+                            // BK of the old image if exists
+                            state.prevImagePath?.let {
+                                File(it.toString()).copyTo(
+                                    target = File(it.toString().replace(".jpg", "_BK.jpg")),
+                                    overwrite = true
+                                )
                             }
+
+                            _uiEvent.send(
+                                UiEvent.SaveBitmapLocal(
+                                    filePath
+                                )
+                            )
                         } else {
-                            if (storeIngredient(imagePath = null)) {
+                            if (storeIngredient(imagePath = state.selectedPicture?.toString())) {
                                 _uiEvent.send(UiEvent.PopBackStack)
                             }
                         }
@@ -120,13 +148,17 @@ class AddIngredientViewModel @Inject constructor(
                 }
 
                 is AddIngredientEvent.OnPictureSelected -> {
-                    state = state.copy(selectedPicture = event.bitmap)
+                    state = state.copy(
+                        selectedPicture = event.bitmap
+                    )
+                    savedStateHandle["selectedPicture"] = event.bitmap.toString()
                 }
 
                 is AddIngredientEvent.PictureSaveResult -> {
                     if (event.success) {
-                        repository.updateIngredient(
+                        /*repository.updateIngredient(
                             IngredientDetailsDomainModel(
+                                id = savedStateHandle.get<String>("id"),
                                 name = state.ingredientName,
                                 description = state.ingredientDescription,
                                 type = null,
@@ -135,20 +167,50 @@ class AddIngredientViewModel @Inject constructor(
                                 availableLocal = state.ingredientAvailable,
                                 isPersonalIngredient = true
                             )
-                        )
-                        _uiEvent.send(UiEvent.PopBackStack)
+                        )*/
+                        if (!storeIngredient(event.pathCallback.invoke())) {
+                            File(event.pathCallback.invoke()).delete()
+                            state.prevImagePath?.let {
+                                File(it.toString().replace(".jpg", "_BK.jpg")).copyTo(
+                                    target = File(it.toString()),
+                                    overwrite = true
+                                )
+                                File(it.toString().replace(".jpg", "_BK.jpg")).delete()
+                            }
+                        } else {
+                            state.prevImagePath?.let {
+                                File(it.toString().replace(".jpg", "_BK.jpg")).delete()
+                            }
+                            _uiEvent.send(UiEvent.PopBackStack)
+                        }
                     } else {
-                        repository.deleteIngredient(
-                            IngredientDetailsDomainModel(
-                                name = state.ingredientName,
-                                description = state.ingredientDescription,
-                                type = null,
-                                alcoholic = state.ingredientIsAlcoholic,
-                                imagePath = null,
-                                availableLocal = state.ingredientAvailable,
-                                isPersonalIngredient = true
+                        /*if(savedStateHandle.get<Boolean>("isEditing") == false) {
+                            repository.deleteIngredient(
+                                IngredientDetailsDomainModel(
+                                    id = savedStateHandle.get<String>("id"),
+                                    name = state.ingredientName,
+                                    description = state.ingredientDescription,
+                                    type = null,
+                                    alcoholic = state.ingredientIsAlcoholic,
+                                    imagePath = null,
+                                    availableLocal = state.ingredientAvailable,
+                                    isPersonalIngredient = true
+                                )
                             )
-                        )
+                        } else {
+                            repository.updateIngredient(
+                                IngredientDetailsDomainModel(
+                                    id = savedStateHandle.get<String>("id"),
+                                    name = state.ingredientName,
+                                    description = state.ingredientDescription,
+                                    type = null,
+                                    alcoholic = state.ingredientIsAlcoholic,
+                                    imagePath = state.prevImagePath.toString(),
+                                    availableLocal = state.ingredientAvailable,
+                                    isPersonalIngredient = true
+                                )
+                            )
+                        }*/
                         _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_ingredient_picture)))
                     }
                 }
@@ -158,9 +220,10 @@ class AddIngredientViewModel @Inject constructor(
 
     private suspend fun storeIngredient(imagePath: String?): Boolean {
         return try {
-            if(savedStateHandle.get<Boolean>("isEditing") == true) {
+            if (savedStateHandle.get<String>("id") != null) {
                 repository.updateIngredient(
                     IngredientDetailsDomainModel(
+                        id = state.id,
                         name = state.ingredientName,
                         description = state.ingredientDescription,
                         type = null,
@@ -171,9 +234,11 @@ class AddIngredientViewModel @Inject constructor(
                     )
                 )
             } else {
+                var newId = UUID.randomUUID().toString()
                 repository.storeIngredients(
                     listOf(
                         IngredientDetailsDomainModel(
+                            id = newId,
                             name = state.ingredientName,
                             description = state.ingredientDescription,
                             type = null,
@@ -184,6 +249,7 @@ class AddIngredientViewModel @Inject constructor(
                         )
                     )
                 )
+                savedStateHandle["id"] = newId
             }
             true
         } catch (ex: SQLiteConstraintException) {
