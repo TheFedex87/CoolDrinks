@@ -53,10 +53,8 @@ fun AddIngredientScreen(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val title = if(!viewModel.state.id.isNullOrEmpty())
-        stringResource(R.string.edit_ingredient)
-    else
-        stringResource(id = R.string.add_new_ingredient)
+    val title = viewModel.state.title
+
     val save = stringResource(id = R.string.save)
     LaunchedEffect(key1 = true) {
         onComposed(
@@ -72,7 +70,7 @@ fun AddIngredientScreen(
                 ),
                 prevFabState = currentBottomNavigationScreenState.fabState.copy(),
                 topBarVisible = true,
-                topBarTitle = title,
+                topBarTitle = title.asString(context),
                 topBarActions ={
                     IconButton(onClick = {
                         viewModel.onEvent(AddIngredientEvent.OnSaveClicked)

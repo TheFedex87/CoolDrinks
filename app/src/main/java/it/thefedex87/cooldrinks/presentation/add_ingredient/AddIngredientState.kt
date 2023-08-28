@@ -13,7 +13,8 @@ data class AddIngredientState(
     val ingredientAvailable: Boolean = true,
 
     val selectedPicture: Uri? = null,
-    val prevImagePath: Uri? = null,
+    val title: UiText = UiText.Empty
+    //val prevImagePath: Uri? = null,
 
-    val id: String? = null
+    //val id: String? = null
 )
