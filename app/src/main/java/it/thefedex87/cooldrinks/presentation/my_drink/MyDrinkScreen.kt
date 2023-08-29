@@ -9,6 +9,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -20,20 +21,24 @@ import it.thefedex87.cooldrinks.presentation.components.DetailedDrinkItem
 import it.thefedex87.cooldrinks.presentation.components.EmptyList
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Composable
 fun MyDrinkScreen(
-    viewModel: MyDrinkViewModel = hiltViewModel(),
+    state: MyDrinkState,
+    onEvent: (MyDrinkEvent) -> Unit,
+    uiEvent: Flow<UiEvent>,
     snackbarHostState: SnackbarHostState,
-    onEditDrinkClicked: (DrinkDetailDomainModel) -> Unit,
+    onEditDrinkClicked: (Int) -> Unit,
     onDrinkClicked: (Int, Int, String) -> Unit
 ) {
     val spacing = LocalSpacing.current
     val context = LocalContext.current
-    val state = viewModel.state.collectAsState().value
+    //val state = state.collectAsState().value
 
     LaunchedEffect(key1 = true) {
-        viewModel.uiEvent.collect { event ->
+        uiEvent.collect { event ->
             when (event) {
                 is UiEvent.ShowSnackBar -> {
                     snackbarHostState.showSnackbar(
@@ -41,26 +46,27 @@ fun MyDrinkScreen(
                         duration = SnackbarDuration.Short
                     )
                 }
+
                 else -> Unit
             }
         }
     }
 
-    if(state.showConfirmRemoveDrinkDialog) {
+    if (state.showConfirmRemoveDrinkDialog) {
         AlertDialog(
             onDismissRequest = {
-                viewModel.onEvent(MyDrinkEvent.OnRemoveDrinkCanceled)
+                onEvent(MyDrinkEvent.OnRemoveDrinkCanceled)
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.onEvent(MyDrinkEvent.OnRemoveDrinkConfirmed(state.drinkToRemove!!))
+                    onEvent(MyDrinkEvent.OnRemoveDrinkConfirmed(state.drinkToRemove!!))
                 }) {
                     Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
-                    viewModel.onEvent(MyDrinkEvent.OnRemoveDrinkCanceled)
+                    onEvent(MyDrinkEvent.OnRemoveDrinkCanceled)
                 }) {
                     Text(text = stringResource(id = R.string.cancel))
                 }
@@ -88,7 +94,6 @@ fun MyDrinkScreen(
         }
     } else {
         BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-            val constraints = this
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -97,20 +102,22 @@ fun MyDrinkScreen(
                         end = spacing.spaceMedium,
                         start = spacing.spaceMedium,
                         bottom = spacing.spaceExtraLarge
-                    )
+                    ),
             ) {
-
                 items(state.drinks) { drink ->
                     DetailedDrinkItem(
                         drink = drink,
+                        drinkId = drink.idDrink,
                         onDrinkClicked = onDrinkClicked,
                         onFavoriteChangeClicked = {
-                            viewModel.onEvent(MyDrinkEvent.OnChangeFavoriteStateClicked(drink))
+                            onEvent(MyDrinkEvent.OnChangeFavoriteStateClicked(it))
                         },
                         onRemoveClicked = {
-                            viewModel.onEvent(MyDrinkEvent.OnRemoveDrinkClicked(drink))
+                            onEvent(MyDrinkEvent.OnRemoveDrinkClicked(it))
                         },
-                        onEditDrinkClicked = onEditDrinkClicked,
+                        onEditDrinkClicked = {
+                            onEditDrinkClicked(it)
+                        },
                         modifier = Modifier.padding(
                             vertical = spacing.spaceSmall
                         ),

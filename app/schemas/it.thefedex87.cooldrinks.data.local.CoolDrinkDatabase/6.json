@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 5,
-    "identityHash": "8c7e845c2bc73cac07a05ddb1cd6ac1a",
+    "version": 6,
+    "identityHash": "04ce33f663bfcd80f5a713f281e6c23e",
     "entities": [
       {
         "tableName": "DrinkEntity",
@@ -112,13 +112,13 @@
       },
       {
         "tableName": "IngredientEntity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `description` TEXT, `imagePath` TEXT, `type` TEXT NOT NULL, `alcoholic` INTEGER NOT NULL, `availableLocal` INTEGER NOT NULL, `isPersonalIngredient` INTEGER NOT NULL DEFAULT false)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT, `imagePath` TEXT, `type` TEXT NOT NULL, `alcoholic` INTEGER NOT NULL, `availableLocal` INTEGER NOT NULL, `isPersonalIngredient` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
-            "affinity": "INTEGER",
-            "notNull": false
+            "affinity": "TEXT",
+            "notNull": true
           },
           {
             "fieldPath": "name",
@@ -165,7 +165,7 @@
           }
         ],
         "primaryKey": {
-          "autoGenerate": true,
+          "autoGenerate": false,
           "columnNames": [
             "id"
           ]
@@ -177,7 +177,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8c7e845c2bc73cac07a05ddb1cd6ac1a')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '04ce33f663bfcd80f5a713f281e6c23e')"
     ]
   }
 }

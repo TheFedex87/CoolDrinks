@@ -37,7 +37,9 @@ import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailViewModel
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
+import it.thefedex87.cooldrinks.presentation.my_drink.MyDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
+import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkViewModel
 import it.thefedex87.cooldrinks.util.Consts.TAG
 
 @OptIn(ExperimentalMaterial3Api::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -169,10 +171,18 @@ fun BottomNavigationScreen(
                 }
 
                 val viewModel = hiltViewModel<CocktailTabViewModel>()
+                val searchDrinkViewModel = hiltViewModel<SearchDrinkViewModel>()
+                val myDrinksViewModel = hiltViewModel<MyDrinkViewModel>()
 
                 CocktailTabScreen(
                     state = viewModel.state,
                     onEvent = viewModel::onEvent,
+                    searchDrinkState = searchDrinkViewModel.state,
+                    searchDrinkOnEvent = searchDrinkViewModel::onEvent,
+                    searchDrinkUiEvent = searchDrinkViewModel.uiEvent,
+                    myDrinkState = myDrinksViewModel.state.collectAsState().value,
+                    myDrinkOnEvent = myDrinksViewModel::onEvent,
+                    myDrinkUiEvent = myDrinksViewModel.uiEvent,
                     navController = navController,
                     snackbarHostState = snackbarHostState,
                     onComposed = {

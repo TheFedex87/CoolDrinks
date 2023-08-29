@@ -30,11 +30,17 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import it.thefedex87.cooldrinks.R
+import it.thefedex87.cooldrinks.presentation.my_drink.MyDrinkEvent
 import it.thefedex87.cooldrinks.presentation.my_drink.MyDrinkScreen
+import it.thefedex87.cooldrinks.presentation.my_drink.MyDrinkState
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
+import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkEvent
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkScreen
+import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkState
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
+import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 
@@ -46,6 +52,12 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 fun CocktailTabScreen(
     state: CocktailTabState,
     onEvent: (CocktailTabEvent) -> Unit,
+    searchDrinkState: SearchDrinkState,
+    searchDrinkOnEvent: (SearchDrinkEvent) -> Unit,
+    searchDrinkUiEvent: Flow<UiEvent>,
+    myDrinkState: MyDrinkState,
+    myDrinkOnEvent: (MyDrinkEvent) -> Unit,
+    myDrinkUiEvent: Flow<UiEvent>,
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
     onComposed: (BottomNavigationScreenState) -> Unit,
@@ -80,6 +92,7 @@ fun CocktailTabScreen(
                         localCurrentBottomNavigationScreenState
                     )
                 }
+
                 1 -> {
                     localCurrentBottomNavigationScreenState =
                         localCurrentBottomNavigationScreenState.copy(
@@ -200,6 +213,9 @@ fun CocktailTabScreen(
                 when (page) {
                     0 -> {
                         SearchDrinkScreen(
+                            state = searchDrinkState,
+                            onEvent = searchDrinkOnEvent,
+                            uiEvent = searchDrinkUiEvent,
                             snackbarHostState = snackbarHostState,
                             onComposed = { state ->
 
@@ -218,13 +234,21 @@ fun CocktailTabScreen(
                             }
                         )
                     }
+
                     1 -> {
+                        val onEditClickedLambda = remember<(Int) -> Unit> {
+                            { drinkId ->
+                                navController.navigate("${Route.ADD_MY_DRINK}?drinkId=${drinkId}")
+                            }
+                        }
+
                         MyDrinkScreen(
+                            state = myDrinkState,
+                            onEvent = myDrinkOnEvent,
+                            uiEvent = myDrinkUiEvent,
                             snackbarHostState = snackbarHostState,
-                            onEditDrinkClicked = { drink ->
-                                navController.navigate("${Route.ADD_MY_DRINK}?drinkId=${drink.idDrink}")
-                            },
-                            onDrinkClicked = {id, color, name ->
+                            onEditDrinkClicked = onEditClickedLambda,
+                            onDrinkClicked = { id, color, name ->
                                 navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
                             }
                         )

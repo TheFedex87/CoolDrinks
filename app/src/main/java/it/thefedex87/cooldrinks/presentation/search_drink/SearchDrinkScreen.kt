@@ -22,12 +22,16 @@ import it.thefedex87.cooldrinks.presentation.components.cocktail.model.DrinkUiMo
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, com.google.accompanist.pager.ExperimentalPagerApi::class)
 @ExperimentalComposeUiApi
 @Composable
 fun SearchDrinkScreen(
+    state: SearchDrinkState,
+    onEvent: (SearchDrinkEvent) -> Unit,
+    uiEvent: Flow<UiEvent>,
     snackbarHostState: SnackbarHostState,
     onDrinkClicked: (Int, Int, String) -> Unit,
     onIngredientListClicked: () -> Unit,
@@ -35,8 +39,7 @@ fun SearchDrinkScreen(
     onSelectedDrinkDrawableLoaded: (Drawable?) -> Unit,
     //paddingValues: PaddingValues,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
-    ingredient: String? = null,
-    viewModel: SearchDrinkViewModel = hiltViewModel()
+    ingredient: String? = null
 ) {
     val context = LocalContext.current
     val spacing = LocalSpacing.current
@@ -74,8 +77,8 @@ fun SearchDrinkScreen(
         }
     }*/
     if (
-        viewModel.state.visualizationType == VisualizationType.List ||
-        viewModel.state.foundDrinks.isEmpty()
+        state.visualizationType == VisualizationType.List ||
+        state.foundDrinks.isEmpty()
     ) {
         onSelectedDrinkDrawableLoaded(null)
     }
@@ -95,11 +98,11 @@ fun SearchDrinkScreen(
         )
 
         ingredient?.let {
-            viewModel.onEvent(SearchDrinkEvent.OnIngredientPassed(it))
-            viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+            onEvent(SearchDrinkEvent.OnIngredientPassed(it))
+            onEvent(SearchDrinkEvent.OnSearchClick)
         }
 
-        viewModel.uiEvent.collect {
+        uiEvent.collect {
             when (it) {
                 is UiEvent.ShowSnackBar -> {
                     keyboardController?.hide()
@@ -141,24 +144,24 @@ fun SearchDrinkScreen(
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val constraints = this
 
-        if (!viewModel.state.isLoading) {
+        if (!state.isLoading) {
 
             Column(
                 modifier = Modifier
                     .fillMaxSize()
             ) {
                 SearchTextField(
-                    text = viewModel.state.searchQuery,
-                    showHint = viewModel.state.showSearchHint,
+                    text = state.searchQuery,
+                    showHint = state.showSearchHint,
                     onSearch = {
                         keyboardController?.hide()
-                        viewModel.onEvent(SearchDrinkEvent.OnSearchClick)
+                        onEvent(SearchDrinkEvent.OnSearchClick)
                     },
                     onValueChanged = {
-                        viewModel.onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
+                        onEvent(SearchDrinkEvent.OnSearchQueryChange(it))
                     },
                     onFocusChanged = {
-                        viewModel.onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
+                        onEvent(SearchDrinkEvent.OnSearchFocusChange(it.isFocused))
                     },
                     trailingIcon = Icons.Default.List,
                     trailingIconOnClick = onIngredientListClicked,
@@ -168,26 +171,26 @@ fun SearchDrinkScreen(
                     )
                 )
 
-                if (viewModel.state.foundDrinks.isNotEmpty()) {
+                if (state.foundDrinks.isNotEmpty()) {
 
                     val onVisualizationTypeChangedLambda = remember<(VisualizationType) -> Unit> {
                         {
-                            viewModel.onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
+                            onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
                         }
                     }
 
                     val onFavoriteClickedLambda = remember<(DrinkUiModel) -> Unit> {
                         {
-                            viewModel.onEvent(SearchDrinkEvent.OnFavoriteClick(it))
+                            onEvent(SearchDrinkEvent.OnFavoriteClick(it))
                         }
                     }
 
                     val onSelectDrinkDrawableChangedLambda = remember<(Drawable?) -> Unit> {
                         {
                             if (
-                                viewModel.state.visualizationType == VisualizationType.Card &&
-                                viewModel.state.foundDrinks.isNotEmpty() &&
-                                !viewModel.state.isLoading
+                                state.visualizationType == VisualizationType.Card &&
+                                state.foundDrinks.isNotEmpty() &&
+                                !state.isLoading
                             ) {
                                 onSelectedDrinkDrawableLoaded(it)
                             }
@@ -197,9 +200,9 @@ fun SearchDrinkScreen(
                     CocktailView(
                         maxHeight = constraints.maxHeight,
                         maxWidth = constraints.maxWidth,
-                        isLoading = viewModel.state.isLoading,
-                        drinks = viewModel.state.foundDrinks,
-                        visualizationType = viewModel.state.visualizationType,
+                        isLoading = state.isLoading,
+                        drinks = state.foundDrinks,
+                        visualizationType = state.visualizationType,
                         onDrinkClicked = onDrinkClicked,
                         onFavoriteClicked = onFavoriteClickedLambda,
                         onVisualizationTypeChanged = onVisualizationTypeChangedLambda,

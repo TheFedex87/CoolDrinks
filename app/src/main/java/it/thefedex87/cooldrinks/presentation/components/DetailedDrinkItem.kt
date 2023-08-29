@@ -28,10 +28,11 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 @Composable
 fun DetailedDrinkItem(
     drink: DrinkDetailDomainModel,
+    drinkId: Int,
     onDrinkClicked: (Int, Int, String) -> Unit,
-    onFavoriteChangeClicked: (Boolean) -> Unit,
-    onRemoveClicked: ((DrinkDetailDomainModel) -> Unit)?,
-    onEditDrinkClicked: ((DrinkDetailDomainModel) -> Unit)?,
+    onFavoriteChangeClicked: (Int) -> Unit,
+    onRemoveClicked: ((Int) -> Unit)?,
+    onEditDrinkClicked: ((Int) -> Unit)?,
     modifier: Modifier = Modifier
 ) {
     val spacing = LocalSpacing.current
@@ -151,7 +152,7 @@ fun DetailedDrinkItem(
                             modifier = Modifier
                                 .padding(spacing.spaceSmall),
                             onClick = {
-                                it(drink)
+                                it(drinkId)
                             }
                         ) {
                             Icon(
@@ -167,7 +168,7 @@ fun DetailedDrinkItem(
                             modifier = Modifier
                                 .padding(spacing.spaceSmall),
                             onClick = {
-                                it(drink)
+                                it(drinkId)
                             }
                         ) {
                             Icon(
@@ -182,7 +183,7 @@ fun DetailedDrinkItem(
                         modifier = Modifier
                             .padding(spacing.spaceSmall),
                         onClick = {
-                            onFavoriteChangeClicked(!drink.isFavorite)
+                            onFavoriteChangeClicked(drinkId)
                         }
                     ) {
                         Icon(

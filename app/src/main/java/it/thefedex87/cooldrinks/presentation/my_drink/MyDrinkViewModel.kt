@@ -49,17 +49,19 @@ class MyDrinkViewModel @Inject constructor(
         viewModelScope.launch {
             when(event) {
                 is MyDrinkEvent.OnChangeFavoriteStateClicked -> {
-                    if(event.drink.isFavorite) {
-                        repository.deleteOrRemoveFromFavorite(event.drink.idDrink)
+                    val drink = _state.value.drinks.first { it.idDrink == event.drinkId }
+                    if(drink.isFavorite) {
+                        repository.deleteOrRemoveFromFavorite(drink.idDrink)
                     } else {
-                        repository.insertIntoFavorite(event.drink)
+                        repository.insertIntoFavorite(drink)
                     }
                 }
                 is MyDrinkEvent.OnRemoveDrinkClicked -> {
+                    val drink = _state.value.drinks.first { it.idDrink == event.drinkId }
                     _state.update {
                         _state.value.copy(
                             showConfirmRemoveDrinkDialog = true,
-                            drinkToRemove = event.drink
+                            drinkToRemove = drink
                         )
                     }
                 }

@@ -290,6 +290,7 @@ fun FavoriteDrinkScreen(
             items(state.drinks) { drink ->
                 DetailedDrinkItem(
                     drink = drink,
+                    drinkId = drink.idDrink,
                     onDrinkClicked = { id, color, name ->
                         onDrinkClicked(id, color, name)
                     },
