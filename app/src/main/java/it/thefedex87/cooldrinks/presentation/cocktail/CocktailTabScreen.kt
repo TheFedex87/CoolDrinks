@@ -44,12 +44,13 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 )
 @Composable
 fun CocktailTabScreen(
+    state: CocktailTabState,
+    onEvent: (CocktailTabEvent) -> Unit,
     navController: NavHostController,
     snackbarHostState: SnackbarHostState,
     onComposed: (BottomNavigationScreenState) -> Unit,
     ingredient: String?,
-    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
-    viewModel: CocktailTabViewModel = hiltViewModel()
+    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState()
 ) {
     val addText = stringResource(id = R.string.add)
     var localCurrentBottomNavigationScreenState = currentBottomNavigationScreenState
@@ -61,7 +62,7 @@ fun CocktailTabScreen(
     val pagerState = rememberPagerState()
     LaunchedEffect(key1 = pagerState) {
         snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
-            viewModel.onEvent(CocktailTabEvent.OnPagerScrolled(it))
+            onEvent(CocktailTabEvent.OnPagerScrolled(it))
             when (it) {
                 0 -> {
                     localCurrentBottomNavigationScreenState =
@@ -104,12 +105,12 @@ fun CocktailTabScreen(
             }
         }
     }
-    LaunchedEffect(key1 = viewModel.state.selectedTab) {
-        pagerState.animateScrollToPage(viewModel.state.selectedTab)
+    LaunchedEffect(key1 = state.selectedTab) {
+        pagerState.animateScrollToPage(state.selectedTab)
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (selectedDrinkDrawable == null) {
+        if (selectedDrinkDrawable == null || pagerState.currentPage == 1) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(R.drawable.bar_bg_5_b_small)
@@ -157,9 +158,9 @@ fun CocktailTabScreen(
 
                 ) {
                 Tab(
-                    selected = viewModel.state.selectedTab == 0,
+                    selected = state.selectedTab == 0,
                     onClick = {
-                        viewModel.onEvent(CocktailTabEvent.OnTabClicked(0))
+                        onEvent(CocktailTabEvent.OnTabClicked(0))
                     },
                     text = {
                         Text(
@@ -174,9 +175,9 @@ fun CocktailTabScreen(
                     }
                 )
                 Tab(
-                    selected = viewModel.state.selectedTab == 1,
+                    selected = state.selectedTab == 1,
                     onClick = {
-                        viewModel.onEvent(CocktailTabEvent.OnTabClicked(1))
+                        onEvent(CocktailTabEvent.OnTabClicked(1))
                     },
                     text = {
                         Text(

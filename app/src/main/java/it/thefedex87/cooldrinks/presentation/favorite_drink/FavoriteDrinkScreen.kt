@@ -32,16 +32,19 @@ import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNav
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts.TAG
+import kotlinx.coroutines.flow.Flow
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteDrinkScreen(
+    state: FavoriteDrinkState,
+    onEvent: (FavoriteDrinkEvent) -> Unit,
+    uiEvent: Flow<UiEvent>,
     snackbarHostState: SnackbarHostState,
     onDrinkClicked: (Int, Int, String) -> Unit,
     onEditDrinkClicked: (DrinkDetailDomainModel) -> Unit,
     onComposed: (BottomNavigationScreenState) -> Unit,
-    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
-    viewModel: FavoriteDrinkViewModel = hiltViewModel()
+    currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState()
 ) {
     val context = LocalContext.current
 
@@ -59,7 +62,7 @@ fun FavoriteDrinkScreen(
             )
         )
 
-        viewModel.uiEvent.collect {
+        uiEvent.collect {
             when (it) {
                 is UiEvent.ShowSnackBar -> {
                     Log.d(TAG, "Show snack bar with message: ${it.message.asString(context)}")
@@ -75,21 +78,21 @@ fun FavoriteDrinkScreen(
 
     val spacing = LocalSpacing.current
 
-    if (viewModel.state.showConfirmRemoveFavoriteDialog) {
+    if (state.showConfirmRemoveFavoriteDialog) {
         AlertDialog(
             onDismissRequest = {
-                viewModel.onEvent(FavoriteDrinkEvent.RemoveFromFavoriteCanceled)
+                onEvent(FavoriteDrinkEvent.RemoveFromFavoriteCanceled)
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.onEvent(FavoriteDrinkEvent.RemoveFromFavoriteConfirmed(viewModel.state.drinkToRemove!!))
+                    onEvent(FavoriteDrinkEvent.RemoveFromFavoriteConfirmed(state.drinkToRemove!!))
                 }) {
                     Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
-                    viewModel.onEvent(FavoriteDrinkEvent.RemoveFromFavoriteCanceled)
+                    onEvent(FavoriteDrinkEvent.RemoveFromFavoriteCanceled)
                 }) {
                     Text(text = stringResource(id = R.string.cancel))
                 }
@@ -103,20 +106,20 @@ fun FavoriteDrinkScreen(
         )
     }
 
-    val glasses = viewModel.state.glasses.map {
+    val glasses = state.glasses.map {
         DropDownItem(
             label = it.valueStr,
             onItemClick = {
-                viewModel.onEvent(FavoriteDrinkEvent.GlassFilterValueChanged(it))
+                onEvent(FavoriteDrinkEvent.GlassFilterValueChanged(it))
             }
         )
     }
 
-    val categories = viewModel.state.categories.map {
+    val categories = state.categories.map {
         DropDownItem(
             label = it.valueStr,
             onItemClick = {
-                viewModel.onEvent(
+                onEvent(
                     FavoriteDrinkEvent.CategoryFilterValueChanged(it)
                 )
             }
@@ -138,9 +141,7 @@ fun FavoriteDrinkScreen(
                 .fillMaxSize()
                 .padding(spacing.spaceMedium)
         ) {
-            if (viewModel.state.showFilterChips) {
-
-
+            if (state.showFilterChips) {
                 item {
                     Row(
                         modifier = Modifier
@@ -148,14 +149,14 @@ fun FavoriteDrinkScreen(
                             .horizontalScroll(rememberScrollState()),
                     ) {
                         DropDownChip(
-                            isChipSelected = viewModel.state.alcoholFilter != AlcoholFilter.NONE,
+                            isChipSelected = state.alcoholFilter != AlcoholFilter.NONE,
                             onChipClick = {
-                                viewModel.onEvent(FavoriteDrinkEvent.ExpandeAlcoholMenu)
+                                onEvent(FavoriteDrinkEvent.ExpandeAlcoholMenu)
                             },
-                            label = viewModel.state.alcoholFilter.toString(),
-                            isMenuExpanded = viewModel.state.alcoholMenuExpanded,
+                            label = state.alcoholFilter.toString(),
+                            isMenuExpanded = state.alcoholMenuExpanded,
                             onDismissRequest = {
-                                viewModel.onEvent(FavoriteDrinkEvent.CollapseAlcoholMenu)
+                                onEvent(FavoriteDrinkEvent.CollapseAlcoholMenu)
                             },
                             selectedIcon = {
                                 Icon(
@@ -165,7 +166,7 @@ fun FavoriteDrinkScreen(
                             },
                             trailingIcon = {
                                 Icon(
-                                    imageVector = if (viewModel.state.alcoholMenuExpanded)
+                                    imageVector = if (state.alcoholMenuExpanded)
                                         Icons.Default.ArrowDropUp else
                                         Icons.Default.ArrowDropDown,
                                     contentDescription = stringResource(id = R.string.expand_alcohol_filter)
@@ -175,7 +176,7 @@ fun FavoriteDrinkScreen(
                                 DropDownItem(
                                     label = stringResource(id = R.string.none),
                                     onItemClick = {
-                                        viewModel.onEvent(
+                                        onEvent(
                                             FavoriteDrinkEvent.AlcoholFilterValueChanged(
                                                 AlcoholFilter.NONE
                                             )
@@ -191,7 +192,7 @@ fun FavoriteDrinkScreen(
                                 DropDownItem(
                                     label = AlcoholFilter.ALCOHOLIC.toString(),
                                     onItemClick = {
-                                        viewModel.onEvent(
+                                        onEvent(
                                             FavoriteDrinkEvent.AlcoholFilterValueChanged(
                                                 AlcoholFilter.ALCOHOLIC
                                             )
@@ -207,7 +208,7 @@ fun FavoriteDrinkScreen(
                                 DropDownItem(
                                     label = AlcoholFilter.NOT_ALCOHOLIC.toString(),
                                     onItemClick = {
-                                        viewModel.onEvent(
+                                        onEvent(
                                             FavoriteDrinkEvent.AlcoholFilterValueChanged(
                                                 AlcoholFilter.NOT_ALCOHOLIC
                                             )
@@ -224,17 +225,17 @@ fun FavoriteDrinkScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownChip(
-                            isChipSelected = viewModel.state.glassUiModel != GlassUiModel.NONE,
+                            isChipSelected = state.glassUiModel != GlassUiModel.NONE,
                             onChipClick = {
-                                viewModel.onEvent(FavoriteDrinkEvent.ExpandeGlassMenu)
+                                onEvent(FavoriteDrinkEvent.ExpandeGlassMenu)
                             },
-                            label = if (viewModel.state.glassUiModel == GlassUiModel.NONE)
+                            label = if (state.glassUiModel == GlassUiModel.NONE)
                                 stringResource(id = R.string.glass)
                             else
-                                viewModel.state.glassUiModel.valueStr,
-                            isMenuExpanded = viewModel.state.glassMenuExpanded,
+                                state.glassUiModel.valueStr,
+                            isMenuExpanded = state.glassMenuExpanded,
                             onDismissRequest = {
-                                viewModel.onEvent(FavoriteDrinkEvent.CollapseGlassMenu)
+                                onEvent(FavoriteDrinkEvent.CollapseGlassMenu)
                             },
                             selectedIcon = {
                                 Icon(
@@ -244,7 +245,7 @@ fun FavoriteDrinkScreen(
                             },
                             trailingIcon = {
                                 Icon(
-                                    imageVector = if (viewModel.state.glassMenuExpanded)
+                                    imageVector = if (state.glassMenuExpanded)
                                         Icons.Default.ArrowDropUp else
                                         Icons.Default.ArrowDropDown,
                                     contentDescription = stringResource(id = R.string.expand_glass_filter)
@@ -254,17 +255,17 @@ fun FavoriteDrinkScreen(
                         )
                         Spacer(modifier = Modifier.width(8.dp))
                         DropDownChip(
-                            isChipSelected = viewModel.state.categoryUiModel != CategoryUiModel.NONE,
+                            isChipSelected = state.categoryUiModel != CategoryUiModel.NONE,
                             onChipClick = {
-                                viewModel.onEvent(FavoriteDrinkEvent.ExpandeCategoryMenu)
+                                onEvent(FavoriteDrinkEvent.ExpandeCategoryMenu)
                             },
-                            label = if (viewModel.state.categoryUiModel == CategoryUiModel.NONE)
+                            label = if (state.categoryUiModel == CategoryUiModel.NONE)
                                 stringResource(id = R.string.category)
                             else
-                                viewModel.state.categoryUiModel.valueStr,
-                            isMenuExpanded = viewModel.state.categoryMenuExpanded,
+                                state.categoryUiModel.valueStr,
+                            isMenuExpanded = state.categoryMenuExpanded,
                             onDismissRequest = {
-                                viewModel.onEvent(FavoriteDrinkEvent.CollapseCategoryMenu)
+                                onEvent(FavoriteDrinkEvent.CollapseCategoryMenu)
                             },
                             selectedIcon = {
                                 Icon(
@@ -274,7 +275,7 @@ fun FavoriteDrinkScreen(
                             },
                             trailingIcon = {
                                 Icon(
-                                    imageVector = if (viewModel.state.categoryMenuExpanded)
+                                    imageVector = if (state.categoryMenuExpanded)
                                         Icons.Default.ArrowDropUp else
                                         Icons.Default.ArrowDropDown,
                                     contentDescription = stringResource(id = R.string.expand_category_filter)
@@ -286,14 +287,14 @@ fun FavoriteDrinkScreen(
                 }
             }
 
-            items(viewModel.state.drinks) { drink ->
+            items(state.drinks) { drink ->
                 DetailedDrinkItem(
                     drink = drink,
                     onDrinkClicked = { id, color, name ->
                         onDrinkClicked(id, color, name)
                     },
                     onFavoriteChangeClicked = {
-                        viewModel.onEvent(FavoriteDrinkEvent.UnfavoriteClicked(drink))
+                        onEvent(FavoriteDrinkEvent.UnfavoriteClicked(drink))
                     },
                     onEditDrinkClicked = null,
                     onRemoveClicked = null,
@@ -304,21 +305,7 @@ fun FavoriteDrinkScreen(
             }
         }
 
-        if (!viewModel.state.showFilterChips) {
-            /*Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.search_background),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .width(250.dp)
-                )
-                Text(text = stringResource(id = R.string.add_some_favorites))
-            }*/
+        if (!state.showFilterChips) {
             EmptyList(
                 icon = Icons.Default.FavoriteBorder,
                 text = stringResource(id = R.string.add_some_favorites),

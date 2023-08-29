@@ -28,9 +28,10 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrinkDetailScreenSimplified(
+    state: DrinkDetailState,
+    onEvent: (DrinkDetailEvent) -> Unit,
     calculatedDominantColor: Color?,
     appBarScrollBehavior: TopAppBarScrollBehavior,
-    viewModel: DrinkDetailViewModel,
     imageSize: Double
 ) {
     val spacing = LocalSpacing.current
@@ -74,9 +75,9 @@ fun DrinkDetailScreenSimplified(
                             )
                     ) {
                         CharacteristicSection(
-                            drinkGlass = viewModel.state.drinkGlass,
-                            drinkCategory = viewModel.state.drinkCategory,
-                            drinkAlcoholic = viewModel.state.drinkAlcoholic?.asString(
+                            drinkGlass = state.drinkGlass,
+                            drinkCategory = state.drinkCategory,
+                            drinkAlcoholic = state.drinkAlcoholic?.asString(
                                 LocalContext.current
                             )
                         )
@@ -105,7 +106,7 @@ fun DrinkDetailScreenSimplified(
                             Text(
                                 text = buildAnnotatedString {
                                     withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append("${viewModel.state.drinkIngredients?.filter { it.name != null }?.count { it.isAvailable == false }}")
+                                        append("${state.drinkIngredients?.filter { it.name != null }?.count { it.isAvailable == false }}")
                                     }
                                     append(
                                         " ${
@@ -117,7 +118,7 @@ fun DrinkDetailScreenSimplified(
                                 }
                             )
                             Spacer(modifier = Modifier.height(spacing.spaceMedium))
-                            val ingredients = viewModel.state.drinkIngredients?.filter { it.name != null }
+                            val ingredients = state.drinkIngredients?.filter { it.name != null }
                                 ?.sortedBy { it.isAvailable == false }
                             ingredients?.map {
                                 IngredientItem(
@@ -127,7 +128,7 @@ fun DrinkDetailScreenSimplified(
                             }
                         }
                     }
-                    viewModel.state.drinkInstructions?.let { instructions ->
+                    state.drinkInstructions?.let { instructions ->
                         Text(
                             modifier = Modifier
                                 .padding(spacing.spaceMedium),
@@ -137,9 +138,10 @@ fun DrinkDetailScreenSimplified(
                 }
             }
             DrinkImage(
+                state = state,
+                onEvent = onEvent,
                 imageSize = imageSize,
                 calculatedDominantColor = calculatedDominantColor,
-                viewModel = viewModel
             )
         }
         /*if (drinkId == null) {

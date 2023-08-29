@@ -26,12 +26,13 @@ import it.thefedex87.cooldrinks.util.Consts.TAG
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrinkDetailScreen(
+    state: DrinkDetailState,
+    onEvent: (DrinkDetailEvent) -> Unit,
     calculatedDominantColor: Color?,
     drinkId: Int?,
     onComposed: (BottomNavigationScreenState) -> Unit,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
-    onDrinkLoaded: ((String) -> Unit)?,
-    viewModel: DrinkDetailViewModel = hiltViewModel()
+    onDrinkLoaded: ((String) -> Unit)?
 ) {
     /*var dominantColor by remember {
         mutableStateOf(calculatedDominantColor)
@@ -40,21 +41,21 @@ fun DrinkDetailScreen(
     val appBarScrollBehavior =
         TopAppBarDefaults.pinnedScrollBehavior(rememberTopAppBarState())
 
-    if (viewModel.state.showConfirmRemoveFavoriteDialog) {
+    if (state.showConfirmRemoveFavoriteDialog) {
         AlertDialog(
             onDismissRequest = {
-                viewModel.onEvent(DrinkDetailEvent.RemoveFromFavoriteCanceled)
+                onEvent(DrinkDetailEvent.RemoveFromFavoriteCanceled)
             },
             confirmButton = {
                 TextButton(onClick = {
-                    viewModel.onEvent(DrinkDetailEvent.RemoveFromFavoriteConfirmed)
+                    onEvent(DrinkDetailEvent.RemoveFromFavoriteConfirmed)
                 }) {
                     Text(text = stringResource(id = R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
-                    viewModel.onEvent(DrinkDetailEvent.RemoveFromFavoriteCanceled)
+                    onEvent(DrinkDetailEvent.RemoveFromFavoriteCanceled)
                 }) {
                     Text(text = stringResource(id = R.string.cancel))
                 }
@@ -68,7 +69,7 @@ fun DrinkDetailScreen(
         )
     }
 
-    LaunchedEffect(key1 = viewModel.state.isFavorite) {
+    LaunchedEffect(key1 = state.isFavorite) {
         onComposed(
             currentBottomNavigationScreenState.copy(
                 topBarVisible = true,
@@ -81,7 +82,7 @@ fun DrinkDetailScreen(
                     Row {
                         if (drinkId == null) {
                             IconButton(onClick = {
-                                viewModel.onEvent(DrinkDetailEvent.GetRandomCocktail)
+                                onEvent(DrinkDetailEvent.GetRandomCocktail)
                             }) {
                                 Icon(
                                     imageVector = Icons.Default.Refresh,
@@ -90,10 +91,10 @@ fun DrinkDetailScreen(
                             }
                         }
                         IconButton(onClick = {
-                            viewModel.onEvent(DrinkDetailEvent.FavoriteClicked)
+                            onEvent(DrinkDetailEvent.FavoriteClicked)
                         }) {
                             Icon(
-                                imageVector = if (viewModel.state.isFavorite == true)
+                                imageVector = if (state.isFavorite == true)
                                     Icons.Default.Favorite else
                                     Icons.Default.FavoriteBorder,
                                 contentDescription = null,
@@ -129,13 +130,13 @@ fun DrinkDetailScreen(
             )
     )*/
 
-    if (viewModel.state.isLoading) {
+    if (state.isLoading) {
         //dominantColor = null
         Box(modifier = Modifier.fillMaxSize()) {
             CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
         }
     } else {
-        onDrinkLoaded?.invoke(viewModel.state.drinkName!!)
+        onDrinkLoaded?.invoke(state.drinkName!!)
 
         val screenHeightInPx = with(LocalDensity.current) { LocalConfiguration.current.screenHeightDp.dp }
         Log.d(TAG, "Screen height in dp: ${LocalConfiguration.current.screenHeightDp} - screen height in px: $screenHeightInPx")
@@ -145,15 +146,17 @@ fun DrinkDetailScreen(
 
         if (screenHeightInPx > 680.dp) {
             DrinkDetailScreenAdvanced(
+                state = state,
+                onEvent = onEvent,
                 calculatedDominantColor = calculatedDominantColor,
-                viewModel = viewModel,
                 imageSize = imageSize
             )
         } else {
             DrinkDetailScreenSimplified(
+                state = state,
+                onEvent = onEvent,
                 calculatedDominantColor = calculatedDominantColor,
                 appBarScrollBehavior = appBarScrollBehavior,
-                viewModel = viewModel,
                 imageSize = imageSize
             )
         }

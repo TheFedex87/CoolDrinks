@@ -16,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -26,11 +27,15 @@ import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientScreen
 import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkScreen
 import it.thefedex87.cooldrinks.presentation.bar.BarScreen
+import it.thefedex87.cooldrinks.presentation.bar.BarViewModel
 import it.thefedex87.cooldrinks.presentation.cocktail.CocktailTabScreen
+import it.thefedex87.cooldrinks.presentation.cocktail.CocktailTabViewModel
 import it.thefedex87.cooldrinks.presentation.components.MultiChoiceActionButton
 import it.thefedex87.cooldrinks.presentation.components.MultiFabState
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailScreen
+import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailViewModel
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
+import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 import it.thefedex87.cooldrinks.util.Consts.TAG
@@ -91,7 +96,12 @@ fun BottomNavigationScreen(
                 val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
                 it.savedStateHandle?.remove<String>("storedIngredient")
 
+                val viewModel = hiltViewModel<BarViewModel>()
+
                 BarScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
+                    uiEvent = viewModel.uiEvent,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onComposed = {
                         bottomNavigationScreenState = it
@@ -158,7 +168,11 @@ fun BottomNavigationScreen(
                     i
                 }
 
+                val viewModel = hiltViewModel<CocktailTabViewModel>()
+
                 CocktailTabScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
                     navController = navController,
                     snackbarHostState = snackbarHostState,
                     onComposed = {
@@ -208,7 +222,12 @@ fun BottomNavigationScreen(
                     ?.remove<String>("ingredient")
             }*/
             composable(BottomNavScreen.Favorite.route) {
+                val viewModel = hiltViewModel<FavoriteDrinkViewModel>()
+
                 FavoriteDrinkScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
+                    uiEvent = viewModel.uiEvent,
                     snackbarHostState = snackbarHostState,
                     onComposed = { state ->
                         bottomNavigationScreenState = state
@@ -223,7 +242,11 @@ fun BottomNavigationScreen(
                 )
             }
             composable(BottomNavScreen.RandomDrink.route) {
+                val viewModel = hiltViewModel<DrinkDetailViewModel>()
+
                 DrinkDetailScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
                     calculatedDominantColor = null,
                     drinkId = null,
                     onDrinkLoaded = {
@@ -251,11 +274,15 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
+                val viewModel = hiltViewModel<DrinkDetailViewModel>()
+
                 val dominantColor =
                     it.arguments?.getInt("dominantColor")?.let { Color(it) }
                         ?: Color.White
                 val drinkId = it.arguments?.getInt("drinkId")!!
                 DrinkDetailScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
                     calculatedDominantColor = dominantColor,
                     drinkId = drinkId,
                     onDrinkLoaded = null,
@@ -465,7 +492,9 @@ fun RowScope.AddItem(
         selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
         onClick = {
             navController.navigate(screen.route) {
-                popUpTo(navController.graph.findStartDestination().id)
+                popUpTo(navController.graph.findStartDestination().id) {
+                    inclusive = true
+                }
                 launchSingleTop = true
             }
         }

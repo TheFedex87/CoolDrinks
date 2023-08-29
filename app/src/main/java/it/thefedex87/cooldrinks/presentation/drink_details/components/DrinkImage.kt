@@ -19,14 +19,16 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailEvent
+import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailState
 import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailViewModel
 import it.thefedex87.cooldrinks.util.Consts
 
 @Composable
 fun BoxScope.DrinkImage(
+    state: DrinkDetailState,
+    onEvent: (DrinkDetailEvent) -> Unit,
     imageSize: Double,
-    calculatedDominantColor: Color?,
-    viewModel: DrinkDetailViewModel
+    calculatedDominantColor: Color?
 ) {
     Box(
         modifier = Modifier
@@ -41,15 +43,15 @@ fun BoxScope.DrinkImage(
                 .size((imageSize - 10).dp)
                 .clip(CircleShape)
                 .background(
-                    (if (viewModel.state.drinkDominantColor != null && viewModel.state.drinkDominantColor != 0)
-                        Color(viewModel.state.drinkDominantColor!!) else
+                    (if (state.drinkDominantColor != null && state.drinkDominantColor != 0)
+                        Color(state.drinkDominantColor!!) else
                         MaterialTheme.colorScheme.surfaceVariant).copy(alpha = 0.6f)
                 ),
         ) {
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
-                    .data(if(viewModel.state.drinkImagePath != null
-                        && viewModel.state.drinkImagePath!!.isNotEmpty()) viewModel.state.drinkImagePath else R.drawable.search_background)
+                    .data(if(state.drinkImagePath != null
+                        && state.drinkImagePath!!.isNotEmpty()) state.drinkImagePath else R.drawable.search_background)
                     .crossfade(true)
                     .build(),
                 modifier = Modifier
@@ -66,13 +68,13 @@ fun BoxScope.DrinkImage(
                             Consts.TAG,
                             "Calculate dominant color inside drink details screen"
                         )
-                        viewModel.onEvent(DrinkDetailEvent.DrawableLoaded(it.result.drawable))
+                        onEvent(DrinkDetailEvent.DrawableLoaded(it.result.drawable))
                     }
                 },
                 onError = {
                     R.drawable.search_background
                 },
-                contentDescription = viewModel.state.drinkName
+                contentDescription = state.drinkName
             )
         }
     }

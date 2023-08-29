@@ -33,8 +33,9 @@ import kotlinx.coroutines.awaitAll
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DrinkDetailScreenAdvanced(
+    state: DrinkDetailState,
+    onEvent: (DrinkDetailEvent) -> Unit,
     calculatedDominantColor: Color?,
-    viewModel: DrinkDetailViewModel,
     imageSize: Double
 ) {
     val spacing = LocalSpacing.current
@@ -119,9 +120,9 @@ fun DrinkDetailScreenAdvanced(
                                 .height(closeCardHeight - 16.dp)
                         )
                         CharacteristicSection(
-                            drinkGlass = viewModel.state.drinkGlass,
-                            drinkCategory = viewModel.state.drinkCategory,
-                            drinkAlcoholic = viewModel.state.drinkAlcoholic?.asString(
+                            drinkGlass = state.drinkGlass,
+                            drinkCategory = state.drinkCategory,
+                            drinkAlcoholic = state.drinkAlcoholic?.asString(
                                 LocalContext.current
                             ),
                             modifier = Modifier
@@ -174,7 +175,7 @@ fun DrinkDetailScreenAdvanced(
                                                 withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                                                     append(
                                                         "${
-                                                            viewModel.state.drinkIngredients?.filter { it.name != null }
+                                                            state.drinkIngredients?.filter { it.name != null }
                                                                 ?.count { it.isAvailable == false }
                                                         }"
                                                     )
@@ -189,7 +190,7 @@ fun DrinkDetailScreenAdvanced(
                                             }
                                         )
                                         Spacer(modifier = Modifier.height(spacing.spaceMedium))
-                                        val ingredients = viewModel.state.drinkIngredients?.filter { it.name != null }
+                                        val ingredients = state.drinkIngredients?.filter { it.name != null }
                                             ?.sortedBy { it.isAvailable == false }
                                         ingredients?.map {
                                             IngredientItem(
@@ -230,7 +231,7 @@ fun DrinkDetailScreenAdvanced(
                                                 .padding(8.dp)
                                                 .height(expandedHeight * anim3.value)
                                         ) {
-                                            viewModel.state.drinkInstructions?.let {
+                                            state.drinkInstructions?.let {
                                                 Text(
                                                     modifier = Modifier
                                                         .height(
@@ -256,9 +257,10 @@ fun DrinkDetailScreenAdvanced(
         }
 
         DrinkImage(
+            state = state,
+            onEvent = onEvent,
             imageSize = imageSize,
-            calculatedDominantColor = calculatedDominantColor,
-            viewModel = viewModel
+            calculatedDominantColor = calculatedDominantColor
         )
     }
 }

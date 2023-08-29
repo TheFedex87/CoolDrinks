@@ -37,6 +37,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts
 import it.thefedex87.cooldrinks.util.Consts.TAG
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -45,6 +46,9 @@ import kotlin.math.absoluteValue
 @OptIn(ExperimentalPagerApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 fun BarScreen(
+    state: BarState,
+    onEvent: (BarEvent) -> Unit,
+    uiEvent: Flow<UiEvent>,
     paddingValues: PaddingValues,
     modifier: Modifier = Modifier,
     onComposed: (BottomNavigationScreenState) -> Unit,
@@ -53,8 +57,7 @@ fun BarScreen(
     onMiniFabCustomIngredientClicked: () -> Unit,
     onSearchDrinkClicked: (String) -> Unit,
     onEditIngredientClicked: (IngredientDetailsDomainModel) -> Unit,
-    moveToIngredientName: String? = null,
-    viewModel: BarViewModel = hiltViewModel()
+    moveToIngredientName: String? = null
 ) {
     LaunchedEffect(key1 = true) {
         onComposed(
@@ -90,7 +93,7 @@ fun BarScreen(
             alpha = 0.6f
         )
 
-        if (viewModel.state.ingredients.isEmpty()) {
+        if (state.ingredients.isEmpty()) {
             EmptyList(
                 icon = Icons.Default.Liquor,
                 text = stringResource(id = R.string.empty_bar),
@@ -103,16 +106,16 @@ fun BarScreen(
 
             LaunchedEffect(key1 = moveToIngredientName) {
                 moveToIngredientName?.let {
-                    viewModel.onEvent(BarEvent.JumpToStoredIngredient(it))
+                    onEvent(BarEvent.JumpToStoredIngredient(it))
                 }
             }
 
             LaunchedEffect(key1 = true) {
                 snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
                     if (it >= 0)
-                        viewModel.onEvent(
+                        onEvent(
                             BarEvent.SelectedIngredientChanged(
-                                ingredient = viewModel.state.ingredients[it],
+                                ingredient = state.ingredients[it],
                                 page = it
                             )
                         )
@@ -120,7 +123,7 @@ fun BarScreen(
             }
 
             LaunchedEffect(key1 = true) {
-                viewModel.uiEvent.onEach {
+                uiEvent.onEach {
                     when (it) {
                         is UiEvent.ScrollPagerToPage -> {
                             pagerState.animateScrollToPage(it.page)
@@ -131,21 +134,21 @@ fun BarScreen(
                 }.launchIn(this)
             }
 
-            if (viewModel.state.showRemoveElementDialog) {
+            if (state.showRemoveElementDialog) {
                 AlertDialog(
                     onDismissRequest = {
-                        viewModel.onEvent(BarEvent.OnRemoveCanceled)
+                        onEvent(BarEvent.OnRemoveCanceled)
                     },
                     confirmButton = {
                         TextButton(onClick = {
-                            viewModel.onEvent(BarEvent.OnDeleteConfirmClicked(viewModel.state.elementToRemove!!))
+                            onEvent(BarEvent.OnDeleteConfirmClicked(state.elementToRemove!!))
                         }) {
                             Text(text = stringResource(id = R.string.confirm))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = {
-                            viewModel.onEvent(BarEvent.OnRemoveCanceled)
+                            onEvent(BarEvent.OnRemoveCanceled)
                         }) {
                             Text(text = stringResource(id = R.string.cancel))
                         }
@@ -170,7 +173,7 @@ fun BarScreen(
                             .fillMaxWidth()
                             .padding(spacing.spaceMedium)
                     ) {
-                        viewModel.state.selectedIngredient?.let {
+                        state.selectedIngredient?.let {
                             Column(
                                 modifier = Modifier.fillMaxWidth()
                             ) {
@@ -189,7 +192,7 @@ fun BarScreen(
                                         onEditIngredientClicked(it)
                                     },
                                     onDeleteIconClicked = {
-                                        viewModel.onEvent(
+                                        onEvent(
                                             BarEvent.OnDeleteIconClicked(
                                                 it,
                                                 pagerState.currentPage
@@ -206,9 +209,9 @@ fun BarScreen(
                                             stringResource(id = R.string.available),
                                             stringResource(id = R.string.not_available)
                                         ),
-                                        selectedOption = viewModel.state.selectedOption,
+                                        selectedOption = state.selectedOption,
                                         onOptionClicked = { i ->
-                                            viewModel.onEvent(
+                                            onEvent(
                                                 BarEvent.SetIngredientAvailability(
                                                     it,
                                                     i == 0
@@ -233,15 +236,15 @@ fun BarScreen(
                         modifier = Modifier
                             .weight(1f)
                             .padding(bottom = 50.dp),
-                        count = viewModel.state.ingredients.size,
+                        count = state.ingredients.size,
                         contentPadding = PaddingValues(
                             horizontal = 32.dp
                         ),
                         state = pagerState
                     ) { page ->
-                        if (page <= viewModel.state.ingredients.lastIndex) {
+                        if (page <= state.ingredients.lastIndex) {
                             BarIngredientItem(
-                                ingredient = viewModel.state.ingredients[page],
+                                ingredient = state.ingredients[page],
                                 pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
                             )
                         }
