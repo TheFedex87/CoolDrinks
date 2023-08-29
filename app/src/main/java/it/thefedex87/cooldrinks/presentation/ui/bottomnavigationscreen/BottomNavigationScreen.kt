@@ -137,8 +137,12 @@ fun BottomNavigationScreen(
             ) {
                 // When from bar screen is clicked the button to look for
                 // drinks, the following optional parameter is populated
-                val ingredientFromBarScreen = it.arguments?.getString("ingredient")
-                it.arguments?.remove("ingredient")
+                val ingredientFromBarScreen = remember {
+                    val ingredient = it.arguments?.getString("ingredient")
+                    it.arguments?.remove("ingredient") // this line does not works since arguments are immutable
+                    Log.d(TAG, "Passed ingredient is: $ingredient")
+                    ingredient
+                }
 
                 // When directly from SearchScreen, the button to get the whole ingredients
                 // list is clicked, after this is popped if an ingredient has been clicked
@@ -160,7 +164,7 @@ fun BottomNavigationScreen(
                     onComposed = {
                         bottomNavigationScreenState = it
                     },
-                    ingredient = ingredientFromBarScreen ?: ingredientFromWholeList,
+                    ingredient =  ingredientFromWholeList ?: ingredientFromBarScreen,
                     currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }
