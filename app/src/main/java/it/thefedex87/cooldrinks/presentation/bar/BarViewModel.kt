@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +22,7 @@ import kotlin.Exception
 
 @HiltViewModel
 class BarViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val repository: CocktailRepository
 ) : ViewModel() {
     var state by mutableStateOf(BarState())
@@ -49,8 +51,8 @@ class BarViewModel @Inject constructor(
                     }
                 }
                 is BarEvent.SelectedIngredientChanged -> {
+                    savedStateHandle["selectedPage"] = event.page
                     state = state.copy(selectedIngredient = event.ingredient,
-                        selectedPage = event.page,
                         selectedOption = if(event.ingredient.availableLocal) 0 else 1)
                 }
                 is BarEvent.JumpToStoredIngredient -> {
@@ -101,9 +103,9 @@ class BarViewModel @Inject constructor(
         viewModelScope.launch {
             repository.storedLiquors.collect {
                 Log.d(TAG, "Collect liquor")
-                val selectedIngredient = if (state.selectedPage != null && it.isNotEmpty()) {
-                    if(state.selectedPage!! <= it.lastIndex)
-                        it[state.selectedPage!!]
+                val selectedIngredient = if (savedStateHandle.get<Int>("selectedPage") != null && it.isNotEmpty()) {
+                    if(savedStateHandle.get<Int>("selectedPage")!! <= it.lastIndex)
+                        it[savedStateHandle.get<Int>("selectedPage")!!]
                     else
                         it.last()
                 } else null

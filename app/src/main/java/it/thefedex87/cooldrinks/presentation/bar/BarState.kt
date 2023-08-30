@@ -6,7 +6,7 @@ data class BarState(
     val ingredients: List<IngredientDetailsDomainModel> = emptyList(),
     val selectedOption: Int = 0,
     val selectedIngredient: IngredientDetailsDomainModel? = null,
-    val selectedPage: Int? = null,
+    //val selectedPage: Int? = null,
     val showRemoveElementDialog: Boolean = false,
     val elementToRemove: IngredientDetailsDomainModel? = null
 )
