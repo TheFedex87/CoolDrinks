@@ -37,10 +37,12 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.util.Consts
 import it.thefedex87.cooldrinks.util.Consts.TAG
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
 @OptIn(ExperimentalPagerApi::class, androidx.compose.material3.ExperimentalMaterial3Api::class)
@@ -103,12 +105,6 @@ fun BarScreen(
 
             val pagerState = rememberPagerState()
             val spacing = LocalSpacing.current
-
-            LaunchedEffect(key1 = moveToIngredientName) {
-                moveToIngredientName?.let {
-                    onEvent(BarEvent.JumpToStoredIngredient(it))
-                }
-            }
 
             LaunchedEffect(key1 = true) {
                 snapshotFlow { pagerState.currentPage }.distinctUntilChanged().collect {
@@ -242,11 +238,17 @@ fun BarScreen(
                         ),
                         state = pagerState
                     ) { page ->
-                        if (page <= state.ingredients.lastIndex) {
+                        if(page < pagerState.pageCount) {
                             BarIngredientItem(
                                 ingredient = state.ingredients[page],
                                 pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
                             )
+                        }
+                    }
+
+                    LaunchedEffect(key1 = moveToIngredientName) {
+                        moveToIngredientName?.let {
+                            onEvent(BarEvent.JumpToStoredIngredient(it))
                         }
                     }
                 }
