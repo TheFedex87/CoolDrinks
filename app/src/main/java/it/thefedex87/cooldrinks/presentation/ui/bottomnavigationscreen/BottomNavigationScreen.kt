@@ -25,7 +25,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientScreen
+import it.thefedex87.cooldrinks.presentation.add_ingredient.AddIngredientViewModel
 import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkScreen
+import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.bar.BarScreen
 import it.thefedex87.cooldrinks.presentation.bar.BarViewModel
 import it.thefedex87.cooldrinks.presentation.cocktail.CocktailTabScreen
@@ -37,6 +39,7 @@ import it.thefedex87.cooldrinks.presentation.drink_details.DrinkDetailViewModel
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkScreen
 import it.thefedex87.cooldrinks.presentation.favorite_drink.FavoriteDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsScreen
+import it.thefedex87.cooldrinks.presentation.ingredients.IngredientsViewModel
 import it.thefedex87.cooldrinks.presentation.my_drink.MyDrinkViewModel
 import it.thefedex87.cooldrinks.presentation.navigaton.Route
 import it.thefedex87.cooldrinks.presentation.search_drink.SearchDrinkViewModel
@@ -192,45 +195,6 @@ fun BottomNavigationScreen(
                     currentBottomNavigationScreenState = bottomNavigationScreenState
                 )
             }
-            /*composable(
-                route = Route.SEARCH_ONLINE_DRINK,
-                arguments = listOf(
-                    navArgument("ingredientForSearch") {
-                        type = NavType.StringType
-                        nullable = true
-                        defaultValue = null
-                    }
-                )
-            ) {
-                // Ingredient which is got when ingredient is selected from the whole list of ingredients
-                val ingredient = navController.currentBackStackEntry
-                    ?.savedStateHandle
-                    ?.get<String>("ingredient")
-
-                // Ingredient which is got when click search from bar screen
-                val ingredientForSearch = it.arguments?.getString("ingredientForSearch")
-                Log.d(TAG, "Passed ingredient is: $ingredientForSearch")
-
-                SearchDrinkScreen(
-                    snackbarHostState = snackbarHostState,
-                    onComposed = { state ->
-                        bottomNavigationScreenState = state
-                    },
-                    //paddingValues = values,
-                    currentBottomNavigationScreenState = bottomNavigationScreenState,
-                    onIngredientListClicked = {
-                        navController.navigate("${Route.INGREDIENTS}/true")
-                    },
-                    ingredient = ingredient ?: ingredientForSearch,
-                    onDrinkClicked = { id, color, name ->
-                        navController.navigate("${Route.DRINK_DETAILS}/$color/$id/$name")
-                    }
-                )
-
-                navController.previousBackStackEntry
-                    ?.savedStateHandle
-                    ?.remove<String>("ingredient")
-            }*/
             composable(BottomNavScreen.Favorite.route) {
                 val viewModel = hiltViewModel<FavoriteDrinkViewModel>()
 
@@ -310,22 +274,14 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
-                /*Button(onClick = {
-                    /*navController.navigate(
-                        route = "${BottomNavScreen.Search.route}?ingredient=lime"
-                    ) {
-                        popUpTo("${BottomNavScreen.Search.route}?ingredient={ingredient}") { inclusive = true }
-                    }*/
-                    navController.previousBackStackEntry
-                        ?.savedStateHandle
-                        ?.set("ingredient", "lime")
-                    navController.popBackStack()
-                }) {
-                    Text(text = "TEST BACK")
-                }*/
                 val ingredientForSearch = it.arguments?.getBoolean("ingredientForSearch") ?: true
 
+                val viewModel = hiltViewModel<IngredientsViewModel>()
+
                 IngredientsScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
+                    uiEvent = viewModel.uiEvent,
                     snackbarHostState = snackbarHostState,
                     onComposed = { state ->
                         bottomNavigationScreenState = state
@@ -359,7 +315,12 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
+                val viewModel = hiltViewModel<AddIngredientViewModel>()
+
                 AddIngredientScreen(
+                    state = viewModel.state,
+                    onEvent = viewModel::onEvent,
+                    uiEvent = viewModel.uiEvent,
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
@@ -385,7 +346,12 @@ fun BottomNavigationScreen(
                 val drinkId = it.arguments?.getInt("drinkId")
                 val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
 
+                val viewModel = hiltViewModel<AddMyDrinkViewModel>()
+
                 AddMyDrinkScreen(
+                    state = viewModel.state.collectAsState().value,
+                    onEvent = viewModel::onEvent,
+                    uiEvent = viewModel.uiEvent,
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },

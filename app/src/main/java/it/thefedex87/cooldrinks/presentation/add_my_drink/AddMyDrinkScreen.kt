@@ -32,13 +32,16 @@ import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNav
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.toBitmap
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddMyDrinkScreen(
-    viewModel: AddMyDrinkViewModel = hiltViewModel(),
+    state: AddMyDrinkState,
+    onEvent: (AddMyDrinkEvent) -> Unit,
+    uiEvent: Flow<UiEvent>,
     onComposed: (BottomNavigationScreenState) -> Unit,
     drinkId: Int?,
     storedIngredientName: String?,
@@ -53,7 +56,7 @@ fun AddMyDrinkScreen(
 
     LaunchedEffect(key1 = storedIngredientName) {
         if(!storedIngredientName.isNullOrEmpty()) {
-            viewModel.onEvent(AddMyDrinkEvent.OnNewLocalIngredientStored(storedIngredientName))
+            onEvent(AddMyDrinkEvent.OnNewLocalIngredientStored(storedIngredientName))
         }
     }
 
@@ -66,7 +69,7 @@ fun AddMyDrinkScreen(
                     floatingActionButtonMultiChoice = null,
                     floatingActionButtonLabel = save,
                     floatingActionButtonClicked = {
-                        viewModel.onEvent(AddMyDrinkEvent.OnSaveClicked)
+                        onEvent(AddMyDrinkEvent.OnSaveClicked)
                     },
                 ),
                 prevFabState = currentBottomNavigationScreenState.fabState.copy(),
@@ -77,7 +80,7 @@ fun AddMyDrinkScreen(
                 },
                 topBarActions = {
                     IconButton(onClick = {
-                        viewModel.onEvent(AddMyDrinkEvent.OnSaveClicked)
+                        onEvent(AddMyDrinkEvent.OnSaveClicked)
                     }) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -89,11 +92,11 @@ fun AddMyDrinkScreen(
             )
         )
 
-        viewModel.uiEvent.onEach { event ->
+        uiEvent.onEach { event ->
             when (event) {
                 is UiEvent.SaveBitmapLocal -> {
-                    val bitmap = viewModel.state.value.selectedPicturePath!!.toBitmap(context)
-                    viewModel.onEvent(
+                    val bitmap = state.selectedPicturePath!!.toBitmap(context)
+                    onEvent(
                         AddMyDrinkEvent.PictureSaveResult(
                             bitmap.saveToLocalStorage(
                                 context,
@@ -120,8 +123,6 @@ fun AddMyDrinkScreen(
 
     val spacing = LocalSpacing.current
 
-    val state = viewModel.state.collectAsState().value
-
     if (state.addingIngredientName != null && state.addingIngredientMeasure != null) {
         AddDrinkIngredientDialog(
             addingIngredientName = state.addingIngredientName,
@@ -132,36 +133,36 @@ fun AddMyDrinkScreen(
             isLoading = state.isLoading,
             onIngredientNameChanged = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientNameChanged(it))
+                onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientNameChanged(it))
             },
             onIngredientMeasureChanged = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientMeasureChanged(it))
+                onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientMeasureChanged(it))
             },
             onIsDecorationChanged = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientIsDecorationChanged(it))
+                onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientIsDecorationChanged(it))
             },
             onIsAvailableChanged = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientIsAvailableChanged((it)))
+                onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientIsAvailableChanged((it)))
             },
             onSaveClicked = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.AddDrinkIngredientSaveClicked)
+                onEvent(AddMyDrinkEvent.AddDrinkIngredientSaveClicked)
             },
             onDismiss = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.DismissDrinkIngredientDialogRequested)
+                onEvent(AddMyDrinkEvent.DismissDrinkIngredientDialogRequested)
             },
             filteredLocalIngredients = state.addingIngredientFilteredIngredients,
             onIngredientClicked = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnFilteredIngredientClicked(it))
+                onEvent(AddMyDrinkEvent.OnFilteredIngredientClicked(it))
             },
             onSearchIngredientOnlineClicked = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnSearchIngredientOnlineClicked(it))
+                onEvent(AddMyDrinkEvent.OnSearchIngredientOnlineClicked(it))
             },
             onAddNewLocalIngredientClicked = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
@@ -171,7 +172,7 @@ fun AddMyDrinkScreen(
             canSaveAddingIngredient = state.addingIngredientSaveEnabled,
             addingIngredientNameFocusChanged = {
                 if(state.isLoading) return@AddDrinkIngredientDialog
-                viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged(it))
+                onEvent(AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged(it))
             }
         )
     }
@@ -194,7 +195,7 @@ fun AddMyDrinkScreen(
         ) {
             GalleryPictureSelector(
                 onPicturePicked = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnPictureSelected(it))
+                    onEvent(AddMyDrinkEvent.OnPictureSelected(it))
                 },
                 selectedPicturePath = state.selectedPicturePath,
                 isCircular = true,
@@ -206,7 +207,7 @@ fun AddMyDrinkScreen(
             OutlinedTextFieldWithErrorMessage(
                 value = state.cocktailName,
                 onValueChanged = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkNameChanged(it))
+                    onEvent(AddMyDrinkEvent.OnMyDrinkNameChanged(it))
                 },
                 errorMessage = state.cocktailNameError,
                 label = stringResource(id = R.string.name),
@@ -216,7 +217,7 @@ fun AddMyDrinkScreen(
             OutlinedTextFieldWithErrorMessage(
                 value = state.cocktailInstructions,
                 onValueChanged = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkInstructionsChanged(it))
+                    onEvent(AddMyDrinkEvent.OnMyDrinkInstructionsChanged(it))
                 },
                 errorMessage = state.cocktailInstructionsError,
                 label = stringResource(id = R.string.instructions),
@@ -228,10 +229,10 @@ fun AddMyDrinkScreen(
             Material3Spinner(
                 isExpanded = state.cocktailGlassesMenuExpanded,
                 expandRequested = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested)
+                    onEvent(AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested)
                 },
                 dismissRequested = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkGlassesDismissRequested)
+                    onEvent(AddMyDrinkEvent.OnMyDrinkGlassesDismissRequested)
                 },
                 values = state.cocktailGlasses,
                 valueMapper = {
@@ -242,7 +243,7 @@ fun AddMyDrinkScreen(
                 else
                     state.selectedCocktailGlass.valueStr,
                 onSelectionIndexChanged = {
-                    viewModel.onEvent(
+                    onEvent(
                         AddMyDrinkEvent.OnMyDrinkGlassChanged(
                             state.cocktailGlasses[it]
                         )
@@ -254,10 +255,10 @@ fun AddMyDrinkScreen(
             Material3Spinner(
                 isExpanded = state.cocktailCategoriesMenuExpanded,
                 expandRequested = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkCategoriesExpandRequested)
+                    onEvent(AddMyDrinkEvent.OnMyDrinkCategoriesExpandRequested)
                 },
                 dismissRequested = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkCategoriesDismissRequested)
+                    onEvent(AddMyDrinkEvent.OnMyDrinkCategoriesDismissRequested)
                 },
                 values = state.cocktailCategories,
                 valueMapper = {
@@ -268,7 +269,7 @@ fun AddMyDrinkScreen(
                 else
                     state.selectedCocktailCategory.valueStr,
                 onSelectionIndexChanged = {
-                    viewModel.onEvent(
+                    onEvent(
                         AddMyDrinkEvent.OnMyDrinkCategoryChanged(
                             state.cocktailCategories[it]
                         )
@@ -283,7 +284,7 @@ fun AddMyDrinkScreen(
                     stringResource(id = R.string.non_alcoholic),
                 ),
                 onOptionClicked = {
-                    viewModel.onEvent(AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged(it == 0))
+                    onEvent(AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged(it == 0))
                 },
                 selectedOption = if (state.cocktailIsAlcoholic) 0 else 1,
                 textStyle = MaterialTheme.typography.bodyMedium
@@ -310,7 +311,7 @@ fun AddMyDrinkScreen(
                         )
                         IconButton(
                             onClick = {
-                                viewModel.onEvent(AddMyDrinkEvent.AddDrinkIngredientRequested)
+                                onEvent(AddMyDrinkEvent.AddDrinkIngredientRequested)
                             }
                         ) {
                             Icon(
@@ -344,7 +345,7 @@ fun AddMyDrinkScreen(
                             }
                             IconButton(
                                 onClick = {
-                                    viewModel.onEvent(AddMyDrinkEvent.RemoveAddedIngredient(i))
+                                    onEvent(AddMyDrinkEvent.RemoveAddedIngredient(i))
                                 }
                             ) {
                                 Icon(

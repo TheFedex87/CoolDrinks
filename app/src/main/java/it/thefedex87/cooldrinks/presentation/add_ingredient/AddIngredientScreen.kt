@@ -38,6 +38,7 @@ import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.toBitmap
 import it.thefedex87.cooldrinks.util.Consts
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import java.io.File
@@ -45,7 +46,9 @@ import java.io.File
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun AddIngredientScreen(
-    viewModel: AddIngredientViewModel = hiltViewModel(),
+    state: AddIngredientState,
+    onEvent: (AddIngredientEvent) -> Unit,
+    uiEvent: Flow<UiEvent>,
     onComposed: (BottomNavigationScreenState) -> Unit,
     onNavigateBack: (String?) -> Unit,
     snackbarHostState: SnackbarHostState,
@@ -53,7 +56,7 @@ fun AddIngredientScreen(
 ) {
     val context = LocalContext.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val title = viewModel.state.title
+    val title = state.title
 
     val save = stringResource(id = R.string.save)
     LaunchedEffect(key1 = true) {
@@ -65,7 +68,7 @@ fun AddIngredientScreen(
                     floatingActionButtonMultiChoice = null,
                     floatingActionButtonLabel = save,
                     floatingActionButtonClicked = {
-                        viewModel.onEvent(AddIngredientEvent.OnSaveClicked)
+                        onEvent(AddIngredientEvent.OnSaveClicked)
                     },
                 ),
                 prevFabState = currentBottomNavigationScreenState.fabState.copy(),
@@ -73,7 +76,7 @@ fun AddIngredientScreen(
                 topBarTitle = title.asString(context),
                 topBarActions ={
                     IconButton(onClick = {
-                        viewModel.onEvent(AddIngredientEvent.OnSaveClicked)
+                        onEvent(AddIngredientEvent.OnSaveClicked)
                     }) {
                         Icon(
                             imageVector = Icons.Default.Check,
@@ -86,16 +89,16 @@ fun AddIngredientScreen(
             )
         )
 
-        viewModel.uiEvent.onEach { event ->
+        uiEvent.onEach { event ->
             when (event) {
                 is UiEvent.PopBackStack -> {
-                    onNavigateBack(viewModel.state.ingredientName)
+                    onNavigateBack(state.ingredientName)
                 }
                 is UiEvent.SaveBitmapLocal -> {
-                    val bitmap = viewModel.state.selectedPicture!!.toBitmap(context)
+                    val bitmap = state.selectedPicture!!.toBitmap(context)
 
                     context.filesDir.path
-                    viewModel.onEvent(AddIngredientEvent.PictureSaveResult(
+                    onEvent(AddIngredientEvent.PictureSaveResult(
                         bitmap.saveToLocalStorage(
                             context,
                             "${event.path}.jpg"
@@ -128,9 +131,9 @@ fun AddIngredientScreen(
 
         GalleryPictureSelector(
             onPicturePicked = {
-                viewModel.onEvent(AddIngredientEvent.OnPictureSelected(it))
+                onEvent(AddIngredientEvent.OnPictureSelected(it))
             },
-            viewModel.state.selectedPicture,
+            state.selectedPicture,
             isCircular = true,
             modifier = Modifier
                 .size(150.dp)
@@ -138,18 +141,18 @@ fun AddIngredientScreen(
         )
         Spacer(modifier = Modifier.height(spacing.spaceSmall))
         OutlinedTextFieldWithErrorMessage(
-            value = viewModel.state.ingredientName,
+            value = state.ingredientName,
             onValueChanged = {
-                viewModel.onEvent(AddIngredientEvent.OnIngredientNameChanged(it))
+                onEvent(AddIngredientEvent.OnIngredientNameChanged(it))
             },
-            errorMessage = viewModel.state.ingredientNameError,
+            errorMessage = state.ingredientNameError,
             label = stringResource(id = R.string.name),
             imeAction = ImeAction.Next
         )
         OutlinedTextFieldWithErrorMessage(
-            value = viewModel.state.ingredientDescription,
+            value = state.ingredientDescription,
             onValueChanged = {
-                viewModel.onEvent(AddIngredientEvent.OnIngredientDescriptionChanged(it))
+                onEvent(AddIngredientEvent.OnIngredientDescriptionChanged(it))
             },
             modifier = Modifier.height(300.dp),
             label = stringResource(id = R.string.description),
@@ -163,9 +166,9 @@ fun AddIngredientScreen(
                 stringResource(id = R.string.non_alcoholic),
             ),
             onOptionClicked = {
-                viewModel.onEvent(AddIngredientEvent.OnIngredientAlcoholicChanged(it == 0))
+                onEvent(AddIngredientEvent.OnIngredientAlcoholicChanged(it == 0))
             },
-            selectedOption = if (viewModel.state.ingredientIsAlcoholic) 0 else 1,
+            selectedOption = if (state.ingredientIsAlcoholic) 0 else 1,
             textStyle = MaterialTheme.typography.bodyMedium
         )
         Spacer(modifier = Modifier.height(spacing.spaceSmall))
@@ -175,9 +178,9 @@ fun AddIngredientScreen(
                 stringResource(id = R.string.not_available),
             ),
             onOptionClicked = {
-                viewModel.onEvent(AddIngredientEvent.OnIngredientAvailableChanged(it == 0))
+                onEvent(AddIngredientEvent.OnIngredientAvailableChanged(it == 0))
             },
-            selectedOption = if (viewModel.state.ingredientAvailable) 0 else 1,
+            selectedOption = if (state.ingredientAvailable) 0 else 1,
             textStyle = MaterialTheme.typography.bodyMedium
         )
     }
