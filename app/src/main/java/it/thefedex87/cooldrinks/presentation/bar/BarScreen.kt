@@ -122,12 +122,40 @@ fun BarScreen(
                 uiEvent.onEach {
                     when (it) {
                         is UiEvent.ScrollPagerToPage -> {
-                            pagerState.animateScrollToPage(it.page)
+
+                            // This workaround allows the load of the new added ingredient in the HorizontalPager before ask to jump on it
+                            launch {
+                                var timeout: Boolean = false
+
+                                var delayJob = launch {
+                                    delay(500)
+                                    timeout = true
+                                    Log.d(TAG, "MOVETOINSERTED - timeout")
+                                }
+
+                                Log.d(TAG, "MOVETOINSERTED - jump to page: ${it.page} - number of pages: ${pagerState.pageCount}")
+                                while(it.page >= pagerState.pageCount && !timeout) {
+                                    delay(10)
+                                }
+
+
+                                Log.d(TAG, "MOVETOINSERTED - out of while")
+                                if(it.page < pagerState.pageCount) {
+                                    delayJob.cancel()
+                                    pagerState.animateScrollToPage(it.page)
+                                }
+                            }
                         }
 
                         else -> Unit
                     }
                 }.launchIn(this)
+            }
+
+            LaunchedEffect(key1 = moveToIngredientName) {
+                moveToIngredientName?.let {
+                    onEvent(BarEvent.JumpToStoredIngredient(it))
+                }
             }
 
             if (state.showRemoveElementDialog) {
@@ -238,18 +266,12 @@ fun BarScreen(
                         ),
                         state = pagerState
                     ) { page ->
-                        if(page < pagerState.pageCount) {
+                        //if(page < pagerState.pageCount) {
                             BarIngredientItem(
                                 ingredient = state.ingredients[page],
                                 pageOffset = calculateCurrentOffsetForPage(page).absoluteValue
                             )
-                        }
-                    }
-
-                    LaunchedEffect(key1 = moveToIngredientName) {
-                        moveToIngredientName?.let {
-                            onEvent(BarEvent.JumpToStoredIngredient(it))
-                        }
+                        //}
                     }
                 }
 
