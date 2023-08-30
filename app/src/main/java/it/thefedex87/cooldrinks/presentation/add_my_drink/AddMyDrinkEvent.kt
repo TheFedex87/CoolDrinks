@@ -37,8 +37,5 @@ sealed interface AddMyDrinkEvent {
     data class RemoveAddedIngredient(val ingredient: DrinkIngredientModel) : AddMyDrinkEvent
 
     data class OnPictureSelected(val imagePath: Uri) : AddMyDrinkEvent
-    data class PictureSaveResult(val success: Boolean, val pathCallback: () -> String) :
-        AddMyDrinkEvent
-
     object OnSaveClicked : AddMyDrinkEvent
 }

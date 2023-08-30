@@ -10,5 +10,4 @@ sealed class AddIngredientEvent {
     data class OnIngredientAvailableChanged(val isAvailable: Boolean) : AddIngredientEvent()
     object OnSaveClicked : AddIngredientEvent()
     data class OnPictureSelected(val bitmap: Uri) : AddIngredientEvent()
-    data class PictureSaveResult(val success: Boolean, val pathCallback: () -> String) : AddIngredientEvent()
 }

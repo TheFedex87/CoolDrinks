@@ -14,8 +14,10 @@ import it.thefedex87.cooldrinks.data.local.IngredientsDao
 import it.thefedex87.cooldrinks.data.preferences.DefaultPreferencesManager
 import it.thefedex87.cooldrinks.data.remote.TheCocktailDbApi
 import it.thefedex87.cooldrinks.data.repository.CocktailRepositoryImpl
+import it.thefedex87.cooldrinks.data.utils.BitmapManagerImpl
 import it.thefedex87.cooldrinks.domain.preferences.PreferencesManager
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.domain.utils.BitmapManager
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Singleton
@@ -23,6 +25,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object ApplicationModule {
+
+    @Singleton
+    @Provides
+    fun provideBitmapManager(
+        @ApplicationContext context: Context
+    ): BitmapManager =
+        BitmapManagerImpl(context)
 
     @Singleton
     @Provides

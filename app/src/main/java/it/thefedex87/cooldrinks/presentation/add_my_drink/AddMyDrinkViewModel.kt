@@ -12,6 +12,7 @@ import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.DrinkDetailDomainModel
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.domain.utils.BitmapManager
 import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
@@ -32,7 +33,8 @@ import kotlin.coroutines.suspendCoroutine
 @HiltViewModel
 class AddMyDrinkViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: CocktailRepository
+    private val repository: CocktailRepository,
+    private val bitmapManager: BitmapManager
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         AddMyDrinkState(
@@ -386,7 +388,7 @@ class AddMyDrinkViewModel @Inject constructor(
                     ) {
                         //storeDrink
                         storeMyDrink(_state.value.selectedPicturePath?.path)
-                        _uiEvent.send(UiEvent.PopBackStack)
+                        _uiEvent.send(UiEvent.PopBackStack())
                     } else {
                         val filePath = if (imagePath != null)
                             imagePath!!.path!!.split("/").last().replace(".jpg", "")
@@ -398,26 +400,19 @@ class AddMyDrinkViewModel @Inject constructor(
                                 isLoading = true
                             )
                         }
-                        _uiEvent.send(
-                            UiEvent.SaveBitmapLocal(
-                                filePath
-                            )
-                        )
-                    }
-                }
 
-                is AddMyDrinkEvent.PictureSaveResult -> {
-                    if (event.success) {
-                        storeMyDrink(event.pathCallback.invoke())
-                        //storeIngredient(event.pathCallback.invoke())
-                        _uiEvent.send(UiEvent.PopBackStack)
-                    } else {
-                        _state.update {
-                            _state.value.copy(
-                                isLoading = false
-                            )
+                        try {
+                            val localFilePath = bitmapManager.saveBitmapLocal(_state.value.selectedPicturePath!!.toString(), filePath)
+                            storeMyDrink(localFilePath)
+                            _uiEvent.send(UiEvent.PopBackStack())
+                        } catch (ex: Exception) {
+                            _state.update {
+                                _state.value.copy(
+                                    isLoading = false
+                                )
+                            }
+                            _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_drink_picture)))
                         }
-                        _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_drink_picture)))
                     }
                 }
             }

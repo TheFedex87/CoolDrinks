@@ -92,21 +92,7 @@ fun AddIngredientScreen(
         uiEvent.onEach { event ->
             when (event) {
                 is UiEvent.PopBackStack -> {
-                    onNavigateBack(state.ingredientName)
-                }
-                is UiEvent.SaveBitmapLocal -> {
-                    val bitmap = state.selectedPicture!!.toBitmap(context)
-
-                    context.filesDir.path
-                    onEvent(AddIngredientEvent.PictureSaveResult(
-                        bitmap.saveToLocalStorage(
-                            context,
-                            "${event.path}.jpg"
-                        ),
-                        pathCallback = {
-                            "${context.filesDir.path}/${event.path}.jpg"
-                        }
-                    ))
+                    onNavigateBack(event.bundle?.get("storedIngredient"))
                 }
                 is UiEvent.ShowSnackBar -> {
                     keyboardController?.hide()

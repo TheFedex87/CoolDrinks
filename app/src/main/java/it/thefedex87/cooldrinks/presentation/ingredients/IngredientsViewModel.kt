@@ -131,7 +131,7 @@ class IngredientsViewModel @Inject constructor(
                             repository.storeIngredients(
                                 result.map { (it as IngredientDetailsDomainModel).copy(availableLocal = true) }
                             )
-                            _uiEvent.send(UiEvent.PopBackStack)
+                            _uiEvent.send(UiEvent.PopBackStack())
                         } else {
                             _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_storing_ingredient)))
                         }

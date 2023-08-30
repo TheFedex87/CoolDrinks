@@ -94,19 +94,6 @@ fun AddMyDrinkScreen(
 
         uiEvent.onEach { event ->
             when (event) {
-                is UiEvent.SaveBitmapLocal -> {
-                    val bitmap = state.selectedPicturePath!!.toBitmap(context)
-                    onEvent(
-                        AddMyDrinkEvent.PictureSaveResult(
-                            bitmap.saveToLocalStorage(
-                                context,
-                                "${event.path}.jpg"
-                            ),
-                            pathCallback = {
-                                "${context.filesDir.path}/${event.path}.jpg"
-                            }
-                        ))
-                }
                 is UiEvent.PopBackStack -> {
                     onNavigateBack()
                 }

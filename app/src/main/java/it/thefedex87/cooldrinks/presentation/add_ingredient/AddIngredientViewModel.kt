@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.IngredientDetailsDomainModel
 import it.thefedex87.cooldrinks.domain.repository.CocktailRepository
+import it.thefedex87.cooldrinks.domain.utils.BitmapManager
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts
@@ -27,7 +28,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AddIngredientViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: CocktailRepository
+    private val repository: CocktailRepository,
+    private val bitmapManager: BitmapManager
 ) : ViewModel() {
     var state by mutableStateOf(
         AddIngredientState(
@@ -115,28 +117,42 @@ class AddIngredientViewModel @Inject constructor(
                             state.copy(ingredientNameError = UiText.StringResource(R.string.required))
                     } else {
                         val prevImagePath = savedStateHandle.get<String>("prevImagePath")
+                        val prevImagePathBk = prevImagePath?.let {
+                            it.replace(".jpg", "_BK.jpg")
+                        }
 
-                        Log.d(Consts.TAG, "SelectedPicture: ${state.selectedPicture} - prevImagePath: $prevImagePath ${if(prevImagePath != null) " - is prev different from new: " + (Uri.parse(prevImagePath) != state.selectedPicture).toString() else "" }")
                         if (state.selectedPicture != null && (prevImagePath == null || Uri.parse(prevImagePath) != state.selectedPicture)) {
                             val filePath = prevImagePath?.split("/")?.last()
                                 ?.replace(".jpg", "") ?: "ING_${UUID.randomUUID()}"
 
                             // BK of the old image if exists
-                            prevImagePath?.let {
-                                File(it).copyTo(
-                                    target = File(it.replace(".jpg", "_BK.jpg")),
-                                    overwrite = true
-                                )
+                            prevImagePathBk?.let {
+                                bitmapManager.createBitmapBk(prevImagePath, prevImagePathBk)
                             }
-
-                            _uiEvent.send(
-                                UiEvent.SaveBitmapLocal(
-                                    filePath
-                                )
-                            )
+                            try {
+                                val localFilePath = bitmapManager.saveBitmapLocal(state.selectedPicture!!.toString(), filePath)
+                                Log.d(Consts.TAG, "Local file path is: $localFilePath")
+                                if (!storeIngredient(localFilePath)) {
+                                    bitmapManager.deleteBitmap(localFilePath)
+                                    prevImagePathBk?.let {
+                                        bitmapManager.createBitmapBk(prevImagePathBk, prevImagePath)
+                                    }
+                                } else {
+                                    _uiEvent.send(UiEvent.PopBackStack(mapOf(
+                                        "storedIngredient" to state.ingredientName
+                                    )))
+                                }
+                            } catch (ex: Exception) {
+                                _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_ingredient_picture)))
+                            }
+                            prevImagePathBk?.let {
+                                bitmapManager.deleteBitmap(it)
+                            }
                         } else {
                             if (storeIngredient(imagePath = state.selectedPicture?.toString())) {
-                                _uiEvent.send(UiEvent.PopBackStack)
+                                _uiEvent.send(UiEvent.PopBackStack(mapOf(
+                                    "storedIngredient" to state.ingredientName
+                                )))
                             }
                         }
                     }
@@ -147,33 +163,6 @@ class AddIngredientViewModel @Inject constructor(
                         selectedPicture = event.bitmap
                     )
                     savedStateHandle["selectedPicture"] = event.bitmap.toString()
-                }
-
-                is AddIngredientEvent.PictureSaveResult -> {
-                    val prevImagePath = savedStateHandle.get<String>("prevImagePath")
-                    val prevImagePathBk = prevImagePath?.let {
-                        it.replace(".jpg", "_BK.jpg")
-                    }
-
-                    if (event.success) {
-                        if (!storeIngredient(event.pathCallback.invoke())) {
-                            File(event.pathCallback.invoke()).delete()
-                            prevImagePathBk?.let {
-                                File(prevImagePathBk).copyTo(
-                                    target = File(prevImagePath),
-                                    overwrite = true
-                                )
-                            }
-                        } else {
-                            _uiEvent.send(UiEvent.PopBackStack)
-                        }
-                    } else {
-                        _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_ingredient_picture)))
-                    }
-
-                    prevImagePathBk?.let {
-                        File(it).delete()
-                    }
                 }
             }
         }
