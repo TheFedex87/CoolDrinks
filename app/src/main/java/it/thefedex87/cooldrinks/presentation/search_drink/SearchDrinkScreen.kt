@@ -1,18 +1,27 @@
 package it.thefedex87.cooldrinks.presentation.search_drink
 
 import android.graphics.drawable.Drawable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.domain.model.VisualizationType
 import it.thefedex87.cooldrinks.presentation.components.EmptyList
@@ -114,38 +123,15 @@ fun SearchDrinkScreen(
                         )
                     }
                 }
-                else -> {}
+                else -> Unit
             }
         }
     }
-
-
-    /*Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        //if (viewModel.state.showNoDrinkFound)
-        //    Text(text = stringResource(id = R.string.no_drink_found))
-        Image(
-            painter = painterResource(id = R.drawable.search_background),
-            contentDescription = null,
-            modifier = Modifier
-                .width(250.dp)
-                .align(Alignment.Center),
-            alpha = if (viewModel.state.foundDrinks.isEmpty()) 1f else 0.5f
-        )
-        if (viewModel.state.isLoading)
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .align(Alignment.Center)
-                    .padding(spacing.spaceMedium)
-            )
-    }*/
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
         val constraints = this
 
         if (!state.isLoading) {
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -172,7 +158,6 @@ fun SearchDrinkScreen(
                 )
 
                 if (state.foundDrinks.isNotEmpty()) {
-
                     val onVisualizationTypeChangedLambda = remember<(VisualizationType) -> Unit> {
                         {
                             onEvent(SearchDrinkEvent.OnVisualizationTypeChange(it))
@@ -189,8 +174,7 @@ fun SearchDrinkScreen(
                         {
                             if (
                                 state.visualizationType == VisualizationType.Card &&
-                                state.foundDrinks.isNotEmpty() &&
-                                !state.isLoading
+                                state.foundDrinks.isNotEmpty()
                             ) {
                                 onSelectedDrinkDrawableLoaded(it)
                             }
@@ -200,7 +184,7 @@ fun SearchDrinkScreen(
                     CocktailView(
                         maxHeight = constraints.maxHeight,
                         maxWidth = constraints.maxWidth,
-                        isLoading = state.isLoading,
+                        isLoading = false,
                         drinks = state.foundDrinks,
                         visualizationType = state.visualizationType,
                         onDrinkClicked = onDrinkClicked,

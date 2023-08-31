@@ -343,7 +343,6 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
-                val drinkId = it.arguments?.getInt("drinkId")
                 val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
 
                 val viewModel = hiltViewModel<AddMyDrinkViewModel>()
@@ -355,7 +354,6 @@ fun BottomNavigationScreen(
                     onComposed = { state ->
                         bottomNavigationScreenState = state
                     },
-                    drinkId = drinkId,
                     storedIngredientName = storedIngredientName,
                     currentBottomNavigationScreenState = bottomNavigationScreenState,
                     onNavigateBack = {

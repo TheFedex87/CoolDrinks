@@ -1,10 +1,11 @@
 package it.thefedex87.cooldrinks.presentation.add_ingredient
 
-import android.graphics.ImageDecoder
-import android.os.Build
-import android.provider.MediaStore
-import android.util.Log
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -26,22 +27,16 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
-import it.thefedex87.cooldrinks.presentation.add_my_drink.AddMyDrinkEvent
 import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
 import it.thefedex87.cooldrinks.presentation.components.GalleryPictureSelector
 import it.thefedex87.cooldrinks.presentation.components.OutlinedTextFieldWithErrorMessage
-import it.thefedex87.cooldrinks.presentation.components.saveToLocalStorage
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
-import it.thefedex87.cooldrinks.presentation.util.toBitmap
-import it.thefedex87.cooldrinks.util.Consts
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
-import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
@@ -120,7 +115,6 @@ fun AddIngredientScreen(
                 onEvent(AddIngredientEvent.OnPictureSelected(it))
             },
             state.selectedPicture,
-            isCircular = true,
             modifier = Modifier
                 .size(150.dp)
                 .align(Alignment.CenterHorizontally)

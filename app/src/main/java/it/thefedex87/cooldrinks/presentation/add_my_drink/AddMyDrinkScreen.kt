@@ -1,8 +1,5 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
-import android.graphics.ImageDecoder
-import android.os.Build
-import android.provider.MediaStore
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,27 +8,23 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import it.thefedex87.cooldrinks.R
 import it.thefedex87.cooldrinks.presentation.add_my_drink.components.AddDrinkIngredientDialog
 import it.thefedex87.cooldrinks.presentation.add_my_drink.components.Material3Spinner
 import it.thefedex87.cooldrinks.presentation.bar.components.SegmentedButton
 import it.thefedex87.cooldrinks.presentation.components.GalleryPictureSelector
 import it.thefedex87.cooldrinks.presentation.components.OutlinedTextFieldWithErrorMessage
-import it.thefedex87.cooldrinks.presentation.components.saveToLocalStorage
 import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.ui.bottomnavigationscreen.BottomNavigationScreenState
 import it.thefedex87.cooldrinks.presentation.ui.theme.LocalSpacing
 import it.thefedex87.cooldrinks.presentation.util.UiEvent
-import it.thefedex87.cooldrinks.presentation.util.toBitmap
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -43,7 +36,6 @@ fun AddMyDrinkScreen(
     onEvent: (AddMyDrinkEvent) -> Unit,
     uiEvent: Flow<UiEvent>,
     onComposed: (BottomNavigationScreenState) -> Unit,
-    drinkId: Int?,
     storedIngredientName: String?,
     currentBottomNavigationScreenState: BottomNavigationScreenState = BottomNavigationScreenState(),
     onNavigateBack: () -> Unit,
@@ -185,7 +177,6 @@ fun AddMyDrinkScreen(
                     onEvent(AddMyDrinkEvent.OnPictureSelected(it))
                 },
                 selectedPicturePath = state.selectedPicturePath,
-                isCircular = true,
                 modifier = Modifier
                     .size(150.dp)
                     .align(Alignment.CenterHorizontally)
