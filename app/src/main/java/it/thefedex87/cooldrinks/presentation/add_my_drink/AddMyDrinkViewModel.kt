@@ -37,17 +37,17 @@ class AddMyDrinkViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(
         AddMyDrinkState(
+            title = if(savedStateHandle.get<Int>("drinkId") != null) UiText.StringResource(R.string.edit_cocktail) else UiText.StringResource(R.string.add_new_cocktail),
             cocktailName = savedStateHandle.get<String>("name") ?: "",
             cocktailInstructions = savedStateHandle.get<String>("instructions") ?: "",
-            selectedCocktailGlass = GlassUiModel.valueOf(
-                savedStateHandle.get<String>("glass") ?: GlassUiModel.NONE.toString()
-            ),
-            selectedCocktailCategory = CategoryUiModel.valueOf(
-                savedStateHandle.get<String>("category") ?: CategoryUiModel.NONE.toString()
-            ),
+            selectedCocktailGlass = if(savedStateHandle.get<String>("glass") != null) GlassUiModel.from(savedStateHandle.get<String>("glass") as String)!! else GlassUiModel.NONE,
+            selectedCocktailCategory = if(savedStateHandle.get<String>("category") != null) CategoryUiModel.from(savedStateHandle.get<String>("category") as String)!! else CategoryUiModel.NONE,
             cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
             addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
-            addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure")
+            addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
+            selectedPicture = if (savedStateHandle.get<String>("selectedPicture") != null) Uri.parse(
+                savedStateHandle.get<String>("selectedPicture")
+            ) else null
         )
     )
     val state = _state.asStateFlow()
@@ -57,36 +57,47 @@ class AddMyDrinkViewModel @Inject constructor(
 
     private var queryIngredientsJob: Job? = null
 
-    private var imagePath: Uri? = null
+    //private var imagePath: Uri? = null
     private var isFavorite: Boolean = false
 
     init {
-        val idDrink = savedStateHandle.get<Int>("drinkId")
-        idDrink?.let { id ->
-            if (id == 0) return@let
-            viewModelScope.launch {
-                val drink = repository.storedDrinks.first().first { it.idDrink == id }
-                imagePath = if (drink.drinkThumb.isNotEmpty()) Uri.parse(drink.drinkThumb) else null
-                isFavorite = drink.isFavorite
+        if(savedStateHandle.get<Boolean>("loaded") != true) { // Needed to not override changes in case of process death
+            val idDrink = savedStateHandle.get<Int>("drinkId")
+            idDrink?.let { id ->
+                if (id == 0) return@let
+                viewModelScope.launch {
+                    val drink = repository.storedDrinks.first().first { it.idDrink == id }
+                    val imagePath =
+                        if (drink.drinkThumb.isNotEmpty()) Uri.parse(drink.drinkThumb) else null
+                    isFavorite = drink.isFavorite
 
-                savedStateHandle["name"] = drink.name
-                savedStateHandle["instructions"] = drink.instructions
-                savedStateHandle["glass"] = drink.glass
-                savedStateHandle["category"] = drink.category
-                savedStateHandle["isAlcoholic"] = drink.isAlcoholic
-                _state.update {
-                    AddMyDrinkState(
-                        cocktailName = drink.name,
-                        cocktailInstructions = drink.instructions,
-                        selectedCocktailGlass = GlassUiModel.from(drink.glass) ?: GlassUiModel.NONE,
-                        selectedCocktailCategory = CategoryUiModel.from(drink.category)
-                            ?: CategoryUiModel.NONE,
-                        cocktailIsAlcoholic = drink.isAlcoholic,
-                        addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
-                        addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
-                        cocktailIngredients = drink.ingredients,
-                        selectedPicturePath = imagePath
-                    )
+                    imagePath.let { imagePath ->
+                        savedStateHandle["prevImagePath"] = drink.drinkThumb.ifEmpty { null }
+                        savedStateHandle["selectedPicture"] = drink.drinkThumb.ifEmpty { null }
+                    }
+
+                    savedStateHandle["name"] = drink.name
+                    savedStateHandle["instructions"] = drink.instructions
+                    savedStateHandle["glass"] = drink.glass
+                    savedStateHandle["category"] = drink.category
+                    savedStateHandle["isAlcoholic"] = drink.isAlcoholic
+                    savedStateHandle["loaded"] = true
+
+                    _state.update {
+                        AddMyDrinkState(
+                            cocktailName = drink.name,
+                            cocktailInstructions = drink.instructions,
+                            selectedCocktailGlass = GlassUiModel.from(drink.glass)
+                                ?: GlassUiModel.NONE,
+                            selectedCocktailCategory = CategoryUiModel.from(drink.category)
+                                ?: CategoryUiModel.NONE,
+                            cocktailIsAlcoholic = drink.isAlcoholic,
+                            addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
+                            addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
+                            cocktailIngredients = drink.ingredients,
+                            selectedPicture = imagePath
+                        )
+                    }
                 }
             }
         }
@@ -358,9 +369,10 @@ class AddMyDrinkViewModel @Inject constructor(
                 is AddMyDrinkEvent.OnPictureSelected -> {
                     _state.update {
                         it.copy(
-                            selectedPicturePath = event.imagePath
+                            selectedPicture = event.imagePath
                         )
                     }
+                    savedStateHandle["selectedPicture"] = event.imagePath.toString()
                 }
 
                 is AddMyDrinkEvent.OnSaveClicked -> {
@@ -382,17 +394,16 @@ class AddMyDrinkViewModel @Inject constructor(
                         _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.provide_all_info_message)))
                         return@launch
                     }
-                    if (_state.value.selectedPicturePath == null ||
-                        _state.value.selectedPicturePath?.path == imagePath?.path
-                    ) {
-                        //storeDrink
-                        storeMyDrink(_state.value.selectedPicturePath?.path)
-                        _uiEvent.send(UiEvent.PopBackStack())
-                    } else {
-                        val filePath = if (imagePath != null)
-                            imagePath!!.path!!.split("/").last().replace(".jpg", "")
-                        else
-                            "${UUID.randomUUID()}"
+
+                    val prevImagePath = savedStateHandle.get<String>("prevImagePath")
+                    val prevImagePathBk = prevImagePath?.let {
+                        it.replace(".jpg", "_BK.jpg")
+                    }
+                    if (_state.value.selectedPicture != null &&
+                        (prevImagePath == null || Uri.parse(prevImagePath) != _state.value.selectedPicture)) {
+
+                        val filePath = prevImagePath?.split("/")?.last()
+                            ?.replace(".jpg", "") ?: "${UUID.randomUUID()}"
 
                         _state.update {
                             _state.value.copy(
@@ -400,10 +411,23 @@ class AddMyDrinkViewModel @Inject constructor(
                             )
                         }
 
+                        // BK the old image
+                        prevImagePathBk?.let {
+                            bitmapManager.createBitmapBk(prevImagePath, prevImagePathBk)
+                        }
+
                         try {
-                            val localFilePath = bitmapManager.saveBitmapLocal(_state.value.selectedPicturePath!!.toString(), filePath)
-                            storeMyDrink(localFilePath)
-                            _uiEvent.send(UiEvent.PopBackStack())
+                            val localFilePath = bitmapManager.saveBitmapLocal(_state.value.selectedPicture!!.toString(), filePath)
+                            try {
+                                storeMyDrink(localFilePath)
+                                _uiEvent.send(UiEvent.PopBackStack())
+                            } catch (ex: Exception) {
+                                bitmapManager.deleteBitmap(localFilePath)
+                                prevImagePathBk?.let {
+                                    bitmapManager.createBitmapBk(prevImagePathBk, prevImagePath)
+                                }
+                                _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_storing_new_drink)))
+                            }
                         } catch (ex: Exception) {
                             _state.update {
                                 _state.value.copy(
@@ -412,6 +436,14 @@ class AddMyDrinkViewModel @Inject constructor(
                             }
                             _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_drink_picture)))
                         }
+
+                        prevImagePathBk?.let {
+                            bitmapManager.deleteBitmap(it)
+                        }
+                    } else {
+                        //storeDrink
+                        storeMyDrink(_state.value.selectedPicture?.path)
+                        _uiEvent.send(UiEvent.PopBackStack())
                     }
                 }
             }

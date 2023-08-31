@@ -76,4 +76,6 @@
     <string name="error_removing_ingredient">Error removing ingredient</string>
     <string name="confirm_remove_custom_ingredient_body">Do you really want to remove this ingredient?</string>
     <string name="edit_ingredient">Edit ingredient</string>
+    <string name="edit_cocktail">Edit cocktail</string>
+    <string name="error_storing_new_drink">Error storing new drink, please retry</string>
 </resources>

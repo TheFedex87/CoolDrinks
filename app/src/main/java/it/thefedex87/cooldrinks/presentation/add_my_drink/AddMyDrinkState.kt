@@ -26,7 +26,7 @@ data class AddMyDrinkState(
     val cocktailInstructions: String = "",
     val cocktailInstructionsError: UiText? = null,
 
-    val selectedPicturePath: Uri? = null,
+    val selectedPicture: Uri? = null,
 
     val addingIngredientName: String? = null,
     val addingIngredientNameError: UiText? = null,
@@ -38,5 +38,7 @@ data class AddMyDrinkState(
     val addingIngredientFilteredListExpanded: Boolean = false,
     val addingIngredientIsCurrentIngredientNameValid: Boolean = false,
 
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+
+    val title: UiText = UiText.Empty
 )

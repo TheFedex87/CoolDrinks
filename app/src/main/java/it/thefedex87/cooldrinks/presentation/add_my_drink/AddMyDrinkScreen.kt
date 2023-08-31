@@ -44,7 +44,7 @@ fun AddMyDrinkScreen(
 ) {
     val context = LocalContext.current
     val save = stringResource(id = R.string.save)
-    val title = stringResource(id = R.string.add_new_cocktail)
+    val title = state.title.asString(context)
 
     LaunchedEffect(key1 = storedIngredientName) {
         if(!storedIngredientName.isNullOrEmpty()) {
@@ -176,7 +176,7 @@ fun AddMyDrinkScreen(
                 onPicturePicked = {
                     onEvent(AddMyDrinkEvent.OnPictureSelected(it))
                 },
-                selectedPicturePath = state.selectedPicturePath,
+                selectedPicturePath = state.selectedPicture,
                 modifier = Modifier
                     .size(150.dp)
                     .align(Alignment.CenterHorizontally)
