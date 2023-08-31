@@ -52,8 +52,9 @@ class BarViewModel @Inject constructor(
                 }
                 is BarEvent.SelectedIngredientChanged -> {
                     savedStateHandle["selectedPage"] = event.page
-                    state = state.copy(selectedIngredient = event.ingredient,
-                        selectedOption = if(event.ingredient.availableLocal) 0 else 1)
+                    val ingredient = state.ingredients[event.page]
+                    state = state.copy(selectedIngredient = ingredient,
+                        selectedOption = if(ingredient.availableLocal) 0 else 1)
                 }
                 is BarEvent.JumpToStoredIngredient -> {
                     val page = state.ingredients.indexOfFirst { it.name == event.name }

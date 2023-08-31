@@ -111,7 +111,6 @@ fun BarScreen(
                     if (it >= 0)
                         onEvent(
                             BarEvent.SelectedIngredientChanged(
-                                ingredient = state.ingredients[it],
                                 page = it
                             )
                         )
@@ -135,13 +134,15 @@ fun BarScreen(
 
                                 Log.d(TAG, "MOVETOINSERTED - jump to page: ${it.page} - number of pages: ${pagerState.pageCount}")
                                 while(it.page >= pagerState.pageCount && !timeout) {
+                                    Log.d(TAG, "MOVETOINSERTED - wait 10ms")
                                     delay(10)
+                                    Log.d(TAG, "MOVETOINSERTED - jump to page: ${it.page} - number of pages: ${pagerState.pageCount}")
                                 }
-
 
                                 Log.d(TAG, "MOVETOINSERTED - out of while")
                                 if(it.page < pagerState.pageCount) {
                                     delayJob.cancel()
+                                    Log.d(TAG, "MOVETOINSERTED - command page scroll to page: ${it.page} - tot pages: ${pagerState.pageCount}")
                                     pagerState.animateScrollToPage(it.page)
                                 }
                             }
