@@ -47,7 +47,8 @@ class AddMyDrinkViewModel @Inject constructor(
             addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
             selectedPicture = if (savedStateHandle.get<String>("selectedPicture") != null) Uri.parse(
                 savedStateHandle.get<String>("selectedPicture")
-            ) else null
+            ) else null,
+            cocktailIngredients = savedStateHandle.get<List<DrinkIngredientModel>>("ingredients") ?: emptyList()
         )
     )
     val state = _state.asStateFlow()
@@ -81,6 +82,7 @@ class AddMyDrinkViewModel @Inject constructor(
                     savedStateHandle["glass"] = drink.glass
                     savedStateHandle["category"] = drink.category
                     savedStateHandle["isAlcoholic"] = drink.isAlcoholic
+                    savedStateHandle["ingredients"] = drink.ingredients
                     savedStateHandle["loaded"] = true
 
                     _state.update {
@@ -134,7 +136,7 @@ class AddMyDrinkViewModel @Inject constructor(
                             cocktailGlassesMenuExpanded = false
                         )
                     }
-                    savedStateHandle["glass"] = event.glass.toString()
+                    savedStateHandle["glass"] = event.glass.valueStr
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested -> {
@@ -152,7 +154,7 @@ class AddMyDrinkViewModel @Inject constructor(
                             cocktailCategoriesMenuExpanded = false
                         )
                     }
-                    savedStateHandle["category"] = event.category.toString()
+                    savedStateHandle["category"] = event.category.valueStr
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged -> {
@@ -289,6 +291,7 @@ class AddMyDrinkViewModel @Inject constructor(
                         repository.queryLocalIngredients(event.ingredient).getOrNull()?.first()
                             ?.let { ingredient ->
                                 _state.update {
+                                    savedStateHandle["addingIngredientName"] = ingredient.name
                                     it.copy(
                                         addingIngredientName = ingredient.name,
                                         addingIngredientIsCurrentIngredientNameValid = true,
@@ -327,6 +330,9 @@ class AddMyDrinkViewModel @Inject constructor(
                             cocktailIngredientsError = null
                         )
                     }
+                    savedStateHandle["ingredients"] = _state.value.cocktailIngredients
+                    savedStateHandle["addingIngredientName"] = null
+                    savedStateHandle["addingIngredientMeasure"] = null
                 }
 
                 is AddMyDrinkEvent.OnFilteredIngredientClicked -> {
@@ -341,6 +347,7 @@ class AddMyDrinkViewModel @Inject constructor(
                             addingIngredientFilteredListExpanded = false
                         )
                     }
+                    savedStateHandle["addingIngredientName"] = event.ingredient.name
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged -> {
