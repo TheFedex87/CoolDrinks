@@ -45,10 +45,13 @@ class AddMyDrinkViewModel @Inject constructor(
             cocktailIsAlcoholic = savedStateHandle.get<Boolean>("isAlcoholic") ?: true,
             addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
             addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
+            addingIngredientIsAvailable = savedStateHandle.get<Boolean>("addingIngredientIsAvailable") ?: false,
+            addingIngredientIsDecoration = savedStateHandle.get<Boolean>("addingIngredientIsDecoration") ?: false,
             selectedPicture = if (savedStateHandle.get<String>("selectedPicture") != null) Uri.parse(
                 savedStateHandle.get<String>("selectedPicture")
             ) else null,
-            cocktailIngredients = savedStateHandle.get<List<DrinkIngredientModel>>("ingredients") ?: emptyList()
+            cocktailIngredients = savedStateHandle.get<List<DrinkIngredientModel>>("ingredients") ?: emptyList(),
+            addingIngredientSaveEnabled = savedStateHandle.get<Boolean>("addingIngredientSaveEnabled") ?: false
         )
     )
     val state = _state.asStateFlow()
@@ -197,12 +200,13 @@ class AddMyDrinkViewModel @Inject constructor(
                     _state.update {
                         it.copy(
                             addingIngredientName = event.name,
-                            addingIngredientIsCurrentIngredientNameValid = false,
                             addingIngredientSaveEnabled = false,
                             addingIngredientNameError = null
                         )
                     }
                     savedStateHandle["addingIngredientName"] = event.name
+                    savedStateHandle["isCurrentIngredientNameValid"] = false
+                    savedStateHandle["addingIngredientSaveEnabled"] = false
 
                     queryIngredientsJob?.cancel()
                     if(event.name.isNotBlank()) {
@@ -229,10 +233,12 @@ class AddMyDrinkViewModel @Inject constructor(
                         it.copy(
                             addingIngredientMeasure = event.value,
                             addingIngredientSaveEnabled = (!event.value.isNullOrEmpty() ||
-                                    it.addingIngredientIsDecoration) && it.addingIngredientIsCurrentIngredientNameValid
+                                    it.addingIngredientIsDecoration) &&
+                                    (savedStateHandle.get<Boolean>("isCurrentIngredientNameValid") ?: false)
                         )
                     }
                     savedStateHandle["addingIngredientMeasure"] = event.value
+                    savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientIsDecorationChanged -> {
@@ -240,9 +246,12 @@ class AddMyDrinkViewModel @Inject constructor(
                         it.copy(
                             addingIngredientIsDecoration = event.isDecoration,
                             addingIngredientSaveEnabled = (!it.addingIngredientMeasure.isNullOrEmpty() ||
-                                    event.isDecoration) && it.addingIngredientIsCurrentIngredientNameValid
+                                    event.isDecoration) &&
+                                    (savedStateHandle.get<Boolean>("isCurrentIngredientNameValid") ?: false)
                         )
                     }
+                    savedStateHandle["addingIngredientIsDecoration"] = event.isDecoration
+                    savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientIsAvailableChanged -> {
@@ -251,6 +260,7 @@ class AddMyDrinkViewModel @Inject constructor(
                             addingIngredientIsAvailable = event.isAvailable
                         )
                     }
+                    savedStateHandle["addingIngredientIsAvailable"] = event.isAvailable
                 }
 
                 is AddMyDrinkEvent.OnSearchIngredientOnlineClicked -> {
@@ -266,7 +276,6 @@ class AddMyDrinkViewModel @Inject constructor(
                                 it.copy(
                                     isLoading = false,
                                     addingIngredientName = remoteIngredint.name,
-                                    addingIngredientIsCurrentIngredientNameValid = true,
                                     addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
                                             it.addingIngredientIsDecoration,
                                     addingIngredientFilteredIngredients = emptyList(),
@@ -275,6 +284,9 @@ class AddMyDrinkViewModel @Inject constructor(
                                     addingIngredientNameError = null
                                 )
                             }
+                            savedStateHandle["addingIngredientIsAvailable"] = false
+                            savedStateHandle["isCurrentIngredientNameValid"] = true
+                            savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                         }
                         .onFailure {
                             _state.update {
@@ -292,11 +304,15 @@ class AddMyDrinkViewModel @Inject constructor(
                             ?.let { ingredient ->
                                 _state.update {
                                     savedStateHandle["addingIngredientName"] = ingredient.name
+                                    savedStateHandle["addingIngredientIsAvailable"] = ingredient.isAvailable
+                                        ?: true
+                                    savedStateHandle["isCurrentIngredientNameValid"] = true
+                                    savedStateHandle["addingIngredientSaveEnabled"] = !it.addingIngredientMeasure.isNullOrEmpty() ||
+                                            it.addingIngredientIsDecoration
+
                                     it.copy(
                                         addingIngredientName = ingredient.name,
-                                        addingIngredientIsCurrentIngredientNameValid = true,
-                                        addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
-                                                it.addingIngredientIsDecoration,
+                                        addingIngredientSaveEnabled = savedStateHandle.get<Boolean>("addingIngredientSaveEnabled")!!,
                                         addingIngredientFilteredIngredients = emptyList(),
                                         addingIngredientIsAvailable = ingredient.isAvailable
                                             ?: true,
@@ -333,6 +349,8 @@ class AddMyDrinkViewModel @Inject constructor(
                     savedStateHandle["ingredients"] = _state.value.cocktailIngredients
                     savedStateHandle["addingIngredientName"] = null
                     savedStateHandle["addingIngredientMeasure"] = null
+                    savedStateHandle["addingIngredientIsAvailable"] = null
+                    savedStateHandle["addingIngredientIsDecoration"] = null
                 }
 
                 is AddMyDrinkEvent.OnFilteredIngredientClicked -> {
@@ -341,13 +359,15 @@ class AddMyDrinkViewModel @Inject constructor(
                             addingIngredientName = event.ingredient.name,
                             //addingIngredientFilteredIngredients = emptyList(),
                             addingIngredientIsAvailable = event.ingredient.isAvailable ?: true,
-                            addingIngredientIsCurrentIngredientNameValid = true,
                             addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
                                     it.addingIngredientIsDecoration,
                             addingIngredientFilteredListExpanded = false
                         )
                     }
                     savedStateHandle["addingIngredientName"] = event.ingredient.name
+                    savedStateHandle["addingIngredientIsAvailable"] = event.ingredient.isAvailable ?: true
+                    savedStateHandle["isCurrentIngredientNameValid"] = true
+                    savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged -> {
@@ -355,7 +375,8 @@ class AddMyDrinkViewModel @Inject constructor(
                         it.copy(
                             addingIngredientFilteredListExpanded = event.isFocused &&
                                     (it.addingIngredientFilteredIngredients.isNotEmpty() ||
-                                            ((it.addingIngredientName != null && it.addingIngredientName.count() > 2) && !it.addingIngredientIsCurrentIngredientNameValid))
+                                            ((it.addingIngredientName != null && it.addingIngredientName.count() > 2) &&
+                                                    (savedStateHandle.get<Boolean>("isCurrentIngredientNameValid") ?: false)))
                         )
                     }
                 }

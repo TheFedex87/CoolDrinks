@@ -36,7 +36,6 @@ data class AddMyDrinkState(
     val addingIngredientFilteredIngredients: List<DrinkIngredientModel> = emptyList(),
     val addingIngredientSaveEnabled: Boolean = false,
     val addingIngredientFilteredListExpanded: Boolean = false,
-    val addingIngredientIsCurrentIngredientNameValid: Boolean = false,
 
     val isLoading: Boolean = false,
 
