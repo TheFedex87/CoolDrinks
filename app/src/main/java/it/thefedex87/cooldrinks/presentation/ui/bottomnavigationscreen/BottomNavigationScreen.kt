@@ -318,7 +318,7 @@ fun BottomNavigationScreen(
                 val viewModel = hiltViewModel<AddIngredientViewModel>()
 
                 AddIngredientScreen(
-                    state = viewModel.state,
+                    state = viewModel.state.collectAsState().value,
                     onEvent = viewModel::onEvent,
                     uiEvent = viewModel.uiEvent,
                     onComposed = { state ->

@@ -3,9 +3,6 @@ package it.thefedex87.cooldrinks.presentation.add_ingredient
 import android.database.sqlite.SQLiteConstraintException
 import android.net.Uri
 import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,11 +15,13 @@ import it.thefedex87.cooldrinks.presentation.util.UiEvent
 import it.thefedex87.cooldrinks.presentation.util.UiText
 import it.thefedex87.cooldrinks.util.Consts
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import java.util.*
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,7 +30,7 @@ class AddIngredientViewModel @Inject constructor(
     private val repository: CocktailRepository,
     private val bitmapManager: BitmapManager
 ) : ViewModel() {
-    var state by mutableStateOf(
+    private val _state = MutableStateFlow(
         AddIngredientState(
             title = if(savedStateHandle.get<Int>("id") != null) UiText.StringResource(R.string.edit_ingredient) else UiText.StringResource(R.string.add_new_ingredient),
             ingredientName = savedStateHandle.get<String>("name") ?: "",
@@ -43,7 +42,8 @@ class AddIngredientViewModel @Inject constructor(
             ) else null
         )
     )
-        private set
+
+    val state = _state.asStateFlow()
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -69,15 +69,17 @@ class AddIngredientViewModel @Inject constructor(
                                 savedStateHandle["loaded"] = true
 
 
-                                state = state.copy(
-                                    ingredientName = storedIngredient.name,
-                                    ingredientDescription = storedIngredient.description!!,
-                                    ingredientIsAlcoholic = storedIngredient.alcoholic,
-                                    ingredientAvailable = storedIngredient.availableLocal,
-                                    selectedPicture = if (!storedIngredient.imagePath.isNullOrBlank()) Uri.parse(
-                                        storedIngredient.imagePath
-                                    ) else null
-                                )
+                                _state.update {
+                                    it.copy(
+                                        ingredientName = storedIngredient.name,
+                                        ingredientDescription = storedIngredient.description!!,
+                                        ingredientIsAlcoholic = storedIngredient.alcoholic,
+                                        ingredientAvailable = storedIngredient.availableLocal,
+                                        selectedPicture = if (!storedIngredient.imagePath.isNullOrBlank()) Uri.parse(
+                                            storedIngredient.imagePath
+                                        ) else null
+                                    )
+                                }
                             }
                     }
                 }
@@ -89,39 +91,56 @@ class AddIngredientViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is AddIngredientEvent.OnIngredientNameChanged -> {
-                    state = state.copy(
-                        ingredientName = event.name,
-                        ingredientNameError = if (event.name.isEmpty()) UiText.StringResource(R.string.required) else null
-                    )
+                    _state.update {
+                        it.copy(
+                            ingredientName = event.name,
+                            ingredientNameError = if (event.name.isEmpty()) UiText.StringResource(R.string.required) else null
+                        )
+                    }
                     savedStateHandle["name"] = event.name
                 }
 
                 is AddIngredientEvent.OnIngredientDescriptionChanged -> {
-                    state = state.copy(ingredientDescription = event.description)
+                    _state.update {
+                        it.copy(
+                            ingredientDescription = event.description
+                        )
+                    }
                     savedStateHandle["description"] = event.description
                 }
 
                 is AddIngredientEvent.OnIngredientAlcoholicChanged -> {
-                    state = state.copy(ingredientIsAlcoholic = event.isAlcoholic)
+                    _state.update {
+                        it.copy(
+                            ingredientIsAlcoholic = event.isAlcoholic
+                        )
+                    }
                     savedStateHandle["isAlcoholic"] = event.isAlcoholic
                 }
 
                 is AddIngredientEvent.OnIngredientAvailableChanged -> {
-                    state = state.copy(ingredientAvailable = event.isAvailable)
+                    _state.update {
+                        it.copy(
+                            ingredientAvailable = event.isAvailable
+                        )
+                    }
                     savedStateHandle["isAvailable"] = event.isAvailable
                 }
 
                 is AddIngredientEvent.OnSaveClicked -> {
-                    if (state.ingredientName.isBlank()) {
-                        state =
-                            state.copy(ingredientNameError = UiText.StringResource(R.string.required))
+                    if (state.value.ingredientName.isBlank()) {
+                        _state.update {
+                            it.copy(
+                                ingredientNameError = UiText.StringResource(R.string.required)
+                            )
+                        }
                     } else {
                         val prevImagePath = savedStateHandle.get<String>("prevImagePath")
                         val prevImagePathBk = prevImagePath?.let {
                             it.replace(".jpg", "_BK.jpg")
                         }
 
-                        if (state.selectedPicture != null && (prevImagePath == null || Uri.parse(prevImagePath) != state.selectedPicture)) {
+                        if (state.value.selectedPicture != null && (prevImagePath == null || Uri.parse(prevImagePath) != state.value.selectedPicture)) {
                             val filePath = prevImagePath?.split("/")?.last()
                                 ?.replace(".jpg", "") ?: "ING_${UUID.randomUUID()}"
 
@@ -130,7 +149,7 @@ class AddIngredientViewModel @Inject constructor(
                                 bitmapManager.createBitmapBk(prevImagePath, prevImagePathBk)
                             }
                             try {
-                                val localFilePath = bitmapManager.saveBitmapLocal(state.selectedPicture!!.toString(), filePath)
+                                val localFilePath = bitmapManager.saveBitmapLocal(state.value.selectedPicture!!.toString(), filePath)
                                 Log.d(Consts.TAG, "Local file path is: $localFilePath")
                                 if (!storeIngredient(localFilePath)) {
                                     bitmapManager.deleteBitmap(localFilePath)
@@ -139,7 +158,7 @@ class AddIngredientViewModel @Inject constructor(
                                     }
                                 } else {
                                     _uiEvent.send(UiEvent.PopBackStack(mapOf(
-                                        "storedIngredient" to state.ingredientName
+                                        "storedIngredient" to state.value.ingredientName
                                     )))
                                 }
                             } catch (ex: Exception) {
@@ -149,9 +168,9 @@ class AddIngredientViewModel @Inject constructor(
                                 bitmapManager.deleteBitmap(it)
                             }
                         } else {
-                            if (storeIngredient(imagePath = state.selectedPicture?.toString())) {
+                            if (storeIngredient(imagePath = state.value.selectedPicture?.toString())) {
                                 _uiEvent.send(UiEvent.PopBackStack(mapOf(
-                                    "storedIngredient" to state.ingredientName
+                                    "storedIngredient" to state.value.ingredientName
                                 )))
                             }
                         }
@@ -159,9 +178,11 @@ class AddIngredientViewModel @Inject constructor(
                 }
 
                 is AddIngredientEvent.OnPictureSelected -> {
-                    state = state.copy(
-                        selectedPicture = event.bitmap
-                    )
+                    _state.update {
+                        it.copy(
+                            selectedPicture = event.bitmap
+                        )
+                    }
                     savedStateHandle["selectedPicture"] = event.bitmap.toString()
                 }
             }
@@ -174,12 +195,12 @@ class AddIngredientViewModel @Inject constructor(
                 repository.updateIngredient(
                     IngredientDetailsDomainModel(
                         id = savedStateHandle["id"],
-                        name = state.ingredientName,
-                        description = state.ingredientDescription,
+                        name = state.value.ingredientName,
+                        description = state.value.ingredientDescription,
                         type = null,
-                        alcoholic = state.ingredientIsAlcoholic,
+                        alcoholic = state.value.ingredientIsAlcoholic,
                         imagePath = imagePath,
-                        availableLocal = state.ingredientAvailable,
+                        availableLocal = state.value.ingredientAvailable,
                         isPersonalIngredient = true
                     )
                 )
@@ -189,12 +210,12 @@ class AddIngredientViewModel @Inject constructor(
                     listOf(
                         IngredientDetailsDomainModel(
                             id = newId,
-                            name = state.ingredientName,
-                            description = state.ingredientDescription,
+                            name = state.value.ingredientName,
+                            description = state.value.ingredientDescription,
                             type = null,
-                            alcoholic = state.ingredientIsAlcoholic,
+                            alcoholic = state.value.ingredientIsAlcoholic,
                             imagePath = imagePath,
-                            availableLocal = state.ingredientAvailable,
+                            availableLocal = state.value.ingredientAvailable,
                             isPersonalIngredient = true
                         )
                     )
