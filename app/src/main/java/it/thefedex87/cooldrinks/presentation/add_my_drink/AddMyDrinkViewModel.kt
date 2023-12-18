@@ -35,7 +35,7 @@ class AddMyDrinkViewModel @Inject constructor(
     private val repository: CocktailRepository,
     private val bitmapManager: BitmapManager
 ) : ViewModel() {
-    private val _state = MutableStateFlow(
+    /*private val _state = MutableStateFlow(
         AddMyDrinkState(
             title = if(savedStateHandle.get<Int>("drinkId") != null) UiText.StringResource(R.string.edit_cocktail) else UiText.StringResource(R.string.add_new_cocktail),
             cocktailName = savedStateHandle.get<String>("name") ?: "",
@@ -54,7 +54,11 @@ class AddMyDrinkViewModel @Inject constructor(
             addingIngredientSaveEnabled = savedStateHandle.get<Boolean>("addingIngredientSaveEnabled") ?: false
         )
     )
-    val state = _state.asStateFlow()
+    val state = _state.asStateFlow()*/
+
+    val state2 = savedStateHandle.getStateFlow("state", AddMyDrinkState(
+        title = if(savedStateHandle.get<Int>("drinkId") != null) UiText.StringResource(R.string.edit_cocktail) else UiText.StringResource(R.string.add_new_cocktail)
+    ))
 
     private val _uiEvent = Channel<UiEvent>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -77,19 +81,14 @@ class AddMyDrinkViewModel @Inject constructor(
 
                     imagePath.let { imagePath ->
                         savedStateHandle["prevImagePath"] = drink.drinkThumb.ifEmpty { null }
-                        savedStateHandle["selectedPicture"] = drink.drinkThumb.ifEmpty { null }
+                        //savedStateHandle["selectedPicture"] = drink.drinkThumb.ifEmpty { null }
                     }
 
-                    savedStateHandle["name"] = drink.name
-                    savedStateHandle["instructions"] = drink.instructions
-                    savedStateHandle["glass"] = drink.glass
-                    savedStateHandle["category"] = drink.category
-                    savedStateHandle["isAlcoholic"] = drink.isAlcoholic
-                    savedStateHandle["ingredients"] = drink.ingredients
+
                     savedStateHandle["loaded"] = true
 
-                    _state.update {
-                        AddMyDrinkState(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             cocktailName = drink.name,
                             cocktailInstructions = drink.instructions,
                             selectedCocktailGlass = GlassUiModel.from(drink.glass)
@@ -97,12 +96,9 @@ class AddMyDrinkViewModel @Inject constructor(
                             selectedCocktailCategory = CategoryUiModel.from(drink.category)
                                 ?: CategoryUiModel.NONE,
                             cocktailIsAlcoholic = drink.isAlcoholic,
-                            addingIngredientName = savedStateHandle.get<String>("addingIngredientName"),
-                            addingIngredientMeasure = savedStateHandle.get<String>("addingIngredientMeasure"),
                             cocktailIngredients = drink.ingredients,
                             selectedPicture = imagePath
                         )
-                    }
                 }
             }
         }
@@ -112,101 +108,97 @@ class AddMyDrinkViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is AddMyDrinkEvent.OnMyDrinkNameChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             cocktailName = event.name,
                             cocktailNameError = null
                         )
-                    }
-                    savedStateHandle["name"] = event.name
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkInstructionsChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             cocktailInstructions = event.instructions,
                             cocktailInstructionsError = null
                         )
-                    }
-
-                    savedStateHandle["instructions"] = event.instructions
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkGlassChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             selectedCocktailGlass = event.glass,
                             cocktailGlassesMenuExpanded = false
                         )
-                    }
-                    savedStateHandle["glass"] = event.glass.valueStr
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkGlassesExpandRequested -> {
-                    _state.update { it.copy(cocktailGlassesMenuExpanded = true) }
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
+                            cocktailGlassesMenuExpanded = true
+                        )
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkGlassesDismissRequested -> {
-                    _state.update { it.copy(cocktailGlassesMenuExpanded = false) }
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
+                            cocktailGlassesMenuExpanded = false
+                        )
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkCategoryChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             selectedCocktailCategory = event.category,
                             cocktailCategoriesMenuExpanded = false
                         )
-                    }
-                    savedStateHandle["category"] = event.category.valueStr
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkIsAlcoholicChanged -> {
-                    _state.update { it.copy(cocktailIsAlcoholic = event.isAlcoholic) }
-                    savedStateHandle["isAlcoholic"] = event.isAlcoholic
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
+                            cocktailIsAlcoholic = event.isAlcoholic
+                        )
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkCategoriesExpandRequested -> {
-                    _state.update { it.copy(cocktailCategoriesMenuExpanded = true) }
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
+                            cocktailCategoriesMenuExpanded = true
+                        )
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkCategoriesDismissRequested -> {
-                    _state.update { it.copy(cocktailCategoriesMenuExpanded = false) }
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
+                            cocktailCategoriesMenuExpanded = false
+                        )
                 }
 
                 is AddMyDrinkEvent.AddDrinkIngredientRequested -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientName = "",
                             addingIngredientMeasure = ""
                         )
-                    }
-                    savedStateHandle["addingIngredientName"] = ""
-                    savedStateHandle["addingIngredientMeasure"] = ""
                 }
 
                 is AddMyDrinkEvent.DismissDrinkIngredientDialogRequested -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientName = null,
                             addingIngredientMeasure = null,
                             addingIngredientFilteredIngredients = emptyList()
                         )
-                    }
-                    savedStateHandle["addingIngredientName"] = null
-                    savedStateHandle["addingIngredientMeasure"] = null
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientNameChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientName = event.name,
                             addingIngredientSaveEnabled = false,
                             addingIngredientNameError = null
                         )
-                    }
-                    savedStateHandle["addingIngredientName"] = event.name
                     savedStateHandle["isCurrentIngredientNameValid"] = false
-                    savedStateHandle["addingIngredientSaveEnabled"] = false
 
                     queryIngredientsJob?.cancel()
                     if(event.name.isNotBlank()) {
@@ -214,13 +206,12 @@ class AddMyDrinkViewModel @Inject constructor(
                             repository.queryLocalIngredients(
                                 event.name
                             ).onSuccess { ingredients ->
-                                _state.update {
-                                    it.copy(
+                                savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                                    .copy(
                                         addingIngredientFilteredIngredients = ingredients,
                                         addingIngredientFilteredListExpanded = ingredients.isNotEmpty() ||
                                                 ((event.name != null && event.name.count() > 2)),
                                     )
-                                }
                             }.onFailure {
                                 // TODO: something went wrong
                             }
@@ -229,72 +220,59 @@ class AddMyDrinkViewModel @Inject constructor(
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientMeasureChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientMeasure = event.value,
                             addingIngredientSaveEnabled = (!event.value.isNullOrEmpty() ||
-                                    it.addingIngredientIsDecoration) &&
+                                    state2.value.addingIngredientIsDecoration) &&
                                     (savedStateHandle.get<Boolean>("isCurrentIngredientNameValid") ?: false)
                         )
-                    }
-                    savedStateHandle["addingIngredientMeasure"] = event.value
-                    savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientIsDecorationChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientIsDecoration = event.isDecoration,
-                            addingIngredientSaveEnabled = (!it.addingIngredientMeasure.isNullOrEmpty() ||
+                            addingIngredientSaveEnabled = (!state2.value.addingIngredientMeasure.isNullOrEmpty() ||
                                     event.isDecoration) &&
                                     (savedStateHandle.get<Boolean>("isCurrentIngredientNameValid") ?: false)
                         )
-                    }
-                    savedStateHandle["addingIngredientIsDecoration"] = event.isDecoration
-                    savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientIsAvailableChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientIsAvailable = event.isAvailable
                         )
-                    }
-                    savedStateHandle["addingIngredientIsAvailable"] = event.isAvailable
                 }
 
                 is AddMyDrinkEvent.OnSearchIngredientOnlineClicked -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             isLoading = true,
                             addingIngredientNameError = null
                         )
-                    }
                     repository.getIngredientDetails(event.ingredient)
                         .onSuccess { remoteIngredint ->
-                            _state.update {
-                                it.copy(
+                            savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                                .copy(
                                     isLoading = false,
                                     addingIngredientName = remoteIngredint.name,
-                                    addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
-                                            it.addingIngredientIsDecoration,
+                                    addingIngredientSaveEnabled = !state2.value.addingIngredientMeasure.isNullOrEmpty() ||
+                                            state2.value.addingIngredientIsDecoration,
                                     addingIngredientFilteredIngredients = emptyList(),
                                     addingIngredientIsAvailable = false,
                                     addingIngredientFilteredListExpanded = false,
                                     addingIngredientNameError = null
                                 )
-                            }
-                            savedStateHandle["addingIngredientIsAvailable"] = false
                             savedStateHandle["isCurrentIngredientNameValid"] = true
-                            savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                         }
                         .onFailure {
-                            _state.update {
-                                it.copy(
+                            savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                                .copy(
                                     isLoading = false,
                                     addingIngredientNameError = UiText.StringResource(R.string.ingredient_not_found)
                                 )
-                            }
                         }
                 }
 
@@ -302,42 +280,35 @@ class AddMyDrinkViewModel @Inject constructor(
                     if (!event.ingredient.isNullOrEmpty()) {
                         repository.queryLocalIngredients(event.ingredient).getOrNull()?.first()
                             ?.let { ingredient ->
-                                _state.update {
-                                    savedStateHandle["addingIngredientName"] = ingredient.name
-                                    savedStateHandle["addingIngredientIsAvailable"] = ingredient.isAvailable
-                                        ?: true
-                                    savedStateHandle["isCurrentIngredientNameValid"] = true
-                                    savedStateHandle["addingIngredientSaveEnabled"] = !it.addingIngredientMeasure.isNullOrEmpty() ||
-                                            it.addingIngredientIsDecoration
-
-                                    it.copy(
+                                savedStateHandle["isCurrentIngredientNameValid"] = true
+                                savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                                    .copy(
                                         addingIngredientName = ingredient.name,
-                                        addingIngredientSaveEnabled = savedStateHandle.get<Boolean>("addingIngredientSaveEnabled")!!,
+                                        addingIngredientSaveEnabled = !state2.value.addingIngredientMeasure.isNullOrEmpty() ||
+                                                state2.value.addingIngredientIsDecoration,
                                         addingIngredientFilteredIngredients = emptyList(),
                                         addingIngredientIsAvailable = ingredient.isAvailable
                                             ?: true,
                                         addingIngredientNameError = null
                                     )
-                                }
                             }
                     } else {
-                        _state.update {
-                            it.copy(
+                        savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                            .copy(
                                 addingIngredientNameError = null
                             )
-                        }
                     }
                 }
 
                 is AddMyDrinkEvent.AddDrinkIngredientSaveClicked -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             cocktailIngredients = listOf(
-                                *it.cocktailIngredients.toTypedArray(),
+                                *state2.value.cocktailIngredients.toTypedArray(),
                                 DrinkIngredientModel(
-                                    name = it.addingIngredientName,
-                                    measure = if (it.addingIngredientIsDecoration) "Decoration" else it.addingIngredientMeasure,
-                                    isAvailable = it.addingIngredientIsAvailable
+                                    name = state2.value.addingIngredientName,
+                                    measure = if (state2.value.addingIngredientIsDecoration) "Decoration" else state2.value.addingIngredientMeasure,
+                                    isAvailable = state2.value.addingIngredientIsAvailable
                                 )
                             ),
                             addingIngredientName = null,
@@ -345,79 +316,64 @@ class AddMyDrinkViewModel @Inject constructor(
                             addingIngredientFilteredIngredients = emptyList(),
                             cocktailIngredientsError = null
                         )
-                    }
-                    savedStateHandle["ingredients"] = _state.value.cocktailIngredients
-                    savedStateHandle["addingIngredientName"] = null
-                    savedStateHandle["addingIngredientMeasure"] = null
-                    savedStateHandle["addingIngredientIsAvailable"] = null
-                    savedStateHandle["addingIngredientIsDecoration"] = null
                 }
 
                 is AddMyDrinkEvent.OnFilteredIngredientClicked -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientName = event.ingredient.name,
                             //addingIngredientFilteredIngredients = emptyList(),
                             addingIngredientIsAvailable = event.ingredient.isAvailable ?: true,
-                            addingIngredientSaveEnabled = !it.addingIngredientMeasure.isNullOrEmpty() ||
-                                    it.addingIngredientIsDecoration,
+                            addingIngredientSaveEnabled = !state2.value.addingIngredientMeasure.isNullOrEmpty() ||
+                                    state2.value.addingIngredientIsDecoration,
                             addingIngredientFilteredListExpanded = false
                         )
-                    }
-                    savedStateHandle["addingIngredientName"] = event.ingredient.name
-                    savedStateHandle["addingIngredientIsAvailable"] = event.ingredient.isAvailable ?: true
                     savedStateHandle["isCurrentIngredientNameValid"] = true
-                    savedStateHandle["addingIngredientSaveEnabled"] = _state.value.addingIngredientSaveEnabled
                 }
 
                 is AddMyDrinkEvent.OnMyDrinkAddingIngredientNameFocusChanged -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             addingIngredientFilteredListExpanded = event.isFocused &&
-                                    (it.addingIngredientFilteredIngredients.isNotEmpty() ||
-                                            ((it.addingIngredientName != null && it.addingIngredientName.count() > 2) &&
+                                    (state2.value.addingIngredientFilteredIngredients.isNotEmpty() ||
+                                            ((state2.value.addingIngredientName != null && state2.value.addingIngredientName!!.count() > 2) &&
                                                     (savedStateHandle.get<Boolean>("isCurrentIngredientNameValid") ?: false)))
                         )
-                    }
                 }
 
                 is AddMyDrinkEvent.RemoveAddedIngredient -> {
                     val newIngredientList = listOf(
-                        *_state.value.cocktailIngredients.filter {
+                        *state2.value.cocktailIngredients.filter {
                             it != event.ingredient
                         }.toTypedArray()
                     )
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             cocktailIngredients = newIngredientList
                         )
-                    }
                 }
 
                 is AddMyDrinkEvent.OnPictureSelected -> {
-                    _state.update {
-                        it.copy(
+                    savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                        .copy(
                             selectedPicture = event.imagePath
                         )
-                    }
-                    savedStateHandle["selectedPicture"] = event.imagePath.toString()
                 }
 
                 is AddMyDrinkEvent.OnSaveClicked -> {
-                    if (_state.value.cocktailName.isEmpty() ||
-                        _state.value.cocktailIngredients.isEmpty() ||
-                        _state.value.cocktailInstructions.isEmpty()
+                    if (state2.value.cocktailName.isEmpty() ||
+                        state2.value.cocktailIngredients.isEmpty() ||
+                        state2.value.cocktailInstructions.isEmpty()
                     ) {
-                        _state.update {
-                            it.copy(
-                                cocktailNameError = if (_state.value.cocktailName.isEmpty())
+                        savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                            .copy(
+                                cocktailNameError = if (state2.value.cocktailName.isEmpty())
                                     UiText.StringResource(R.string.required) else null,
-                                cocktailInstructionsError = if (_state.value.cocktailName.isEmpty())
+                                cocktailInstructionsError = if (state2.value.cocktailName.isEmpty())
                                     UiText.StringResource(R.string.required) else null,
-                                cocktailIngredientsError = if (_state.value.cocktailIngredients.isEmpty())
+                                cocktailIngredientsError = if (state2.value.cocktailIngredients.isEmpty())
                                     UiText.StringResource(R.string.required) else null,
                             )
-                        }
 
                         _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.provide_all_info_message)))
                         return@launch
@@ -427,17 +383,16 @@ class AddMyDrinkViewModel @Inject constructor(
                     val prevImagePathBk = prevImagePath?.let {
                         it.replace(".jpg", "_BK.jpg")
                     }
-                    if (_state.value.selectedPicture != null &&
-                        (prevImagePath == null || Uri.parse(prevImagePath) != _state.value.selectedPicture)) {
+                    if (state2.value.selectedPicture != null &&
+                        (prevImagePath == null || Uri.parse(prevImagePath) != state2.value.selectedPicture)) {
 
                         val filePath = prevImagePath?.split("/")?.last()
                             ?.replace(".jpg", "") ?: "${UUID.randomUUID()}"
 
-                        _state.update {
-                            _state.value.copy(
+                        savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                            .copy(
                                 isLoading = true
                             )
-                        }
 
                         // BK the old image
                         prevImagePathBk?.let {
@@ -445,7 +400,7 @@ class AddMyDrinkViewModel @Inject constructor(
                         }
 
                         try {
-                            val localFilePath = bitmapManager.saveBitmapLocal(_state.value.selectedPicture!!.toString(), filePath)
+                            val localFilePath = bitmapManager.saveBitmapLocal(state2.value.selectedPicture!!.toString(), filePath)
                             try {
                                 storeMyDrink(localFilePath)
                                 _uiEvent.send(UiEvent.PopBackStack())
@@ -457,11 +412,10 @@ class AddMyDrinkViewModel @Inject constructor(
                                 _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_storing_new_drink)))
                             }
                         } catch (ex: Exception) {
-                            _state.update {
-                                _state.value.copy(
+                            savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+                                .copy(
                                     isLoading = false
                                 )
-                            }
                             _uiEvent.send(UiEvent.ShowSnackBar(UiText.StringResource(R.string.error_coping_drink_picture)))
                         }
 
@@ -470,7 +424,7 @@ class AddMyDrinkViewModel @Inject constructor(
                         }
                     } else {
                         //storeDrink
-                        storeMyDrink(_state.value.selectedPicture?.path)
+                        storeMyDrink(state2.value.selectedPicture?.path)
                         _uiEvent.send(UiEvent.PopBackStack())
                     }
                 }
@@ -480,11 +434,11 @@ class AddMyDrinkViewModel @Inject constructor(
 
     @SuppressLint("NewApi")
     private suspend fun storeMyDrink(filePath: String?) {
-        _state.update {
-            it.copy(
+        savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+            .copy(
                 isLoading = true
             )
-        }
+
         val dominantColor = try {
             if (filePath == null)
                 0
@@ -500,11 +454,11 @@ class AddMyDrinkViewModel @Inject constructor(
         } catch (_: Exception) {
             0
         }
-        _state.update {
-            it.copy(
+
+        savedStateHandle["state"] = savedStateHandle.get<AddMyDrinkState>("state")!!
+            .copy(
                 isLoading = false
             )
-        }
 
         val id: Int = if (savedStateHandle.get<Int>("drinkId") != 0) {
             savedStateHandle.get<Int>("drinkId")!!
@@ -514,13 +468,13 @@ class AddMyDrinkViewModel @Inject constructor(
 
         val detailDomainModel = DrinkDetailDomainModel(
             idDrink = id,
-            isAlcoholic = _state.value.cocktailIsAlcoholic,
-            category = _state.value.selectedCocktailCategory.valueStr,
-            name = _state.value.cocktailName,
+            isAlcoholic = state2.value.cocktailIsAlcoholic,
+            category = state2.value.selectedCocktailCategory.valueStr,
+            name = state2.value.cocktailName,
             drinkThumb = filePath ?: "",
-            glass = _state.value.selectedCocktailGlass.valueStr,
-            ingredients = _state.value.cocktailIngredients,
-            instructions = _state.value.cocktailInstructions,
+            glass = state2.value.selectedCocktailGlass.valueStr,
+            ingredients = state2.value.cocktailIngredients,
+            instructions = state2.value.cocktailInstructions,
             isCustomCocktail = true,
             addedDate = LocalDate.now(),
             dominantColor = dominantColor,

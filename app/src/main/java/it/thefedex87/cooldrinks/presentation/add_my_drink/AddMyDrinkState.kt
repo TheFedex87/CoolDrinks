@@ -1,11 +1,14 @@
 package it.thefedex87.cooldrinks.presentation.add_my_drink
 
 import android.net.Uri
+import android.os.Parcelable
 import it.thefedex87.cooldrinks.domain.model.DrinkIngredientModel
 import it.thefedex87.cooldrinks.presentation.model.CategoryUiModel
 import it.thefedex87.cooldrinks.presentation.model.GlassUiModel
 import it.thefedex87.cooldrinks.presentation.util.UiText
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class AddMyDrinkState(
     val cocktailName: String = "",
     val cocktailNameError: UiText? = null,
@@ -40,4 +43,4 @@ data class AddMyDrinkState(
     val isLoading: Boolean = false,
 
     val title: UiText = UiText.Empty
-)
+): Parcelable

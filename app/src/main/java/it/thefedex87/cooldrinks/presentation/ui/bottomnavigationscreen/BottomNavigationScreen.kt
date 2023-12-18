@@ -98,8 +98,8 @@ fun BottomNavigationScreen(
             composable(
                 route = BottomNavScreen.Bar.route
             ) {
-                val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
-                it.savedStateHandle?.remove<String>("storedIngredient")
+                val storedIngredientName = it.savedStateHandle.get<String>("storedIngredient")
+                it.savedStateHandle.remove<String>("storedIngredient")
 
                 val viewModel = hiltViewModel<BarViewModel>()
 
@@ -343,12 +343,12 @@ fun BottomNavigationScreen(
                     }
                 )
             ) {
-                val storedIngredientName = it.savedStateHandle?.get<String>("storedIngredient")
+                val storedIngredientName = it.savedStateHandle.get<String>("storedIngredient")
 
                 val viewModel = hiltViewModel<AddMyDrinkViewModel>()
 
                 AddMyDrinkScreen(
-                    state = viewModel.state.collectAsState().value,
+                    state = viewModel.state2.collectAsState().value,
                     onEvent = viewModel::onEvent,
                     uiEvent = viewModel.uiEvent,
                     onComposed = { state ->
