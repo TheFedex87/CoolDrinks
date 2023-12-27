@@ -15,3 +15,4 @@
 local.properties
 apiKey.properties
 /app/release
+EncryptedKey
