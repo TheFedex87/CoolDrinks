@@ -145,7 +145,7 @@ class SearchViewModelTest {
     }
 
     @Test
-    fun checkChanginVisualizationTypeOfSearchedDrinksInPreferences_updateTheVisualizationTypeInState() = runTest {
+    fun checkChangingVisualizationTypeOfSearchedDrinksInPreferences_updateTheVisualizationTypeInState() = runTest {
         searchDrinkViewModel = SearchDrinkViewModel(cocktailRepositoryFake)
 
         assertThat(searchDrinkViewModel.state.visualizationType).isEqualTo(VisualizationType.Card)

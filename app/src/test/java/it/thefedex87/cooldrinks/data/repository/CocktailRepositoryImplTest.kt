@@ -106,7 +106,7 @@ class CocktailRepositoryImplTest {
                 emit(
                     listOf(
                         IngredientEntity(
-                            id = 1,
+                            id = "1",
                             name = "Ingredient 1",
                             description = "Ingredient description 1",
                             imagePath = "",
@@ -364,7 +364,7 @@ class CocktailRepositoryImplTest {
 
             val response = repositoryImpl.getIngredientDetails("test")
 
-            assertThat(response.getOrNull()?.id).isEqualTo(1)
+            assertThat(response.getOrNull()?.id).isEqualTo("1")
             assertThat(response.getOrNull()?.name).isEqualTo("Ingredient name")
             assertThat(response.getOrNull()?.alcoholic).isEqualTo(true)
             assertThat(response.getOrNull()?.description).isEqualTo("Ingredient details")

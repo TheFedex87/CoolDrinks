@@ -95,6 +95,10 @@ open class CocktailRepositoryFake : CocktailRepository {
         TODO("Not yet implemented")
     }
 
+    override suspend fun deleteIngredient(ingredient: IngredientDetailsDomainModel) {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun updateVisualizationType(type: VisualizationType) {
         TODO("Not yet implemented")
     }
