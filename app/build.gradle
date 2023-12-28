@@ -26,8 +26,8 @@ android {
         applicationId "it.thefedex87.cooldrinks"
         minSdk 21
         targetSdk 33
-        versionCode 9
-        versionName "1.2.4"
+        versionCode 10
+        versionName "1.2.5"
 
         testInstrumentationRunner "it.thefedex87.cooldrinks.HiltTestRunner"
         vectorDrawables {
@@ -49,6 +49,7 @@ android {
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
